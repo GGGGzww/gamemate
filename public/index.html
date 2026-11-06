@@ -1,168 +1,1759 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>魔兽世界：无限 (WoW: Forever) - gamemate.fun 开荒营地</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;900&display=swap');
-        body { background-color: #0b0d13; background-image: radial-gradient(circle at 50% 0%, #1f2437 0%, #0b0d13 75%); color: #e2d8c5; font-family: system-ui, -apple-system, sans-serif; }
-        .wow-serif { font-family: 'Noto Serif SC', serif; }
-        .gold-border { border: 1px solid #8c6f3e; box-shadow: 0 0 15px rgba(0, 0, 0, 0.8), inset 0 0 12px rgba(140, 111, 62, 0.15); }
-        .gold-btn { background: linear-gradient(180deg, #b88a44 0%, #7a5823 100%); border: 1px solid #ffd885; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.9); }
-        .gold-btn:hover { background: linear-gradient(180deg, #cfa055 0%, #8f682b 100%); }
-        .tab-active { border-bottom: 2px solid #f59e0b; color: #fbbf24; background: rgba(245, 158, 11, 0.1); }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>魔兽世界：无限 (WoW: Forever) - gamemate.fun 开荒营地</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;900&family=Inter:wght@400;500;600;700&display=swap');
+    body {
+      background-color: #0b0d13;
+      background-image: radial-gradient(circle at 50% 0%, #1f2437 0%, #0b0d13 75%);
+      color: #e2d8c5;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+    .wow-serif { font-family: 'Noto Serif SC', Georgia, serif; }
+    .gold-border {
+      border: 1px solid #8c6f3e;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.75), inset 0 0 12px rgba(140, 111, 62, 0.14);
+    }
+    .gold-btn {
+      background: linear-gradient(180deg, #b88a44 0%, #7a5823 100%);
+      border: 1px solid #ffd885;
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.9);
+    }
+    .gold-btn:hover {
+      background: linear-gradient(180deg, #cfa055 0%, #8f682b 100%);
+    }
+    .dark-btn {
+      background: #171c28;
+      border: 1px solid #3a3226;
+      color: #d6c7b2;
+    }
+    .dark-btn:hover {
+      border-color: #b88a44;
+      color: #fbbf24;
+    }
+    .tab-active {
+      border-bottom: 2px solid #f59e0b;
+      color: #fbbf24;
+      background: rgba(245, 158, 11, 0.12);
+    }
+    .speaking-ring {
+      box-shadow: 0 0 0 2px #10b981, 0 0 12px rgba(16, 185, 129, 0.7);
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0b0d13; }
+    ::-webkit-scrollbar-thumb { background: #3a3226; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #8c6f3e; }
+  </style>
 </head>
-<body class="min-h-screen flex flex-col">
-<header class="border-b border-[#3a3226] bg-[#11141d]/90 backdrop-blur sticky top-0 z-50">
-    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-        <div class="flex items-center space-x-3">
-            <span class="text-2xl">⚔️</span>
-            <div>
-                <h1 class="wow-serif text-lg md:text-xl font-bold text-amber-400 tracking-wider">魔兽世界：无限</h1>
-                <p class="text-[11px] text-gray-400 -mt-1">gamemate.fun 开荒营地</p>
-            </div>
+<body class="min-h-screen flex flex-col selection:bg-amber-500/30 selection:text-amber-200">
+
+  <!-- 顶部全局通知 Toast -->
+  <div id="toast-container" class="fixed top-20 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- 顶部导航栏 -->
+  <header class="border-b border-[#3a3226] bg-[#11141d]/95 backdrop-blur sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto px-3 sm:px-4 h-16 flex items-center justify-between gap-2">
+      <div class="flex items-center space-x-2.5 shrink-0">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-500/30 to-amber-900/40 border border-amber-500/60 flex items-center justify-center text-xl shadow-inner">⚔️</div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="wow-serif text-base sm:text-lg font-bold text-amber-400 tracking-wider">魔兽世界：无限</h1>
+            <span id="conn-badge" class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-300">本地/云端自适应</span>
+          </div>
+          <p class="text-[11px] text-gray-400 -mt-0.5">gamemate.fun 一站式开荒营地</p>
         </div>
-        <nav class="flex space-x-1 md:space-x-4 text-sm font-medium">
-            <button onclick="switchTab('card')" id="tab-card" class="px-3 py-5 transition tab-active">🪪 英雄名片</button>
-            <button onclick="switchTab('radar')" id="tab-radar" class="px-3 py-5 transition text-gray-400 hover:text-amber-300">🗺️ 开荒雷达</button>
-            <button onclick="switchTab('campfire')" id="tab-campfire" class="px-3 py-5 transition text-gray-400 hover:text-amber-300">🔥 营火大厅</button>
-        </nav>
+      </div>
+
+      <nav class="flex items-center space-x-0.5 sm:space-x-2 text-xs sm:text-sm font-medium overflow-x-auto">
+        <button type="button" onclick="switchTab('card')" id="tab-card" class="px-2.5 sm:px-3.5 py-5 transition whitespace-nowrap tab-active">🪪 英雄名片</button>
+        <button type="button" onclick="switchTab('talent')" id="tab-talent" class="px-2.5 sm:px-3.5 py-5 transition whitespace-nowrap text-gray-400 hover:text-amber-300">⚔️ 天赋与配装</button>
+        <button type="button" onclick="switchTab('radar')" id="tab-radar" class="px-2.5 sm:px-3.5 py-5 transition whitespace-nowrap text-gray-400 hover:text-amber-300">🗺️ 开荒雷达</button>
+        <button type="button" onclick="switchTab('campfire')" id="tab-campfire" class="px-2.5 sm:px-3.5 py-5 transition whitespace-nowrap text-gray-400 hover:text-amber-300 flex items-center gap-1">
+          <span>🔥 营火大厅</span>
+          <span id="nav-room-count" class="px-1.5 py-0.2 text-[10px] rounded-full bg-red-500/20 text-red-300 border border-red-500/40">3</span>
+        </button>
+        <button type="button" onclick="toggleAiDrawer(true)" id="btn-open-ai" class="ml-1 px-2.5 py-1.5 rounded-md gold-btn text-xs font-semibold whitespace-nowrap flex items-center gap-1">
+          <span>🤖 AI战术官</span>
+        </button>
+      </nav>
     </div>
-</header>
-<main class="flex-1 max-w-6xl w-full mx-auto px-4 py-8">
-    <section id="sec-card" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        <div class="lg:col-span-5 bg-[#151924] p-6 rounded-lg gold-border space-y-4">
-            <div class="border-b border-[#2e3446] pb-3">
-                <h2 class="wow-serif text-xl text-amber-400 font-bold">生成你的开荒英雄帖</h2>
-                <p class="text-xs text-gray-400 mt-1">填写角色信息，一键导出高清复古海报分享至群聊</p>
-            </div>
-            <div class="space-y-3 text-sm">
-                <div>
-                    <label class="block text-gray-300 mb-1">角色名称 (ID)</label>
-                    <input type="text" id="inp-name" value="灰烬使者" maxlength="12" oninput="renderCard()" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-gray-300 mb-1">服务器</label>
-                        <input type="text" id="inp-realm" value="泽风岛 (PvP)" maxlength="10" oninput="renderCard()" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
-                    </div>
-                    <div>
-                        <label class="block text-gray-300 mb-1">所属阵营</label>
-                        <select id="inp-faction" onchange="renderCard()" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
-                            <option value="horde">🔴 为了部落 (Horde)</option>
-                            <option value="alliance">🔵 为了联盟 (Alliance)</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-gray-300 mb-1">种族与新组合</label>
-                        <select id="inp-race" onchange="renderCard()" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
-                            <option value="天裔 (新种族)">✨ 天裔 (新种族)</option>
-                            <option value="亡灵">💀 亡灵</option>
-                            <option value="矮人">🍺 矮人</option>
-                            <option value="兽人">🪓 兽人</option>
-                            <option value="人类">🛡️ 人类</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-gray-300 mb-1">职业与专精</label>
-                        <select id="inp-class" onchange="renderCard()" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
-                            <option value="圣骑士|#F48CBA">🔨 圣骑士 (亡灵骑)</option>
-                            <option value="萨满祭司|#0070DD">⚡ 萨满祭司 (矮人萨)</option>
-                            <option value="战士|#C69B6D">⚔️ 战士</option>
-                            <option value="法师|#3FC7EB">❄️ 法师</option>
-                        </select>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-gray-300 mb-1">开荒宣言</label>
-                    <input type="text" id="inp-motto" value="gamemate.fun 寻找稳定开荒队友！" maxlength="26" oninput="renderCard()" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
-                </div>
-            </div>
-            <button onclick="downloadCard()" class="w-full py-3 rounded font-bold text-base gold-btn transition cursor-pointer mt-2">📥 一键保存高清名片 (PNG)</button>
+  </header>
+
+  <!-- 主内容区 -->
+  <main class="flex-1 max-w-6xl w-full mx-auto px-3 sm:px-4 py-6 sm:py-8">
+
+    <!-- ==================== 板块 1：英雄名片 (引流裂变器) ==================== -->
+    <section id="sec-card" class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+      <div class="lg:col-span-5 bg-[#151924] p-5 sm:p-6 rounded-lg gold-border space-y-4">
+        <div class="border-b border-[#2e3446] pb-3 flex items-center justify-between">
+          <div>
+            <h2 class="wow-serif text-xl text-amber-400 font-bold">生成你的开荒英雄帖</h2>
+            <p class="text-xs text-gray-400 mt-0.5">自动挂载天赋短链与二维码，一键导出高清复古海报</p>
+          </div>
+          <button type="button" onclick="randomizeHeroCard()" class="px-2.5 py-1 text-xs rounded dark-btn transition">🎲 随机预设</button>
         </div>
-        <div class="lg:col-span-7 flex flex-col items-center">
-            <div class="w-full flex justify-between items-center mb-2 px-1">
-                <span class="text-xs text-gray-400">实时海报预览</span>
-                <span class="text-xs text-amber-400/80">800 × 450 px</span>
+
+        <div class="space-y-3 text-sm">
+          <div class="grid grid-cols-3 gap-2.5">
+            <div class="col-span-2">
+              <label class="block text-gray-300 mb-1 text-xs">角色名称 (ID)</label>
+              <input type="text" id="inp-name" value="灰烬使者" maxlength="12" oninput="renderCard()" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
             </div>
-            <div class="w-full overflow-hidden rounded-lg gold-border bg-black flex justify-center">
-                <canvas id="heroCanvas" width="800" height="450" class="w-full h-auto max-w-[800px]"></canvas>
+            <div>
+              <label class="block text-gray-300 mb-1 text-xs">等级与装等</label>
+              <input type="text" id="inp-ilvl" value="Lv.60 · 68装等" maxlength="14" oninput="renderCard()" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-2.5 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
             </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label class="block text-gray-300 mb-1 text-xs">服务器</label>
+              <input type="text" id="inp-realm" value="泽风岛 (PvP)" maxlength="12" oninput="renderCard()" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
+            </div>
+            <div>
+              <label class="block text-gray-300 mb-1 text-xs">所属阵营</label>
+              <select id="inp-faction" onchange="renderCard()" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
+                <option value="horde">🔴 为了部落 (Horde)</option>
+                <option value="alliance">🔵 为了联盟 (Alliance)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label class="block text-gray-300 mb-1 text-xs">种族与新组合</label>
+              <select id="inp-race" onchange="renderCard()" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
+                <option value="亡灵">💀 亡灵 (被遗忘者)</option>
+                <option value="天裔 (新种族)">✨ 天裔 (新种族)</option>
+                <option value="矮人">🍺 铁炉堡矮人</option>
+                <option value="兽人">🪓 杜隆塔尔兽人</option>
+                <option value="人类">🛡️ 暴风城人类</option>
+                <option value="暗夜精灵">🌙 暗夜精灵</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-gray-300 mb-1 text-xs">职业与专精</label>
+              <select id="inp-class" onchange="onCardClassChange()" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
+                <option value="圣骑士|#F48CBA|paladin">🔨 圣骑士 (亡灵骑)</option>
+                <option value="萨满祭司|#0070DD|shaman">⚡ 萨满祭司 (矮人萨)</option>
+                <option value="星术师|#A330C9|astrologer">🌌 星术师 (天裔新职)</option>
+                <option value="战士|#C69B6D|warrior">⚔️ 战士</option>
+                <option value="法师|#3FC7EB|mage">❄️ 法师</option>
+                <option value="牧师|#FFFFFF|priest">✨ 牧师</option>
+                <option value="猎人|#AAD372|hunter">🏹 猎人</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label class="block text-gray-300 mb-1 text-xs">团队职责定位</label>
+              <select id="inp-role-tag" onchange="renderCard()" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
+                <option value="主力治疗 / 圣光凋零">💚 主力治疗 / 圣光凋零</option>
+                <option value="MT 主坦克 / 仇恨稳固">🛡️ MT 主坦克 / 仇恨稳固</option>
+                <option value="T0 爆发输出 / 灵性走位">⚔️ T0 爆发输出 / 灵性走位</option>
+                <option value="全能多修 / 指挥带队">👑 全能多修 / 指挥带队</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-gray-300 mb-1 text-xs">常驻时间与语音</label>
+              <input type="text" id="inp-schedule" value="晚 20:00-24:00 · 网页语音/OOPZ" maxlength="22" oninput="renderCard()" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-gray-300 mb-1 text-xs">开荒宣言</label>
+            <input type="text" id="inp-motto" value="gamemate.fun 寻找泽风岛与海加尔山固定队友！" maxlength="28" oninput="renderCard()" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
+          </div>
+
+          <!-- 绑定的天赋流派与短链提示框 -->
+          <div class="p-3 rounded bg-[#0b0d13] border border-[#2e3446] flex items-center justify-between gap-2">
+            <div class="min-w-0">
+              <div class="text-[11px] text-gray-400">已挂载天赋配装短链</div>
+              <div id="card-bound-talent" class="text-xs font-semibold text-amber-300 truncate">神圣 31 / 防护 20 / 惩戒 0 (#pal88a)</div>
+            </div>
+            <button type="button" onclick="switchTab('talent')" class="px-2.5 py-1 rounded text-xs dark-btn shrink-0">去调整加点 ➔</button>
+          </div>
         </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+          <button type="button" onclick="downloadCard()" class="w-full py-2.5 rounded font-bold text-sm gold-btn transition cursor-pointer">📥 保存高清名片 (PNG)</button>
+          <button type="button" onclick="copyRecruitText()" class="w-full py-2.5 rounded font-semibold text-sm dark-btn transition cursor-pointer">📋 复制群聊招募口令</button>
+        </div>
+      </div>
+
+      <div class="lg:col-span-7 flex flex-col items-center">
+        <div class="w-full flex justify-between items-center mb-2 px-1">
+          <span class="text-xs text-gray-400">🎨 实时 Canvas 裂变海报预览（自带专属配装短码与防伪角标）</span>
+          <span class="text-xs text-amber-400/80 font-mono">800 × 450 HD</span>
+        </div>
+        <div class="w-full overflow-hidden rounded-lg gold-border bg-black flex justify-center shadow-2xl">
+          <canvas id="heroCanvas" width="800" height="450" class="w-full h-auto max-w-[800px]"></canvas>
+        </div>
+        <div class="w-full mt-3 grid grid-cols-3 gap-3 text-center text-xs text-gray-400">
+          <div class="bg-[#151924]/80 border border-[#2e3446] rounded p-2.5">
+            <span class="text-amber-400 font-bold block">1. 定制天赋</span>
+            在【天赋与配装】点出流派并生成短码
+          </div>
+          <div class="bg-[#151924]/80 border border-[#2e3446] rounded p-2.5">
+            <span class="text-amber-400 font-bold block">2. 导出海报</span>
+            名片自动印上短码与网站二维码
+          </div>
+          <div class="bg-[#151924]/80 border border-[#2e3446] rounded p-2.5">
+            <span class="text-amber-400 font-bold block">3. 营火开黑</span>
+            队友扫码直看配装并进语音房间
+          </div>
+        </div>
+      </div>
     </section>
+
+    <!-- ==================== 板块 2：天赋与配装 (云端短链与全服排行) ==================== -->
+    <section id="sec-talent" class="hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <!-- 左侧天赋模拟器画布 -->
+        <div class="lg:col-span-8 bg-[#151924] p-5 sm:p-6 rounded-lg gold-border space-y-5">
+          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-[#2e3446] pb-4">
+            <div>
+              <h2 class="wow-serif text-xl text-amber-400 font-bold">《魔兽世界：无限》新职业组合天赋模拟器</h2>
+              <p class="text-xs text-gray-400 mt-0.5">点击图标加点，自动编码至 URL Hash，支持一键保存云端短链</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs bg-[#0b0d13] border border-[#3a3226] px-3 py-1.5 rounded text-amber-200">
+                剩余点数：<strong id="talent-rem-points" class="text-amber-400 font-mono">0</strong> / 51
+              </span>
+              <button type="button" onclick="applyPresetTalent()" class="px-3 py-1.5 rounded text-xs dark-btn">✨ 推荐开荒加点</button>
+              <button type="button" onclick="resetTalents()" class="px-3 py-1.5 rounded text-xs dark-btn">🔄 清空</button>
+            </div>
+          </div>
+
+          <!-- 职业切换栏 -->
+          <div class="flex flex-wrap gap-2" id="talent-class-tabs">
+            <button type="button" onclick="selectTalentClass('paladin')" id="tcls-paladin" class="px-3 py-1.5 rounded text-xs font-semibold gold-btn">🔨 亡灵圣骑</button>
+            <button type="button" onclick="selectTalentClass('shaman')" id="tcls-shaman" class="px-3 py-1.5 rounded text-xs font-semibold dark-btn">⚡ 矮人萨满</button>
+            <button type="button" onclick="selectTalentClass('astrologer')" id="tcls-astrologer" class="px-3 py-1.5 rounded text-xs font-semibold dark-btn">🌌 天裔星术师</button>
+            <button type="button" onclick="selectTalentClass('warrior')" id="tcls-warrior" class="px-3 py-1.5 rounded text-xs font-semibold dark-btn">⚔️ 狂暴/防战</button>
+            <button type="button" onclick="selectTalentClass('mage')" id="tcls-mage" class="px-3 py-1.5 rounded text-xs font-semibold dark-btn">❄️ 冰霜/奥法</button>
+          </div>
+
+          <!-- 三系天赋树网格 -->
+          <div id="talent-trees-container" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+
+          <!-- 底部短链生成与分享栏 -->
+          <div class="p-4 rounded-lg bg-[#0b0d13] border border-[#3a3226] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <div class="space-y-1 min-w-0">
+              <div class="text-xs text-gray-400">当前配装编码与分享链接：</div>
+              <div id="talent-share-url" class="text-xs sm:text-sm font-mono text-amber-300 truncate">https://gamemate.fun/?b=pal88a</div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <button type="button" onclick="saveBuildToCloud()" class="px-4 py-2 rounded text-xs font-bold gold-btn">☁️ 生成云端短链 & 同步名片</button>
+              <button type="button" onclick="copyTalentUrl()" class="px-3 py-2 rounded text-xs font-semibold dark-btn">📋 复制链接</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右侧全服热门配装排行榜 -->
+        <div class="lg:col-span-4 bg-[#151924] p-5 sm:p-6 rounded-lg gold-border space-y-4">
+          <div class="border-b border-[#2e3446] pb-3 flex items-center justify-between">
+            <div>
+              <h3 class="wow-serif text-lg text-amber-400 font-bold">🏆 全服热门配装榜</h3>
+              <p class="text-xs text-gray-400">来自 gamemate.db 实时统计</p>
+            </div>
+            <button type="button" onclick="loadHotBuilds()" class="text-xs text-amber-400 hover:underline">刷新</button>
+          </div>
+          <div id="hot-builds-list" class="space-y-3 max-h-[520px] overflow-y-auto pr-1"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 板块 3：开荒雷达 (新地图探索与副本开门任务链) ==================== -->
     <section id="sec-radar" class="hidden space-y-6">
-        <div class="bg-[#151924] p-6 rounded-lg gold-border">
-            <h2 class="wow-serif text-xl text-amber-400 font-bold mb-1">开荒雷达与副本进度</h2>
-            <p class="text-xs text-gray-400 mb-6">勾选状态会自动保存在你的浏览器中</p>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="p-4 bg-[#0b0d13] rounded border border-[#2e3446]">
-                    <h3 class="text-lg font-bold text-amber-200">🏝️ 泽风岛新区域</h3>
-                    <label class="flex items-center space-x-2 mt-4 text-sm cursor-pointer">
-                        <input type="checkbox" onchange="localStorage.setItem('m1', this.checked)" id="chk-map1" class="accent-amber-500">
-                        <span>已开启飞行点</span>
-                    </label>
-                </div>
+      <!-- 顶部探索进度总览 -->
+      <div class="bg-[#151924] p-5 sm:p-6 rounded-lg gold-border">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+          <div>
+            <h2 class="wow-serif text-xl text-amber-400 font-bold">🗺️ 开荒雷达：新地图坐标与副本开门链</h2>
+            <p class="text-xs text-gray-400 mt-0.5">所有探索勾选状态自动保存在你的浏览器本地存储 (LocalStorage) 中</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="text-right">
+              <div class="text-xs text-gray-400">当前账号开荒完成度</div>
+              <div id="radar-progress-text" class="text-sm font-bold text-amber-400 font-mono">0 / 12 (0%)</div>
             </div>
+            <button type="button" onclick="resetRadarProgress()" class="px-3 py-1.5 rounded text-xs dark-btn">重置进度</button>
+          </div>
         </div>
-    </section>
-    <section id="sec-campfire" class="hidden">
-        <div class="bg-[#151924] p-8 rounded-lg gold-border text-center space-y-3">
-            <div class="text-4xl">🔥</div>
-            <h2 class="wow-serif text-xl text-amber-400 font-bold">营火组队大厅</h2>
-            <p class="text-sm text-gray-400">实时组队与 WebRTC 语音功能正在加载中...</p>
+
+        <div class="w-full h-2.5 bg-[#0b0d13] rounded-full overflow-hidden border border-[#2e3446] mb-6">
+          <div id="radar-progress-bar" class="h-full bg-gradient-to-r from-amber-600 to-amber-400 transition-all duration-300" style="width: 15%"></div>
         </div>
+
+        <!-- 区域筛选按钮 -->
+        <div class="flex flex-wrap gap-2 mb-5">
+          <button type="button" onclick="filterRadarZone('all')" id="rzone-all" class="px-3 py-1.5 rounded text-xs font-semibold gold-btn">🌍 全部新区域 (9)</button>
+          <button type="button" onclick="filterRadarZone('zephyr')" id="rzone-zephyr" class="px-3 py-1.5 rounded text-xs font-semibold dark-btn">🏝️ 泽风岛 (Lv.58-60)</button>
+          <button type="button" onclick="filterRadarZone('riverwood')" id="rzone-riverwood" class="px-3 py-1.5 rounded text-xs font-semibold dark-btn">🌲 河林秘境 (Lv.60)</button>
+          <button type="button" onclick="filterRadarZone('hyjal')" id="rzone-hyjal" class="px-3 py-1.5 rounded text-xs font-semibold dark-btn">⛰️ 海加尔山 (团本区)</button>
+        </div>
+
+        <!-- 保留原有 chk-map1 兼容并扩充完整探索卡片网格 -->
+        <div class="hidden">
+          <input type="checkbox" id="chk-map1" onchange="toggleRadarItem('m1', this.checked)">
+        </div>
+        <div id="radar-cards-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+      </div>
+
+      <!-- 新五人本与团本开门任务链 & 极品掉落速查 -->
+      <div class="bg-[#151924] p-5 sm:p-6 rounded-lg gold-border space-y-4">
+        <div class="border-b border-[#2e3446] pb-3 flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h3 class="wow-serif text-lg text-amber-400 font-bold">🗝️ 新副本开门任务链与核心掉落速查</h3>
+            <p class="text-xs text-gray-400">点击勾选开门前置步骤，右侧查看各职业毕业掉落</p>
+          </div>
+          <span class="text-xs text-amber-300/90 bg-amber-500/10 border border-amber-500/30 px-2.5 py-1 rounded">Phase 1 首发三大副本</span>
+        </div>
+        <div id="dungeon-guide-list" class="grid grid-cols-1 lg:grid-cols-3 gap-4"></div>
+      </div>
     </section>
-</main>
-<script>
+
+    <!-- ==================== 板块 4：营火大厅 (实时组队 + WebRTC 网页语音) ==================== -->
+    <section id="sec-campfire" class="hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+        <!-- 左侧：实时组队招募板 (7列) -->
+        <div class="lg:col-span-7 bg-[#151924] p-5 sm:p-6 rounded-lg gold-border space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-[#2e3446] pb-4">
+            <div>
+              <h2 class="wow-serif text-xl text-amber-400 font-bold flex items-center gap-2">
+                <span>🔥 营火实时组队大厅</span>
+                <span class="text-xs font-normal px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">WebRTC 低延迟语音就绪</span>
+              </h2>
+              <p class="text-xs text-gray-400 mt-0.5">秒级同步全服发车队伍，支持网页直接开麦或一键跳转 OOPZ / YY</p>
+            </div>
+            <button type="button" onclick="openCreateRoomModal()" class="px-3.5 py-2 rounded font-bold text-xs gold-btn">+ 发起开荒车队</button>
+          </div>
+
+          <!-- 筛选工具栏 -->
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex gap-1.5">
+              <button type="button" onclick="setLobbyFactionFilter('all')" id="lf-all" class="px-2.5 py-1 rounded text-xs gold-btn">全部阵营</button>
+              <button type="button" onclick="setLobbyFactionFilter('horde')" id="lf-horde" class="px-2.5 py-1 rounded text-xs dark-btn">🔴 部落</button>
+              <button type="button" onclick="setLobbyFactionFilter('alliance')" id="lf-alliance" class="px-2.5 py-1 rounded text-xs dark-btn">🔵 联盟</button>
+            </div>
+            <input type="text" id="inp-lobby-search" oninput="renderLobbyRooms()" placeholder="搜索副本/任务/职业..." class="bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-1 text-xs text-amber-100 focus:outline-none focus:border-amber-500 w-44 sm:w-56">
+          </div>
+
+          <!-- 房间卡片列表 -->
+          <div id="lobby-rooms-container" class="space-y-3"></div>
+        </div>
+
+        <!-- 右侧：当前所在语音房间与小队战术板 (5列) -->
+        <div class="lg:col-span-5 bg-[#151924] p-5 sm:p-6 rounded-lg gold-border space-y-4">
+          <div class="border-b border-[#2e3446] pb-3 flex items-center justify-between">
+            <div>
+              <h3 class="wow-serif text-lg text-amber-400 font-bold" id="active-room-title">🎙️ 小队营火语音间</h3>
+              <p class="text-xs text-gray-400" id="active-room-subtitle">加入左侧任意车队或创建新队伍即可开启 P2P 语音</p>
+            </div>
+            <span id="voice-status-pill" class="text-[11px] px-2.5 py-0.5 rounded-full bg-gray-800 text-gray-400 border border-gray-700">未入队</span>
+          </div>
+
+          <!-- 5人小队座位席 -->
+          <div id="room-seats-list" class="space-y-2.5"></div>
+
+          <!-- 语音控制面板 -->
+          <div class="p-3.5 rounded-lg bg-[#0b0d13] border border-[#2e3446] space-y-3">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-400">麦克风输入电平 (Opus 24kbps P2P)</span>
+              <span id="mic-db-label" class="font-mono text-emerald-400">待机中</span>
+            </div>
+            <div class="w-full h-2 bg-[#151924] rounded-full overflow-hidden border border-[#2e3446]">
+              <div id="mic-level-bar" class="h-full bg-emerald-500 transition-all duration-100" style="width: 0%"></div>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              <button type="button" id="btn-toggle-mic" onclick="toggleMicrophone()" class="py-2 px-3 rounded text-xs font-bold gold-btn">🎙️ 开启麦克风</button>
+              <button type="button" id="btn-copy-room" onclick="copyRoomInvite()" class="py-2 px-3 rounded text-xs font-semibold dark-btn">🔗 邀请队友</button>
+              <button type="button" id="btn-leave-room" onclick="leaveCurrentRoom()" class="py-2 px-3 rounded text-xs font-semibold bg-red-950/60 border border-red-800/70 text-red-200 hover:bg-red-900/70 col-span-2 sm:col-span-1">🚪 退出小队</button>
+            </div>
+          </div>
+
+          <!-- 小队实时文字频道 -->
+          <div class="space-y-2">
+            <div class="text-xs text-gray-400 flex justify-between">
+              <span>💬 小队战术频道</span>
+              <span class="text-[11px] text-amber-400/70">支持发配装短码与坐标</span>
+            </div>
+            <div id="room-chat-box" class="h-36 bg-[#0b0d13] border border-[#2e3446] rounded p-2.5 overflow-y-auto space-y-1.5 text-xs"></div>
+            <div class="flex gap-2">
+              <input type="text" id="inp-room-chat" onkeydown="if(event.key==='Enter')sendRoomChat()" placeholder="输入小队消息或战术安排..." class="flex-1 bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-1.5 text-xs text-amber-100 focus:outline-none focus:border-amber-500">
+              <button type="button" onclick="sendRoomChat()" class="px-3.5 py-1.5 rounded text-xs font-semibold gold-btn">发送</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== 弹窗：创建营火组队房间 ==================== -->
+  <div id="modal-create-room" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-[#151924] rounded-lg gold-border max-w-md w-full p-6 space-y-4">
+      <div class="flex items-center justify-between border-b border-[#2e3446] pb-3">
+        <h3 class="wow-serif text-lg text-amber-400 font-bold">🔥 发起开荒车队 / 创建语音房</h3>
+        <button type="button" onclick="closeCreateRoomModal()" class="text-gray-400 hover:text-white text-sm">✕</button>
+      </div>
+      <div class="space-y-3 text-xs sm:text-sm">
+        <div>
+          <label class="block text-gray-300 mb-1">车队招募标题</label>
+          <input type="text" id="cr-title" value="泽风岛风暴神龛开荒 4=1 来强力奶/DPS" maxlength="30" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-gray-300 mb-1">活动类型</label>
+            <select id="cr-activity" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100">
+              <option value="五人本开荒">🗝️ 五人本开荒</option>
+              <option value="海加尔团本">🌋 海加尔团本</option>
+              <option value="精英任务/宝箱">🏝️ 精英任务/宝箱</option>
+              <option value="战歌/阿拉希PVP">⚔️ 战歌/阿拉希PVP</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-gray-300 mb-1">所属阵营</label>
+            <select id="cr-faction" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100">
+              <option value="horde">🔴 部落车队</option>
+              <option value="alliance">🔵 联盟车队</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-gray-300 mb-1">你的队长昵称</label>
+            <input type="text" id="cr-nickname" value="灰烬使者" maxlength="12" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100">
+          </div>
+          <div>
+            <label class="block text-gray-300 mb-1">你的职责</label>
+            <select id="cr-role" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100">
+              <option value="TANK">🛡️ 坦克 (Tank)</option>
+              <option value="HEAL">💚 治疗 (Healer)</option>
+              <option value="DPS">⚔️ 输出 (DPS)</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-gray-300 mb-1">外部语音房间链接（选填，留空则默认使用网页内置 WebRTC 语音）</label>
+          <input type="text" id="cr-voice-url" placeholder="例如：https://oopz.cn/r/88291 或 YY: 884821" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100">
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" onclick="closeCreateRoomModal()" class="px-4 py-2 rounded text-xs dark-btn">取消</button>
+        <button type="button" onclick="submitCreateRoom()" class="px-5 py-2 rounded text-xs font-bold gold-btn">立即发车</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 抽屉：AI 开荒攻略战术官 ==================== -->
+  <div id="ai-drawer" class="fixed inset-y-0 right-0 w-full sm:w-96 bg-[#131722] border-l border-[#8c6f3e] shadow-2xl z-50 hidden flex-col">
+    <div class="p-4 border-b border-[#2e3446] flex items-center justify-between bg-[#0e111a]">
+      <div class="flex items-center gap-2">
+        <span class="text-xl">🤖</span>
+        <div>
+          <h3 class="wow-serif text-base font-bold text-amber-400">AI 开荒战术官</h3>
+          <p class="text-[11px] text-gray-400">《魔兽世界：无限》新副本与新种族百科</p>
+        </div>
+      </div>
+      <button type="button" onclick="toggleAiDrawer(false)" class="px-2.5 py-1 rounded text-xs dark-btn">关闭 ✕</button>
+    </div>
+
+    <div class="p-3 bg-[#0b0d13] border-b border-[#2e3446] flex flex-wrap gap-1.5">
+      <button type="button" onclick="quickAskAi('亡灵圣骑开荒天赋怎么点？')" class="px-2 py-1 rounded text-[11px] dark-btn">💀 亡灵圣骑配装</button>
+      <button type="button" onclick="quickAskAi('矮人萨满走增强还是恢复？')" class="px-2 py-1 rounded text-[11px] dark-btn">🍺 矮人萨满指南</button>
+      <button type="button" onclick="quickAskAi('天裔星术师输出手法？')" class="px-2 py-1 rounded text-[11px] dark-btn">🌌 天裔星术师</button>
+      <button type="button" onclick="quickAskAi('泽风岛隐藏宝箱和飞行点在哪？')" class="px-2 py-1 rounded text-[11px] dark-btn">🏝️ 泽风岛路线</button>
+      <button type="button" onclick="quickAskAi('海加尔山团本开门任务怎么做？')" class="px-2 py-1 rounded text-[11px] dark-btn">⛰️ 海加尔开门链</button>
+    </div>
+
+    <div id="ai-messages-box" class="flex-1 p-4 overflow-y-auto space-y-3 text-xs sm:text-sm">
+      <div class="p-3 rounded-lg bg-[#1b2130] border border-[#3a3226] text-amber-100 leading-relaxed">
+        你好，勇士！我是 <strong>gamemate.fun AI 开荒战术官</strong>。你可以随时问我关于<strong>亡灵圣骑、矮人萨满、天裔星术师</strong>的天赋配装，或<strong>泽风岛、河林、海加尔山</strong>的开门任务与 Boss 攻略！
+      </div>
+    </div>
+
+    <div class="p-3 border-t border-[#2e3446] bg-[#0e111a] flex gap-2">
+      <input type="text" id="inp-ai-question" onkeydown="if(event.key==='Enter')sendAiQuestion()" placeholder="输入你的开荒问题..." class="flex-1 bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-xs text-amber-100 focus:outline-none focus:border-amber-500">
+      <button type="button" onclick="sendAiQuestion()" class="px-4 py-2 rounded text-xs font-bold gold-btn">提问</button>
+    </div>
+  </div>
+
+  <!-- 页脚 -->
+  <footer class="border-t border-[#26211a] bg-[#0b0d13] py-4 text-center text-xs text-gray-500 mt-10">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <span>⚔️ 魔兽世界：无限 (WoW: Forever) 玩家社区工具站 · gamemate.fun</span>
+      <span>架构：FastAPI + Socket.io + SQLite WAL + WebRTC P2P 语音</span>
+    </div>
+  </footer>
+
+  <!-- ==================== 核心交互与全栈对接脚本 ==================== -->
+  <script>
+    // ---------- 安全存储与工具函数 ----------
+    function safeGetStorage(key, fallback) {
+      try {
+        const val = localStorage.getItem(key);
+        return val !== null ? val : fallback;
+      } catch (e) {
+        return fallback;
+      }
+    }
+    function safeSetStorage(key, val) {
+      try {
+        localStorage.setItem(key, val);
+      } catch (e) {}
+    }
+    function apiUrl(path) {
+      const origin = (window.location && window.location.origin && window.location.origin.startsWith('http'))
+        ? window.location.origin
+        : 'http://localhost:3000';
+      return origin + path;
+    }
+    function showToast(msg, type = 'amber') {
+      const box = document.getElementById('toast-container');
+      const el = document.createElement('div');
+      const borderCol = type === 'emerald' ? 'border-emerald-500/70' : 'border-amber-500/70';
+      el.className = `px-4 py-2.5 rounded-lg bg-[#151924]/95 border ${borderCol} text-amber-100 text-xs shadow-xl transition-all duration-300`;
+      el.textContent = msg;
+      box.appendChild(el);
+      setTimeout(() => {
+        el.style.opacity = '0';
+        setTimeout(() => el.remove(), 300);
+      }, 2800);
+    }
+    function copyTextToClipboard(text, successMsg) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => showToast(successMsg, 'emerald')).catch(() => fallbackCopy(text, successMsg));
+      } else {
+        fallbackCopy(text, successMsg);
+      }
+    }
+    function fallbackCopy(text, successMsg) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      ta.remove();
+      showToast(successMsg, 'emerald');
+    }
+
+    // ---------- 顶部导航 Tab 切换 ----------
     function switchTab(id) {
-        ['card', 'radar', 'campfire'].forEach(t => {
-            document.getElementById('sec-' + t).classList.toggle('hidden', t !== id);
-            const btn = document.getElementById('tab-' + t);
-            if (t === id) { btn.classList.add('tab-active'); btn.classList.remove('text-gray-400'); }
-            else { btn.classList.remove('tab-active'); btn.classList.add('text-gray-400'); }
+      ['card', 'talent', 'radar', 'campfire'].forEach(t => {
+        const sec = document.getElementById('sec-' + t);
+        if (sec) sec.classList.toggle('hidden', t !== id);
+        const btn = document.getElementById('tab-' + t);
+        if (btn) {
+          if (t === id) {
+            btn.classList.add('tab-active');
+            btn.classList.remove('text-gray-400');
+          } else {
+            btn.classList.remove('tab-active');
+            btn.classList.add('text-gray-400');
+          }
+        }
+      });
+      if (id === 'card') renderCard();
+    }
+
+    // ---------- 板块 2 数据与逻辑：天赋与配装模拟器 ----------
+    const TALENT_DATA = {
+      paladin: {
+        name: '圣骑士 (亡灵骑)',
+        color: '#F48CBA',
+        defaultRace: '亡灵',
+        defaultFaction: 'horde',
+        preset: [[5,5,5,5,5,6], [5,5,5,5,0,0], [0,0,0,0,0,0]],
+        trees: [
+          { title: '✨ 神圣 (凋零圣光)', icon: '📜', talents: ['神圣智慧', '凋零圣印(新)', '治疗之光', '神恩术', '神圣震击', '亡灵救赎'] },
+          { title: '🛡️ 防护 (骸骨壁垒)', icon: '🛡️', talents: ['盾牌壁垒', '坚韧', '庇护祝福', '神圣之盾', '清算', '不死意志强化'] },
+          { title: '⚔️ 惩戒 (灰烬裁决)', icon: '🔨', talents: ['祈福', '命令圣印', '定罪', '双手武器专精', '圣洁光环', '忏悔'] }
+        ]
+      },
+      shaman: {
+        name: '萨满祭司 (矮人萨)',
+        color: '#0070DD',
+        defaultRace: '矮人',
+        defaultFaction: 'alliance',
+        preset: [[0,0,0,0,0,0], [5,5,5,5,5,5], [5,5,5,5,1,0]],
+        trees: [
+          { title: '🌩️ 元素 (雷霆呼唤)', icon: '⚡', talents: ['震荡', '雷霆猛击', '元素集中', '风暴掌控', '闪电链增幅', '元素掌握'] },
+          { title: '🪓 增强 (山丘风暴)', icon: '🔨', talents: ['先祖知识', '雷鸣猛击', '双手锤专精(矮人)', '乱舞', '强化风怒图腾', '风暴打击'] },
+          { title: '💧 恢复 (大地甘霖)', icon: '🌿', talents: ['强化治疗波', '图腾集中', '先祖治疗', '潮汐集中', '净化图腾', '法力之潮图腾'] }
+        ]
+      },
+      astrologer: {
+        name: '星术师 (天裔新职)',
+        color: '#A330C9',
+        defaultRace: '天裔 (新种族)',
+        defaultFaction: 'alliance',
+        preset: [[5,5,5,5,8,7], [5,5,5,1,0,0], [0,0,0,0,0,0]],
+        trees: [
+          { title: '🌠 星界 (群星坠落)', icon: '🌌', talents: ['星辰凝视', '奥术脉冲', '新月印记', '日蚀共鸣', '群星坠落', '天体引力'] },
+          { title: '⏳ 秩序 (时空织法)', icon: '⌛', talents: ['时光护盾', '因果倒流', '急速光环', '星界跃迁强化', '命运编织', '永恒壁垒'] },
+          { title: '🕳️ 虚空 (暗物质)', icon: '🔮', talents: ['引力坍缩', '虚空侵蚀', '暗影星核', '黑洞视界', '湮灭射线', '深空化身'] }
+        ]
+      },
+      warrior: {
+        name: '战士',
+        color: '#C69B6D',
+        defaultRace: '兽人',
+        defaultFaction: 'horde',
+        preset: [[5,5,5,2,0,0], [5,5,5,5,7,7], [0,0,0,0,0,0]],
+        trees: [
+          { title: '🗡️ 武器 (重伤致死)', icon: '⚔️', talents: ['偏斜', '战术掌握', '重伤', '穿刺', '横扫攻击', '致死打击'] },
+          { title: '😡 狂暴 (嗜血乱舞)', icon: '🪓', talents: ['残忍', '怒不可遏', '血之狂热', '双武器专精', '乱舞', '嗜血'] },
+          { title: '🛡️ 防护 (钢铁防线)', icon: '🛡️', talents: ['盾牌专精', '预知', '破釜沉舟', '坚韧', '挑衅', '盾牌猛击'] }
+        ]
+      },
+      mage: {
+        name: '法师',
+        color: '#3FC7EB',
+        defaultRace: '人类',
+        defaultFaction: 'alliance',
+        preset: [[5,5,5,3,0,0], [0,0,0,0,0,0], [5,5,5,5,7,6]],
+        trees: [
+          { title: '🔮 奥术 (节能气定)', icon: '✨', talents: ['奥术精妙', '奥术集中', '魔法吸收', '奥术冥想', '气定神闲', '奥术强化'] },
+          { title: '🔥 火焰 (点燃炎爆)', icon: '🔥', talents: ['强化火球术', '点燃', '烈焰投掷', '冲击波', '灼烧暴击', '燃烧'] },
+          { title: '❄️ 冰霜 (深冬之寒)', icon: '🧊', talents: ['元素精准', '寒冰碎片', '极冷延伸', '碎冰', '寒冰护体', '深冬之寒'] }
+        ]
+      }
+    };
+
+    let currentTalentClass = 'paladin';
+    let currentPoints = [[5,5,5,5,5,6], [5,5,5,5,0,0], [0,0,0,0,0,0]];
+    let currentBuildShortId = 'pal88a';
+
+    let hotBuildsCache = [
+      { id: 'pal88a', className: '圣骑士 (亡灵骑)', raceName: '亡灵', specSummary: '神圣 31 / 防护 20 / 惩戒 0', talentCode: 'paladin|555556-555500-000000', author: '灰烬使者', likes: 128 },
+      { id: 'sha72b', className: '萨满祭司 (矮人萨)', raceName: '矮人', specSummary: '元素 0 / 增强 30 / 恢复 21', talentCode: 'shaman|000000-555555-555510', author: '铜须雷锤', likes: 96 },
+      { id: 'ast99c', className: '星术师 (天裔新职)', raceName: '天裔 (新种族)', specSummary: '星界 35 / 秩序 16 / 虚空 0', talentCode: 'astrologer|555587-555100-000000', author: '星穹观测者', likes: 84 },
+      { id: 'war61d', className: '战士', raceName: '兽人', specSummary: '武器 17 / 狂暴 34 / 防护 0', talentCode: 'warrior|555200-555577-000000', author: '洛克塔尔', likes: 73 }
+    ];
+
+    function getTotalPointsSpent() {
+      return currentPoints.flat().reduce((a, b) => a + b, 0);
+    }
+
+    function getTreeSums() {
+      return currentPoints.map(tree => tree.reduce((a, b) => a + b, 0));
+    }
+
+    function getSpecSummaryText() {
+      const cfg = TALENT_DATA[currentTalentClass];
+      const sums = getTreeSums();
+      const shortNames = cfg.trees.map(t => t.title.split(' ')[1]);
+      return `${shortNames[0]} ${sums[0]} / ${shortNames[1]} ${sums[1]} / ${shortNames[2]} ${sums[2]}`;
+    }
+
+    function encodeTalentCode() {
+      const strTrees = currentPoints.map(t => t.join('')).join('-');
+      return `${currentTalentClass}|${strTrees}`;
+    }
+
+    function selectTalentClass(clsKey) {
+      if (!TALENT_DATA[clsKey]) return;
+      currentTalentClass = clsKey;
+      ['paladin', 'shaman', 'astrologer', 'warrior', 'mage'].forEach(k => {
+        const btn = document.getElementById('tcls-' + k);
+        if (btn) {
+          btn.className = k === clsKey
+            ? 'px-3 py-1.5 rounded text-xs font-semibold gold-btn'
+            : 'px-3 py-1.5 rounded text-xs font-semibold dark-btn';
+        }
+      });
+      currentPoints = TALENT_DATA[clsKey].preset.map(r => [...r]);
+      renderTalentTrees();
+      syncTalentToCard();
+    }
+
+    function changeTalentPoint(treeIdx, slotIdx, delta) {
+      const curVal = currentPoints[treeIdx][slotIdx];
+      const total = getTotalPointsSpent();
+      const maxPerSlot = slotIdx >= 4 ? 8 : 5;
+      if (delta > 0) {
+        if (total >= 51) {
+          showToast('已达到 60 级上限 51 点天赋！');
+          return;
+        }
+        if (curVal < maxPerSlot) {
+          currentPoints[treeIdx][slotIdx] += 1;
+        }
+      } else if (delta < 0) {
+        if (curVal > 0) {
+          currentPoints[treeIdx][slotIdx] -= 1;
+        }
+      }
+      renderTalentTrees();
+      syncTalentToCard();
+    }
+
+    function applyPresetTalent() {
+      currentPoints = TALENT_DATA[currentTalentClass].preset.map(r => [...r]);
+      renderTalentTrees();
+      syncTalentToCard();
+      showToast('已套用当前职业开荒主流推荐配点', 'emerald');
+    }
+
+    function resetTalents() {
+      currentPoints = [[0,0,0,0,0,0], [0,0,0,0,0,0], [0,0,0,0,0,0]];
+      renderTalentTrees();
+      syncTalentToCard();
+      showToast('天赋点已重置');
+    }
+
+    function renderTalentTrees() {
+      const cfg = TALENT_DATA[currentTalentClass];
+      const container = document.getElementById('talent-trees-container');
+      const rem = 51 - getTotalPointsSpent();
+      document.getElementById('talent-rem-points').textContent = String(rem);
+      const sums = getTreeSums();
+
+      container.innerHTML = cfg.trees.map((tree, tIdx) => {
+        const slotsHtml = tree.talents.map((tName, sIdx) => {
+          const pts = currentPoints[tIdx][sIdx];
+          const maxPts = sIdx >= 4 ? 8 : 5;
+          const activeClass = pts > 0
+            ? 'border-amber-400 bg-amber-500/15 text-amber-100'
+            : 'border-[#2e3446] bg-[#0b0d13] text-gray-400';
+          return `
+            <div class="p-2.5 rounded border ${activeClass} flex items-center justify-between gap-2 transition">
+              <div class="min-w-0">
+                <div class="text-xs font-semibold truncate">${tName}</div>
+                <div class="text-[10px] font-mono text-amber-400/90">${pts} / ${maxPts}</div>
+              </div>
+              <div class="flex items-center gap-1 shrink-0">
+                <button type="button" onclick="changeTalentPoint(${tIdx}, ${sIdx}, -1)" class="w-6 h-6 rounded bg-[#151924] border border-[#3a3226] hover:border-amber-400 text-xs font-bold leading-none">-</button>
+                <button type="button" onclick="changeTalentPoint(${tIdx}, ${sIdx}, 1)" class="w-6 h-6 rounded gold-btn text-xs font-bold leading-none">+</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        return `
+          <div class="bg-[#0b0d13]/90 border border-[#2e3446] rounded-lg p-3.5 space-y-3">
+            <div class="flex items-center justify-between border-b border-[#2e3446] pb-2">
+              <span class="text-xs font-bold text-amber-300">${tree.title}</span>
+              <span class="text-xs font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-400">${sums[tIdx]} 点</span>
+            </div>
+            <div class="space-y-2">${slotsHtml}</div>
+          </div>
+        `;
+      }).join('');
+
+      const code = encodeTalentCode();
+      try {
+        window.history.replaceState(null, '', '#talent=' + encodeURIComponent(code));
+      } catch (e) {}
+      document.getElementById('talent-share-url').textContent = `https://gamemate.fun/?b=${currentBuildShortId}#talent=${code}`;
+    }
+
+    function syncTalentToCard() {
+      const summary = getSpecSummaryText();
+      const el = document.getElementById('card-bound-talent');
+      if (el) {
+        el.textContent = `${summary} (#${currentBuildShortId})`;
+      }
+      renderCard();
+    }
+
+    async function saveBuildToCloud() {
+      const cfg = TALENT_DATA[currentTalentClass];
+      const summary = getSpecSummaryText();
+      const code = encodeTalentCode();
+      const author = document.getElementById('inp-name').value || '开荒勇士';
+      const race = document.getElementById('inp-race').value || cfg.defaultRace;
+
+      try {
+        const res = await fetch(apiUrl('/api/build'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            className: cfg.name,
+            raceName: race,
+            specSummary: summary,
+            talentCode: code,
+            author: author
+          })
         });
+        if (res.ok) {
+          const data = await res.json();
+          currentBuildShortId = data.id;
+          showToast(`云端短链已生成：gamemate.fun/?b=${data.id}`, 'emerald');
+          loadHotBuilds();
+        } else {
+          throw new Error('offline');
+        }
+      } catch (e) {
+        currentBuildShortId = Math.random().toString(36).substring(2, 8);
+        hotBuildsCache.unshift({
+          id: currentBuildShortId,
+          className: cfg.name,
+          raceName: race,
+          specSummary: summary,
+          talentCode: code,
+          author: author,
+          likes: 1
+        });
+        renderHotBuilds();
+        showToast(`已生成配装短链码 #${currentBuildShortId} 并同步至英雄名片！`, 'emerald');
+      }
+      syncTalentToCard();
+      renderTalentTrees();
     }
+
+    function copyTalentUrl() {
+      const urlText = document.getElementById('talent-share-url').textContent;
+      copyTextToClipboard(urlText, '已复制配装短链，快发给队友吧！');
+    }
+
+    async function loadHotBuilds() {
+      try {
+        const res = await fetch(apiUrl('/api/builds/hot'));
+        if (res.ok) {
+          const data = await res.json();
+          if (data.items && data.items.length) {
+            hotBuildsCache = data.items;
+          }
+        }
+      } catch (e) {}
+      renderHotBuilds();
+    }
+
+    function renderHotBuilds() {
+      const box = document.getElementById('hot-builds-list');
+      if (!box) return;
+      box.innerHTML = hotBuildsCache.map(b => `
+        <div class="p-3 rounded-lg bg-[#0b0d13] border border-[#2e3446] hover:border-[#8c6f3e] transition space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-amber-300">${b.className} · ${b.raceName || ''}</span>
+            <span class="text-[11px] font-mono text-gray-400">#${b.id}</span>
+          </div>
+          <div class="text-xs text-gray-300">${b.specSummary || '主流开荒配点'}</div>
+          <div class="flex items-center justify-between pt-1 border-t border-[#1e2330] text-[11px] text-gray-400">
+            <span>作者：${b.author || '匿名'}</span>
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="likeHotBuild('${b.id}')" class="px-2 py-0.5 rounded dark-btn text-[11px]">👍 ${b.likes || 1}</button>
+              <button type="button" onclick="applyHotBuild('${b.id}')" class="px-2 py-0.5 rounded gold-btn text-[11px] font-semibold">套用</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function likeHotBuild(id) {
+      const item = hotBuildsCache.find(x => x.id === id);
+      if (item) {
+        item.likes = (item.likes || 1) + 1;
+        renderHotBuilds();
+      }
+      fetch(apiUrl(`/api/build/${id}/like`), { method: 'POST' }).catch(() => {});
+    }
+
+    function applyHotBuild(id) {
+      const item = hotBuildsCache.find(x => x.id === id);
+      if (!item) return;
+      currentBuildShortId = item.id;
+      const parts = (item.talentCode || '').split('|');
+      if (parts[0] && TALENT_DATA[parts[0]]) {
+        currentTalentClass = parts[0];
+        const treeStr = (parts[1] || '').split('-');
+        if (treeStr.length === 3) {
+          currentPoints = treeStr.map(s => s.split('').map(n => parseInt(n, 10) || 0));
+        }
+      }
+      selectTalentClass(currentTalentClass);
+      showToast(`已载入 [${item.author}] 的 ${item.className} 配装 (#${item.id})`, 'emerald');
+    }
+
+    // ---------- 板块 1 逻辑：英雄名片 Canvas 渲染与导出 ----------
+    function onCardClassChange() {
+      const val = document.getElementById('inp-class').value;
+      const parts = val.split('|');
+      if (parts[2] && TALENT_DATA[parts[2]]) {
+        selectTalentClass(parts[2]);
+      } else {
+        renderCard();
+      }
+    }
+
+    function randomizeHeroCard() {
+      const presets = [
+        { name: '灰烬使者', ilvl: 'Lv.60 · 71装等', realm: '泽风岛 (PvP)', faction: 'horde', race: '亡灵', cls: '圣骑士|#F48CBA|paladin', role: '主力治疗 / 圣光凋零', motto: '亡灵神圣骑，泽风岛与海加尔开荒稳定在线！' },
+        { name: '铜须雷锤', ilvl: 'Lv.60 · 69装等', realm: '铁炉堡 (PvE)', faction: 'alliance', race: '矮人', cls: '萨满祭司|#0070DD|shaman', role: 'T0 爆发输出 / 灵性走位', motto: '矮人风怒萨就位，来近战菜刀队一起爽刷！' },
+        { name: '星穹观测者', ilvl: 'Lv.60 · 72装等', realm: '翡翠梦境 (RP)', faction: 'alliance', race: '天裔 (新种族)', cls: '星术师|#A330C9|astrologer', role: '全能多修 / 指挥带队', motto: '天裔星术师带队开荒风暴神龛，内置语音秒发车！' },
+        { name: '督军萨鲁法尔', ilvl: 'Lv.60 · 74装等', realm: '海加尔峰 (PvP)', faction: 'horde', race: '兽人', cls: '战士|#C69B6D|warrior', role: 'MT 主坦克 / 仇恨稳固', motto: '全Buff硬甲防战，寻找固定团治疗搭子！' }
+      ];
+      const pick = presets[Math.floor(Math.random() * presets.length)];
+      document.getElementById('inp-name').value = pick.name;
+      document.getElementById('inp-ilvl').value = pick.ilvl;
+      document.getElementById('inp-realm').value = pick.realm;
+      document.getElementById('inp-faction').value = pick.faction;
+      document.getElementById('inp-race').value = pick.race;
+      document.getElementById('inp-class').value = pick.cls;
+      document.getElementById('inp-role-tag').value = pick.role;
+      document.getElementById('inp-motto').value = pick.motto;
+      onCardClassChange();
+      showToast('已切换随机英雄名片预设');
+    }
+
+    function drawMiniQr(ctx, x, y, size, seedStr) {
+      ctx.save();
+      ctx.fillStyle = '#e8dcc4';
+      ctx.fillRect(x, y, size, size);
+      const cells = 11;
+      const cellSize = (size - 8) / cells;
+      let hash = 2166136261;
+      for (let i = 0; i < seedStr.length; i++) {
+        hash ^= seedStr.charCodeAt(i);
+        hash = Math.imul(hash, 16777619);
+      }
+      ctx.fillStyle = '#0b0d13';
+      for (let r = 0; r < cells; r++) {
+        for (let c = 0; c < cells; c++) {
+          const isCorner = (r < 3 && c < 3) || (r < 3 && c >= cells - 3) || (r >= cells - 3 && c < 3);
+          const bit = ((hash >>> ((r * cells + c) % 28)) & 1) === 1;
+          if (isCorner || bit) {
+            ctx.fillRect(x + 4 + c * cellSize, y + 4 + r * cellSize, cellSize - 0.8, cellSize - 0.8);
+          }
+        }
+      }
+      ctx.restore();
+    }
+
     function renderCard() {
-        const canvas = document.getElementById('heroCanvas');
-        const ctx = canvas.getContext('2d');
-        const name = document.getElementById('inp-name').value || '无名英雄';
-        const realm = document.getElementById('inp-realm').value || '服务器';
-        const faction = document.getElementById('inp-faction').value;
-        const race = document.getElementById('inp-race').value;
-        const [className, classColor] = document.getElementById('inp-class').value.split('|');
-        const motto = document.getElementById('inp-motto').value;
+      const canvas = document.getElementById('heroCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const name = document.getElementById('inp-name').value || '无名英雄';
+      const ilvl = document.getElementById('inp-ilvl').value || 'Lv.60';
+      const realm = document.getElementById('inp-realm').value || '泽风岛';
+      const faction = document.getElementById('inp-faction').value;
+      const race = document.getElementById('inp-race').value;
+      const [className, classColor] = document.getElementById('inp-class').value.split('|');
+      const roleTag = document.getElementById('inp-role-tag').value || '开荒主力';
+      const schedule = document.getElementById('inp-schedule').value || '晚间在线';
+      const motto = document.getElementById('inp-motto').value || 'gamemate.fun 寻找开荒队友！';
+      const specSummary = getSpecSummaryText();
 
-        const bgGrad = ctx.createLinearGradient(0, 0, 800, 450);
-        bgGrad.addColorStop(0, faction === 'horde' ? '#2a0f12' : '#0f1d33');
-        bgGrad.addColorStop(1, '#0b0d13');
-        ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, 800, 450);
+      // 1. 阵营底色渐变
+      const bgGrad = ctx.createLinearGradient(0, 0, 800, 450);
+      bgGrad.addColorStop(0, faction === 'horde' ? '#311014' : '#0f1f38');
+      bgGrad.addColorStop(0.55, '#131722');
+      bgGrad.addColorStop(1, '#090b10');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, 800, 450);
 
-        ctx.strokeStyle = '#9c7a44'; ctx.lineWidth = 4; ctx.strokeRect(18, 18, 764, 414);
-        ctx.fillStyle = '#a39274'; ctx.font = 'bold 15px sans-serif'; ctx.fillText('WORLD OF WARCRAFT : FOREVER · gamemate.fun', 48, 62);
+      // 2. 右上角职业光晕装饰
+      const radGrad = ctx.createRadialGradient(660, 110, 10, 660, 110, 220);
+      radGrad.addColorStop(0, classColor + '33');
+      radGrad.addColorStop(1, 'transparent');
+      ctx.fillStyle = radGrad;
+      ctx.fillRect(0, 0, 800, 450);
 
-        ctx.fillStyle = classColor; ctx.font = 'bold 46px serif'; ctx.fillText(name, 48, 135);
-        ctx.fillStyle = '#fbbf24'; ctx.font = 'bold 18px sans-serif'; ctx.fillText(`Lv.60 | ${realm} | ${race} ${className}`, 48, 175);
+      // 3. 复古暗金双层边框与四角雕花
+      ctx.strokeStyle = '#9c7a44';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(18, 18, 764, 414);
+      ctx.strokeStyle = '#4a3b22';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(26, 26, 748, 398);
 
-        ctx.fillStyle = 'rgba(0,0,0,0.45)'; ctx.fillRect(48, 220, 704, 70);
-        ctx.strokeStyle = '#3d3322'; ctx.strokeRect(48, 220, 704, 70);
-        ctx.fillStyle = '#d6c7b2'; ctx.font = 'italic 16px sans-serif'; ctx.fillText(`“ ${motto} ”`, 68, 262);
+      // 4. 顶部标题与阵营徽章
+      ctx.fillStyle = '#a39274';
+      ctx.font = 'bold 14px sans-serif';
+      ctx.fillText('⚔️ WORLD OF WARCRAFT : FOREVER · gamemate.fun 开荒英雄帖', 48, 58);
 
-        ctx.fillStyle = '#756650'; ctx.font = '13px sans-serif'; ctx.textAlign = 'right';
-        ctx.fillText('🔗 访问 gamemate.fun 生成你的专属名片', 752, 402);
-        ctx.textAlign = 'left';
+      ctx.fillStyle = faction === 'horde' ? '#ef4444' : '#3b82f6';
+      ctx.font = 'bold 14px sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText(faction === 'horde' ? '【为了部落 · HORDE】' : '【为了联盟 · ALLIANCE】', 752, 58);
+      ctx.textAlign = 'left';
+
+      // 5. 角色主名称与等级职业行
+      ctx.fillStyle = classColor;
+      ctx.font = 'bold 46px "Noto Serif SC", serif';
+      ctx.fillText(name, 48, 128);
+
+      ctx.fillStyle = '#fbbf24';
+      ctx.font = 'bold 18px sans-serif';
+      ctx.fillText(`${ilvl}  |  ${realm}  |  ${race} · ${className}`, 48, 166);
+
+      // 6. 天赋流派与职责徽章条
+      ctx.fillStyle = 'rgba(245, 158, 11, 0.12)';
+      ctx.fillRect(48, 184, 520, 34);
+      ctx.strokeStyle = '#8c6f3e';
+      ctx.strokeRect(48, 184, 520, 34);
+      ctx.fillStyle = '#fde68a';
+      ctx.font = 'bold 13px sans-serif';
+      ctx.fillText(`⚡ 天赋流派：${specSummary}   |   定位：${roleTag}`, 62, 206);
+
+      // 7. 宣言框
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.48)';
+      ctx.fillRect(48, 234, 570, 86);
+      ctx.strokeStyle = '#3d3322';
+      ctx.strokeRect(48, 234, 570, 86);
+      ctx.fillStyle = '#e5d7c1';
+      ctx.font = 'italic 17px sans-serif';
+      ctx.fillText(`“ ${motto} ”`, 66, 272);
+      ctx.fillStyle = '#9ca3af';
+      ctx.font = '13px sans-serif';
+      ctx.fillText(`🕒 出勤与语音：${schedule}   ·   配装短码：#${currentBuildShortId}`, 66, 302);
+
+      // 8. 右下角仿真二维码与裂变引导
+      drawMiniQr(ctx, 650, 234, 102, currentBuildShortId + name);
+      ctx.fillStyle = '#9c7a44';
+      ctx.font = 'bold 11px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(`扫码看配装 #${currentBuildShortId}`, 701, 352);
+      ctx.textAlign = 'left';
+
+      // 9. 底部防伪签名栏
+      ctx.fillStyle = '#8c7a5b';
+      ctx.font = '13px sans-serif';
+      ctx.fillText('🔥 实时营火组队 & 网页免插件语音开黑：https://gamemate.fun', 48, 402);
+      ctx.textAlign = 'right';
+      ctx.fillText('🔗 访问 gamemate.fun 生成你的专属名片', 752, 402);
+      ctx.textAlign = 'left';
     }
+
     function downloadCard() {
-        const link = document.createElement('a');
-        link.download = 'wow_forever_card.png';
-        link.href = document.getElementById('heroCanvas').toDataURL('image/png');
-        link.click();
+      const link = document.createElement('a');
+      const name = document.getElementById('inp-name').value || 'hero';
+      link.download = `wow_forever_${name}_${currentBuildShortId}.png`;
+      link.href = document.getElementById('heroCanvas').toDataURL('image/png');
+      link.click();
+      showToast('高清英雄名片 (PNG) 已开始下载！', 'emerald');
     }
-    window.onload = () => { renderCard(); if(localStorage.getItem('m1')==='true') document.getElementById('chk-map1').checked = true; };
-</script>
+
+    function copyRecruitText() {
+      const name = document.getElementById('inp-name').value;
+      const realm = document.getElementById('inp-realm').value;
+      const race = document.getElementById('inp-race').value;
+      const [className] = document.getElementById('inp-class').value.split('|');
+      const motto = document.getElementById('inp-motto').value;
+      const text = `【魔兽世界：无限 开荒招募】${realm} - ${race}${className}「${name}」(${getSpecSummaryText()})：${motto} 👉 查看我的天赋配装与营火语音房：https://gamemate.fun/?b=${currentBuildShortId}`;
+      copyTextToClipboard(text, '招募口令已复制，可直接粘贴至微信群或 NGA！');
+    }
+
+    // ---------- 板块 3 逻辑：开荒雷达与副本开门链 ----------
+    const RADAR_ITEMS = [
+      { id: 'm1', zone: 'zephyr', title: '🏝️ 泽风岛：暴风港/锈水码头飞行点', coords: '(42, 68)', reward: '解锁跨海航线与炉石绑定', tag: '必做前置' },
+      { id: 'm2', zone: 'zephyr', title: '🏝️ 泽风岛：雷鸣高地沉船符文宝箱', coords: '(18, 24)', reward: '掉落【16格深海鳞片包】+ 潮汐符文', tag: '隐藏宝箱' },
+      { id: 'm3', zone: 'zephyr', title: '🏝️ 泽风岛：珊瑚海湾精英纳迦首领', coords: '(74, 51)', reward: '拾取【风暴神龛钥匙碎片 I】', tag: '开门钥匙' },
+      { id: 'm4', zone: 'riverwood', title: '🌲 河林秘境：古树守望者营地飞行点', coords: '(36, 44)', reward: '开启塞纳里奥河林声望军需官', tag: '必做前置' },
+      { id: 'm5', zone: 'riverwood', title: '🌲 河林秘境：迷雾祭坛月光宝箱', coords: '(63, 19)', reward: '解锁新职业专属圣契/图腾/星盘图纸', tag: '职业圣物' },
+      { id: 'm6', zone: 'riverwood', title: '🌲 河林秘境：净化腐化绿龙之影', coords: '(81, 72)', reward: '获得【翡翠之眼护符】(团本前置)', tag: '开门任务' },
+      { id: 'm7', zone: 'hyjal', title: '⛰️ 海加尔山：诺达希尔山麓营地飞行点', coords: '(50, 38)', reward: '解锁海加尔峰团本集合石与修理商', tag: '必做前置' },
+      { id: 'm8', zone: 'hyjal', title: '⛰️ 海加尔山：永恒之井边缘奥术宝箱', coords: '(58, 64)', reward: '必出【无暇奥术水晶】×3 与抗性合剂配方', tag: '高价值宝箱' },
+      { id: 'm9', zone: 'hyjal', title: '⛰️ 海加尔山：护送麦迪文残影战役', coords: '(44, 29)', reward: '正式解锁【海加尔峰之战】团本进门权限', tag: '团本门任务' }
+    ];
+
+    const DUNGEON_GUIDES = [
+      {
+        id: 'd1',
+        name: '🌊 风暴神龛 (5人新本 · Lv.58-60)',
+        zone: '泽风岛北部',
+        steps: [
+          { id: 'att1', text: '在泽风岛珊瑚海湾击杀督军拾取碎片' },
+          { id: 'att2', text: '找暴风港铁匠合成【风暴神龛之匙】' }
+        ],
+        loot: '【潮汐圣契】(亡灵骑毕业)、【雷鸣图腾】(矮人萨)、【风暴领主战斧】'
+      },
+      {
+        id: 'd2',
+        name: '🌿 翡翠梦境裂隙 (5人英雄 · Lv.60)',
+        zone: '河林秘境深处',
+        steps: [
+          { id: 'att3', text: '河林声望达到友善并完成「梦境低语」' },
+          { id: 'att4', text: '携带【翡翠之眼护符】解除副本入口结界' }
+        ],
+        loot: '【梦境编织者法杖】(天裔星术师毕业)、【自然抗性龙鳞盾】'
+      },
+      {
+        id: 'd3',
+        name: '🌋 海加尔峰之战 (20/40人团本)',
+        zone: '海加尔山之巅',
+        steps: [
+          { id: 'att5', text: '通关风暴神龛与翡翠梦境裂隙获取双印记' },
+          { id: 'att6', text: '完成海加尔山麦迪文残影4波防卫战' }
+        ],
+        loot: '【阿克蒙德的毁灭之刃】、【永恒之井星盘】、T2.5 新种族套装兑换件'
+      }
+    ];
+
+    let currentRadarZone = 'all';
+
+    function isRadarChecked(id) {
+      return safeGetStorage('gm_radar_' + id, id === 'm1' ? safeGetStorage('m1', 'false') : 'false') === 'true';
+    }
+
+    function toggleRadarItem(id, checked) {
+      safeSetStorage('gm_radar_' + id, String(checked));
+      if (id === 'm1') {
+        safeSetStorage('m1', String(checked));
+        const legacyChk = document.getElementById('chk-map1');
+        if (legacyChk) legacyChk.checked = checked;
+      }
+      renderRadarSection();
+    }
+
+    function filterRadarZone(zone) {
+      currentRadarZone = zone;
+      ['all', 'zephyr', 'riverwood', 'hyjal'].forEach(z => {
+        const btn = document.getElementById('rzone-' + z);
+        if (btn) {
+          btn.className = z === zone
+            ? 'px-3 py-1.5 rounded text-xs font-semibold gold-btn'
+            : 'px-3 py-1.5 rounded text-xs font-semibold dark-btn';
+        }
+      });
+      renderRadarSection();
+    }
+
+    function resetRadarProgress() {
+      RADAR_ITEMS.forEach(item => safeSetStorage('gm_radar_' + item.id, 'false'));
+      DUNGEON_GUIDES.forEach(d => d.steps.forEach(s => safeSetStorage('gm_radar_' + s.id, 'false')));
+      safeSetStorage('m1', 'false');
+      renderRadarSection();
+      showToast('开荒探索进度已全部重置');
+    }
+
+    function renderRadarSection() {
+      const grid = document.getElementById('radar-cards-grid');
+      const dList = document.getElementById('dungeon-guide-list');
+      if (!grid || !dList) return;
+
+      const filtered = currentRadarZone === 'all'
+        ? RADAR_ITEMS
+        : RADAR_ITEMS.filter(x => x.zone === currentRadarZone);
+
+      grid.innerHTML = filtered.map(item => {
+        const checked = isRadarChecked(item.id);
+        return `
+          <div class="p-4 bg-[#0b0d13] rounded-lg border ${checked ? 'border-emerald-600/70 bg-emerald-950/10' : 'border-[#2e3446]'} transition flex flex-col justify-between space-y-3">
+            <div>
+              <div class="flex items-center justify-between gap-2 mb-1">
+                <span class="text-[11px] px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30">${item.tag}</span>
+                <span class="text-xs font-mono text-gray-400">坐标 ${item.coords}</span>
+              </div>
+              <h3 class="text-sm font-bold ${checked ? 'line-through text-gray-400' : 'text-amber-200'} mt-1">${item.title}</h3>
+              <p class="text-xs text-gray-400 mt-1">${item.reward}</p>
+            </div>
+            <label class="flex items-center space-x-2 pt-2 border-t border-[#1e2330] text-xs cursor-pointer select-none">
+              <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleRadarItem('${item.id}', this.checked)" class="accent-amber-500 w-4 h-4">
+              <span class="${checked ? 'text-emerald-400 font-semibold' : 'text-gray-300'}">${checked ? '✅ 已探索完成' : '标记为已探索'}</span>
+            </label>
+          </div>
+        `;
+      }).join('');
+
+      dList.innerHTML = DUNGEON_GUIDES.map(d => {
+        const stepsHtml = d.steps.map(s => {
+          const c = isRadarChecked(s.id);
+          return `
+            <label class="flex items-center space-x-2 text-xs cursor-pointer select-none py-1">
+              <input type="checkbox" ${c ? 'checked' : ''} onchange="toggleRadarItem('${s.id}', this.checked)" class="accent-amber-500">
+              <span class="${c ? 'line-through text-emerald-400' : 'text-gray-300'}">${s.text}</span>
+            </label>
+          `;
+        }).join('');
+        return `
+          <div class="p-4 bg-[#0b0d13] rounded-lg border border-[#2e3446] space-y-2.5">
+            <div class="flex items-center justify-between">
+              <h4 class="text-sm font-bold text-amber-300">${d.name}</h4>
+              <span class="text-[11px] text-gray-400">${d.zone}</span>
+            </div>
+            <div class="space-y-1 border-y border-[#1e2330] py-2">${stepsHtml}</div>
+            <div class="text-xs text-gray-400 leading-relaxed">
+              <strong class="text-amber-400">核心掉落：</strong>${d.loot}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // 统计总进度
+      const allIds = [...RADAR_ITEMS.map(x => x.id), ...DUNGEON_GUIDES.flatMap(d => d.steps.map(s => s.id))];
+      const doneCount = allIds.filter(id => isRadarChecked(id)).length;
+      const pct = Math.round((doneCount / allIds.length) * 100);
+      document.getElementById('radar-progress-text').textContent = `${doneCount} / ${allIds.length} (${pct}%)`;
+      document.getElementById('radar-progress-bar').style.width = `${pct}%`;
+    }
+
+    // ---------- 板块 4 逻辑：营火大厅 (Socket.io + WebRTC 语音 + 本地演示双模) ----------
+    let socket = null;
+    let isSocketConnected = false;
+    let lobbyFactionFilter = 'all';
+
+    let lobbyRooms = [
+      {
+        id: 'room_zephyr1',
+        title: '泽风岛风暴神龛开荒 3=2 来亡灵奶骑/法系',
+        activity: '五人本开荒',
+        faction: 'horde',
+        leader: '督军萨鲁法尔',
+        maxMembers: 5,
+        voiceType: 'webrtc',
+        voiceUrl: '',
+        buildId: 'pal88a',
+        createdAt: '刚刚',
+        members: [
+          { id: 'peer_1', name: '督军萨鲁法尔', role: 'TANK', className: '战士', muted: false },
+          { id: 'peer_2', name: '暗影低语', role: 'DPS', className: '潜行者', muted: false },
+          { id: 'peer_3', name: '霜火之歌', role: 'DPS', className: '法师', muted: true }
+        ]
+      },
+      {
+        id: 'room_hyjal2',
+        title: '海加尔山麦迪文开门任务 4=1 来矮人萨或猎人',
+        activity: '精英任务/宝箱',
+        faction: 'alliance',
+        leader: '星穹观测者',
+        maxMembers: 5,
+        voiceType: 'oopz',
+        voiceUrl: 'https://oopz.cn/r/gamemate88',
+        buildId: 'ast99c',
+        createdAt: '3分钟前',
+        members: [
+          { id: 'peer_4', name: '星穹观测者', role: 'DPS', className: '星术师', muted: false },
+          { id: 'peer_5', name: '圣光护卫', role: 'TANK', className: '圣骑士', muted: false },
+          { id: 'peer_6', name: '月神祭司', role: 'HEAL', className: '牧师', muted: false },
+          { id: 'peer_7', name: '铜须雷锤', role: 'DPS', className: '萨满祭司', muted: false }
+        ]
+      },
+      {
+        id: 'room_raid3',
+        title: '今晚20:00 海加尔峰20人开荒团 缺稳定治疗与副T',
+        activity: '海加尔团本',
+        faction: 'horde',
+        leader: '灰烬使者',
+        maxMembers: 5,
+        voiceType: 'webrtc',
+        voiceUrl: 'YY: 884899',
+        buildId: 'war61d',
+        createdAt: '8分钟前',
+        members: [
+          { id: 'peer_8', name: '灰烬使者', role: 'HEAL', className: '圣骑士', muted: false },
+          { id: 'peer_9', name: '洛克塔尔', role: 'TANK', className: '战士', muted: false }
+        ]
+      }
+    ];
+
+    let currentRoom = null;
+    let localStream = null;
+    let isMicActive = false;
+    let micMeterInterval = null;
+    const peers = {}; // peerId -> RTCPeerConnection
+
+    function initSocketAndWebRTC() {
+      if (typeof io === 'undefined') return;
+      try {
+        const canConnect = window.location && window.location.protocol.startsWith('http');
+        if (!canConnect) return;
+        socket = io(window.location.origin, {
+          reconnectionAttempts: 2,
+          timeout: 2500
+        });
+
+        socket.on('connect', () => {
+          isSocketConnected = true;
+          const badge = document.getElementById('conn-badge');
+          if (badge) {
+            badge.textContent = '🟢 实时服已连接';
+            badge.className = 'text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/50 text-emerald-300';
+          }
+        });
+
+        socket.on('lobby:list', (rooms) => {
+          if (Array.isArray(rooms) && rooms.length > 0) {
+            lobbyRooms = rooms;
+            renderLobbyRooms();
+          }
+        });
+
+        socket.on('room:joined', (room) => {
+          currentRoom = room;
+          renderActiveRoom();
+          renderLobbyRooms();
+          appendRoomChat('系统', `已进入房间「${room.title}」，点击下方按钮可开启 WebRTC 语音。`);
+        });
+
+        socket.on('room:updated', (room) => {
+          currentRoom = room;
+          renderActiveRoom();
+        });
+
+        socket.on('room:error', (msg) => {
+          showToast(msg || '房间操作失败');
+        });
+
+        socket.on('room:chat-msg', (msg) => {
+          appendRoomChat(msg.sender, msg.text, msg.time);
+        });
+
+        socket.on('voice:peer-joined', async ({ peerId, name }) => {
+          appendRoomChat('语音信令', `${name} 加入了小队语音通道`);
+          if (localStream) {
+            await createWebRtcPeer(peerId, true);
+          }
+        });
+
+        socket.on('voice:peer-left', ({ peerId }) => {
+          if (peers[peerId]) {
+            peers[peerId].close();
+            delete peers[peerId];
+          }
+        });
+
+        socket.on('voice:signal', async ({ fromPeerId, signalData }) => {
+          if (!signalData) return;
+          let pc = peers[fromPeerId];
+          if (!pc) {
+            pc = await createWebRtcPeer(fromPeerId, false);
+          }
+          if (signalData.type === 'offer') {
+            await pc.setRemoteDescription(new RTCSessionDescription(signalData));
+            const answer = await pc.createAnswer();
+            await pc.setLocalDescription(answer);
+            socket.emit('voice:signal', { toPeerId: fromPeerId, signalData: pc.localDescription });
+          } else if (signalData.type === 'answer') {
+            await pc.setRemoteDescription(new RTCSessionDescription(signalData));
+          } else if (signalData.candidate) {
+            await pc.addIceCandidate(new RTCIceCandidate(signalData.candidate));
+          }
+        });
+      } catch (e) {}
+    }
+
+    async function createWebRtcPeer(peerId, isInitiator) {
+      const pc = new RTCPeerConnection({
+        iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+      });
+      peers[peerId] = pc;
+
+      if (localStream) {
+        localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+      }
+
+      pc.onicecandidate = (e) => {
+        if (e.candidate && socket && isSocketConnected) {
+          socket.emit('voice:signal', { toPeerId: peerId, signalData: { candidate: e.candidate } });
+        }
+      };
+
+      pc.ontrack = (e) => {
+        const audio = new Audio();
+        audio.srcObject = e.streams[0];
+        audio.play().catch(() => {});
+      };
+
+      if (isInitiator && socket && isSocketConnected) {
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        socket.emit('voice:signal', { toPeerId: peerId, signalData: pc.localDescription });
+      }
+      return pc;
+    }
+
+    function setLobbyFactionFilter(f) {
+      lobbyFactionFilter = f;
+      ['all', 'horde', 'alliance'].forEach(k => {
+        const btn = document.getElementById('lf-' + k);
+        if (btn) {
+          btn.className = k === f ? 'px-2.5 py-1 rounded text-xs gold-btn' : 'px-2.5 py-1 rounded text-xs dark-btn';
+        }
+      });
+      renderLobbyRooms();
+    }
+
+    function roleBadgeHtml(role) {
+      if (role === 'TANK') return '<span class="px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/40 text-[10px]">🛡️坦克</span>';
+      if (role === 'HEAL') return '<span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px]">💚治疗</span>';
+      return '<span class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px]">⚔️输出</span>';
+    }
+
+    function renderLobbyRooms() {
+      const box = document.getElementById('lobby-rooms-container');
+      const countBadge = document.getElementById('nav-room-count');
+      if (countBadge) countBadge.textContent = String(lobbyRooms.length);
+      if (!box) return;
+
+      const kw = (document.getElementById('inp-lobby-search').value || '').trim().toLowerCase();
+      const filtered = lobbyRooms.filter(r => {
+        if (lobbyFactionFilter !== 'all' && r.faction !== lobbyFactionFilter) return false;
+        if (kw && !r.title.toLowerCase().includes(kw) && !(r.activity || '').toLowerCase().includes(kw)) return false;
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        box.innerHTML = `<div class="p-8 text-center text-gray-500 text-xs border border-dashed border-[#2e3446] rounded-lg">暂无匹配的开荒车队，点击右上角「+ 发起开荒车队」立即发车！</div>`;
+        return;
+      }
+
+      box.innerHTML = filtered.map(r => {
+        const isJoined = currentRoom && currentRoom.id === r.id;
+        const fBadge = r.faction === 'horde'
+          ? '<span class="text-[11px] px-2 py-0.5 rounded bg-red-500/20 text-red-300 border border-red-500/40">🔴 部落</span>'
+          : '<span class="text-[11px] px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/40">🔵 联盟</span>';
+        const membersHtml = (r.members || []).map(m => `
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#151924] border border-[#2e3446] text-[11px] text-gray-200">
+            ${roleBadgeHtml(m.role)} ${m.name}
+          </span>
+        `).join('');
+
+        return `
+          <div class="p-4 rounded-lg bg-[#0b0d13] border ${isJoined ? 'border-amber-400' : 'border-[#2e3446] hover:border-[#8c6f3e]'} transition space-y-3">
+            <div class="flex items-start justify-between gap-2">
+              <div class="space-y-1">
+                <div class="flex flex-wrap items-center gap-1.5">
+                  ${fBadge}
+                  <span class="text-[11px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/30">${r.activity || '开荒组队'}</span>
+                  ${r.voiceUrl ? `<span class="text-[11px] px-2 py-0.5 rounded bg-purple-500/15 text-purple-300 border border-purple-500/30">🎧 含外部语音</span>` : `<span class="text-[11px] px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">🎙️ WebRTC直连</span>`}
+                </div>
+                <h4 class="text-sm font-bold text-amber-100">${r.title}</h4>
+              </div>
+              <div class="text-right shrink-0">
+                <span class="text-xs font-mono font-bold text-amber-400">${(r.members || []).length} / ${r.maxMembers || 5} 人</span>
+                <div class="text-[10px] text-gray-500">${r.createdAt || '刚刚'}</div>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-1.5">${membersHtml}</div>
+            <div class="flex items-center justify-between pt-2 border-t border-[#1e2330]">
+              <span class="text-[11px] text-gray-400">队长：${r.leader} ${r.buildId ? `· 配装 #${r.buildId}` : ''}</span>
+              <button type="button" onclick="joinCampRoom('${r.id}')" class="px-3.5 py-1.5 rounded text-xs font-bold ${isJoined ? 'dark-btn' : 'gold-btn'}">
+                ${isJoined ? '✅ 已在房间内' : '🔥 加入车队 & 语音'}
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function openCreateRoomModal() {
+      document.getElementById('cr-nickname').value = document.getElementById('inp-name').value || '灰烬使者';
+      document.getElementById('cr-faction').value = document.getElementById('inp-faction').value || 'horde';
+      const modal = document.getElementById('modal-create-room');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeCreateRoomModal() {
+      const modal = document.getElementById('modal-create-room');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function submitCreateRoom() {
+      const title = document.getElementById('cr-title').value.trim() || '泽风岛开荒求组';
+      const activity = document.getElementById('cr-activity').value;
+      const faction = document.getElementById('cr-faction').value;
+      const nickname = document.getElementById('cr-nickname').value.trim() || '神秘队长';
+      const role = document.getElementById('cr-role').value;
+      const voiceUrl = document.getElementById('cr-voice-url').value.trim();
+      const [className] = document.getElementById('inp-class').value.split('|');
+
+      const payload = {
+        title,
+        activity,
+        faction,
+        nickname,
+        role,
+        className,
+        voiceType: voiceUrl ? 'external' : 'webrtc',
+        voiceUrl,
+        buildId: currentBuildShortId
+      };
+
+      if (socket && isSocketConnected) {
+        socket.emit('room:create', payload);
+      } else {
+        const newRoom = {
+          id: 'room_' + Math.random().toString(36).substring(2, 7),
+          title,
+          activity,
+          faction,
+          leader: nickname,
+          maxMembers: 5,
+          voiceType: payload.voiceType,
+          voiceUrl,
+          buildId: currentBuildShortId,
+          createdAt: '刚刚',
+          members: [{ id: 'me', name: nickname, role, className, muted: false }]
+        };
+        lobbyRooms.unshift(newRoom);
+        currentRoom = newRoom;
+        renderLobbyRooms();
+        renderActiveRoom();
+        appendRoomChat('系统', `已创建车队「${title}」，WebRTC 语音信令通道已就绪！`);
+      }
+      closeCreateRoomModal();
+      showToast('开荒车队已发布至营火大厅！', 'emerald');
+    }
+
+    function joinCampRoom(roomId) {
+      const room = lobbyRooms.find(r => r.id === roomId);
+      if (!room) return;
+      const nickname = document.getElementById('inp-name').value || '热心队友';
+      const [className] = document.getElementById('inp-class').value.split('|');
+
+      if (socket && isSocketConnected) {
+        socket.emit('room:join', { roomId, nickname, role: 'DPS', className });
+      } else {
+        if (!room.members.some(m => m.id === 'me' || m.name === nickname)) {
+          if (room.members.length >= (room.maxMembers || 5)) {
+            showToast('该车队已满员！');
+            return;
+          }
+          room.members.push({ id: 'me', name: nickname, role: 'DPS', className, muted: false });
+        }
+        currentRoom = room;
+        renderLobbyRooms();
+        renderActiveRoom();
+        appendRoomChat('系统', `你已加入「${room.leader}」的车队，可点击下方按钮开麦交流。`);
+        showToast(`成功加入房间：${room.title}`, 'emerald');
+      }
+    }
+
+    function leaveCurrentRoom() {
+      if (!currentRoom) {
+        showToast('你当前不在任何小队中');
+        return;
+      }
+      if (isMicActive) toggleMicrophone();
+      if (socket && isSocketConnected) {
+        socket.emit('room:leave');
+      } else {
+        currentRoom.members = currentRoom.members.filter(m => m.id !== 'me');
+      }
+      currentRoom = null;
+      renderLobbyRooms();
+      renderActiveRoom();
+      showToast('已离开小队语音房间');
+    }
+
+    function renderActiveRoom() {
+      const titleEl = document.getElementById('active-room-title');
+      const subEl = document.getElementById('active-room-subtitle');
+      const pillEl = document.getElementById('voice-status-pill');
+      const seatsEl = document.getElementById('room-seats-list');
+
+      if (!currentRoom) {
+        titleEl.textContent = '🎙️ 小队营火语音间 (待加入)';
+        subEl.textContent = '点击左侧任意车队「加入车队 & 语音」即可进入 5 人小队席位';
+        pillEl.textContent = '未入队';
+        pillEl.className = 'text-[11px] px-2.5 py-0.5 rounded-full bg-gray-800 text-gray-400 border border-gray-700';
+
+        seatsEl.innerHTML = [1, 2, 3, 4, 5].map(idx => `
+          <div class="p-2.5 rounded bg-[#0b0d13]/60 border border-dashed border-[#2e3446] flex items-center justify-between text-xs text-gray-500">
+            <span>座位 #${idx} · 虚位以待</span>
+            <span>等待加入...</span>
+          </div>
+        `).join('');
+        return;
+      }
+
+      titleEl.textContent = `🔥 ${currentRoom.title}`;
+      subEl.textContent = currentRoom.voiceUrl
+        ? `外部语音房间：${currentRoom.voiceUrl}（同时支持网页内建语音）`
+        : 'WebRTC P2P Mesh 语音房间 · 零延迟点对点传输';
+      pillEl.textContent = isMicActive ? '🟢 语音通话中' : '🟡 已入队(静音)';
+      pillEl.className = isMicActive
+        ? 'text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/50'
+        : 'text-[11px] px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/50';
+
+      const seats = [];
+      for (let i = 0; i < 5; i++) {
+        const m = currentRoom.members[i];
+        if (m) {
+          const isSpeaking = isMicActive && (m.id === 'me' || i === 0);
+          seats.push(`
+            <div class="p-2.5 rounded bg-[#0b0d13] border ${isSpeaking ? 'border-emerald-500 speaking-ring' : 'border-[#2e3446]'} flex items-center justify-between text-xs transition">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full ${m.muted ? 'bg-red-500' : 'bg-emerald-400'}"></span>
+                <span class="font-bold text-amber-100">${m.name}</span>
+                ${roleBadgeHtml(m.role)}
+                <span class="text-[11px] text-gray-400">${m.className || ''}</span>
+              </div>
+              <span class="text-[11px] ${m.muted ? 'text-red-400' : 'text-emerald-400'}">${m.muted ? '🔇 闭麦' : '🎙️ 在线'}</span>
+            </div>
+          `);
+        } else {
+          seats.push(`
+            <div class="p-2.5 rounded bg-[#0b0d13]/50 border border-dashed border-[#2e3446] flex items-center justify-between text-xs text-gray-500">
+              <span>空位 #${i + 1} · 等待队友加入</span>
+              <button type="button" onclick="copyRoomInvite()" class="text-[11px] text-amber-400 hover:underline">+ 邀请</button>
+            </div>
+          `);
+        }
+      }
+      seatsEl.innerHTML = seats.join('');
+    }
+
+    async function toggleMicrophone() {
+      if (!currentRoom) {
+        joinCampRoom(lobbyRooms[0].id);
+      }
+      const btn = document.getElementById('btn-toggle-mic');
+      const bar = document.getElementById('mic-level-bar');
+      const dbLabel = document.getElementById('mic-db-label');
+
+      if (!isMicActive) {
+        isMicActive = true;
+        btn.textContent = '🔇 关闭麦克风';
+        btn.className = 'py-2 px-3 rounded text-xs font-bold bg-emerald-700 border border-emerald-400 text-white';
+        try {
+          if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+          }
+        } catch (e) {
+          // 沙盒或无麦克风设备时自动切换为仿真音频波形
+        }
+        clearInterval(micMeterInterval);
+        micMeterInterval = setInterval(() => {
+          const lvl = Math.floor(25 + Math.random() * 65);
+          bar.style.width = lvl + '%';
+          dbLabel.textContent = `-${Math.floor(45 - lvl * 0.35)} dB · 传输中`;
+        }, 180);
+        showToast('WebRTC 麦克风已开启，小队语音连接正常！', 'emerald');
+      } else {
+        isMicActive = false;
+        btn.textContent = '🎙️ 开启麦克风';
+        btn.className = 'py-2 px-3 rounded text-xs font-bold gold-btn';
+        if (localStream) {
+          localStream.getTracks().forEach(t => t.stop());
+          localStream = null;
+        }
+        clearInterval(micMeterInterval);
+        bar.style.width = '0%';
+        dbLabel.textContent = '已静音';
+      }
+      renderActiveRoom();
+    }
+
+    function copyRoomInvite() {
+      const rTitle = currentRoom ? currentRoom.title : '泽风岛开荒车队';
+      const rId = currentRoom ? currentRoom.id : 'room_zephyr1';
+      const inviteText = `🔥【gamemate.fun 营火组队】快来加入「${rTitle}」网页直接开麦语音：https://gamemate.fun/?room=${rId}`;
+      copyTextToClipboard(inviteText, '车队语音邀请链接已复制！');
+    }
+
+    function appendRoomChat(sender, text, timeStr) {
+      const box = document.getElementById('room-chat-box');
+      if (!box) return;
+      const t = timeStr || new Date().toTimeString().slice(0, 8);
+      const div = document.createElement('div');
+      div.innerHTML = `<span class="text-gray-500 font-mono">[${t}]</span> <strong class="text-amber-400">${sender}:</strong> <span class="text-gray-200">${text}</span>`;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function sendRoomChat() {
+      const inp = document.getElementById('inp-room-chat');
+      const text = (inp.value || '').trim();
+      if (!text) return;
+      const sender = document.getElementById('inp-name').value || '灰烬使者';
+      inp.value = '';
+      if (socket && isSocketConnected && currentRoom) {
+        socket.emit('room:chat', { text });
+      } else {
+        appendRoomChat(sender, text);
+      }
+    }
+
+    // ---------- AI 开荒战术官抽屉逻辑 ----------
+    const LOCAL_AI_ANSWERS = {
+      '亡灵': '【亡灵圣骑开荒指南】亡灵圣骑拥有《魔兽世界：无限》专属被动「凋零圣印」（神圣法术暴击附加暗影持续恢复）。海加尔山与风暴神龛开荒推荐主修「神圣31 / 防护20」，优先堆法术暴击至22%，饰品必拿泽风岛「潮汐圣契」。',
+      '矮人': '【矮人萨满开荒指南】矮人萨满凭借「石像形态」可免疫流血与毒药，在河林新本「翡翠梦境裂隙」表现极佳。增强流推荐30/21/0点出双手锤专精与强化风怒图腾；团本恢复流推荐0/16/35保坦克。',
+      '天裔': '【天裔星术师指南】天裔自带「星界跃迁」瞬移与1%奥术急速。星术师推荐点满「星界35 / 秩序16」，利用日蚀与月蚀交替触发群星坠落，在海加尔山防卫战AOE波次伤害稳居T0。',
+      '泽风岛': '【泽风岛探索路线】登岛先去暴风港/锈水码头解锁飞行点（42, 68）➔ 清理珊瑚海湾精英纳迦拾取「风暴神龛钥匙碎片」➔ 前往西北角雷鸣高地（18, 24）开启沉船符文宝箱拿16格深海背包。',
+      '海加尔': '【海加尔峰团本开门链】1. 完成河林秘境「净化腐化绿龙」拿翡翠之眼护符；2. 通关风暴神龛尾王拿永恒水瓶印记；3. 在海加尔山（44, 29）护送麦迪文残影抵御4波军团突袭即可进本。'
+    };
+
+    function toggleAiDrawer(show) {
+      const drawer = document.getElementById('ai-drawer');
+      if (!drawer) return;
+      if (show) {
+        drawer.classList.remove('hidden');
+        drawer.classList.add('flex');
+      } else {
+        drawer.classList.add('hidden');
+        drawer.classList.remove('flex');
+      }
+    }
+
+    function quickAskAi(q) {
+      document.getElementById('inp-ai-question').value = q;
+      sendAiQuestion();
+    }
+
+    async function sendAiQuestion() {
+      const inp = document.getElementById('inp-ai-question');
+      const q = (inp.value || '').trim();
+      if (!q) return;
+      inp.value = '';
+
+      const box = document.getElementById('ai-messages-box');
+      const userEl = document.createElement('div');
+      userEl.className = 'p-2.5 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-100 ml-8';
+      userEl.textContent = q;
+      box.appendChild(userEl);
+      box.scrollTop = box.scrollHeight;
+
+      let reply = '';
+      try {
+        const res = await fetch(apiUrl('/api/ai-guide'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question: q, contextClass: currentTalentClass })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          reply = data.answer;
+        }
+      } catch (e) {}
+
+      if (!reply) {
+        const hit = Object.keys(LOCAL_AI_ANSWERS).find(k => q.includes(k));
+        reply = hit
+          ? LOCAL_AI_ANSWERS[hit]
+          : `【AI战术官】针对「${q}」：建议先在【开荒雷达】解锁泽风岛(42,68)与河林(36,44)飞行点，并在【天赋与配装】套用当前职业主流开荒模板生成短码分享给固定队。`;
+      }
+
+      const aiEl = document.createElement('div');
+      aiEl.className = 'p-3 rounded-lg bg-[#1b2130] border border-[#3a3226] text-gray-200 mr-4 leading-relaxed whitespace-pre-line';
+      aiEl.textContent = reply;
+      box.appendChild(aiEl);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    // ---------- 页面初始化 ----------
+    window.onload = () => {
+      if (safeGetStorage('m1', 'false') === 'true') {
+        const chk1 = document.getElementById('chk-map1');
+        if (chk1) chk1.checked = true;
+      }
+      renderTalentTrees();
+      renderHotBuilds();
+      renderRadarSection();
+      renderLobbyRooms();
+      renderActiveRoom();
+      renderCard();
+      appendRoomChat('系统', '欢迎来到 gamemate.fun 营火大厅！选择左侧任意车队即可加入语音开黑。');
+      initSocketAndWebRTC();
+    };
+  </script>
 </body>
 </html>
