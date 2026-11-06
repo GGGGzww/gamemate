@@ -23,14 +23,16 @@
     <div class="flex items-center space-x-3">
       <span class="text-2xl">⚔️</span>
       <div>
-        <h1 class="wow-serif text-lg md:text-xl font-bold text-amber-400 tracking-wider">魔兽世界：无限</h1>
-        <p class="text-[11px] text-gray-400 -mt-1">gamemate.fun 开荒营地</p>
+        <h1 class="wow-serif text-lg font-bold text-amber-400 tracking-wider">魔兽世界：无限</h1>
+        <p class="text-[10px] text-gray-400 -mt-1">gamemate.fun 开荒营地</p>
       </div>
     </div>
-    <nav class="flex space-x-1 md:space-x-4 text-sm font-medium">
-      <button onclick="switchTab('card')" id="tab-card" class="px-3 md:px-4 py-5 transition tab-active">🪪 英雄名片</button>
-      <button onclick="switchTab('campfire')" id="tab-campfire" class="px-3 md:px-4 py-5 transition text-gray-400 hover:text-amber-300">🔥 营火大厅</button>
-      <button onclick="switchTab('games')" id="tab-games" class="px-3 md:px-4 py-5 transition text-gray-400 hover:text-amber-300">🎮 摸鱼小游戏</button>
+    <nav class="flex space-x-1 text-xs md:text-sm font-medium overflow-x-auto">
+      <button onclick="switchTab('card')" id="tab-card" class="px-2.5 py-5 transition tab-active">🪪 名片</button>
+      <button onclick="switchTab('campfire')" id="tab-campfire" class="px-2.5 py-5 transition text-gray-400 hover:text-amber-300">🔥 营火</button>
+      <button onclick="switchTab('guide')" id="tab-guide" class="px-2.5 py-5 transition text-gray-400 hover:text-amber-300">📜 秘典与模拟</button>
+      <button onclick="switchTab('forum')" id="tab-forum" class="px-2.5 py-5 transition text-gray-400 hover:text-amber-300">🍺 酒馆论坛</button>
+      <button onclick="switchTab('games')" id="tab-games" class="px-2.5 py-5 transition text-gray-400 hover:text-amber-300">🎮 小游戏</button>
     </nav>
   </div>
 </header>
@@ -63,13 +65,12 @@
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-gray-300 mb-1">种族与新组合</label>
+            <label class="block text-gray-300 mb-1">种族与组合</label>
             <select id="inp-race" onchange="renderCard()" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
               <option value="天裔 (新种族)">✨ 天裔 (新种族)</option>
               <option value="亡灵">💀 亡灵</option>
               <option value="矮人">🍺 矮人</option>
               <option value="兽人">🪓 兽人</option>
-              <option value="人类">🛡️ 人类</option>
             </select>
           </div>
           <div>
@@ -102,14 +103,12 @@
 
   <!-- 2. 营火大厅模块 -->
   <section id="sec-campfire" class="hidden">
-    <!-- 大厅视图 -->
     <div id="campfire-lobby" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
       <div class="lg:col-span-4 space-y-6">
-        <!-- 创建房间表单 -->
         <div class="bg-[#151924] p-6 rounded-lg gold-border space-y-4">
           <div class="border-b border-[#2e3446] pb-3">
             <h2 class="wow-serif text-xl text-amber-400 font-bold">🔥 点燃新的营火</h2>
-            <p class="text-xs text-gray-400 mt-1">支持密码锁、完全隐身与 P2P 实时语音通话</p>
+            <p class="text-xs text-gray-400 mt-1">支持密码锁、隐身模式与实时 P2P 语音通话</p>
           </div>
           <div class="space-y-3 text-sm">
             <div>
@@ -127,9 +126,9 @@
               <div>
                 <label class="block text-gray-300 mb-1">担任职责</label>
                 <select id="cf-role" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
-                  <option value="🛡️ 坦克">🛡️ 坦克 (Tank)</option>
-                  <option value="💚 治疗">💚 治疗 (Healer)</option>
-                  <option value="⚔️ 输出" selected>⚔️ 输出 (DPS)</option>
+                  <option value="🛡️ 坦克">🛡️ 坦克</option>
+                  <option value="💚 治疗">💚 治疗</option>
+                  <option value="⚔️ 输出" selected>⚔️ 输出</option>
                 </select>
               </div>
             </div>
@@ -146,7 +145,7 @@
                 <input type="checkbox" id="cf-hidden" class="mt-1 accent-amber-500">
                 <div>
                   <span class="block text-amber-300 font-bold text-xs">👻 开启完全隐身模式</span>
-                  <span class="block text-[11px] text-gray-400 mt-0.5">不在右侧大厅列表显示，仅能通过房间号或专属链接进入</span>
+                  <span class="block text-[11px] text-gray-400 mt-0.5">不在大厅列表显示，仅通过房间号进入</span>
                 </div>
               </label>
             </div>
@@ -154,26 +153,21 @@
           <button onclick="createRoom()" class="w-full py-3 rounded font-bold text-base gold-btn transition cursor-pointer mt-2">🔥 创建营火房间</button>
         </div>
 
-        <!-- 房间号定向直达卡片 -->
         <div class="bg-[#151924] p-5 rounded-lg gold-border space-y-3">
           <h3 class="wow-serif text-base text-amber-400 font-bold">🔑 房间号定向进入</h3>
-          <p class="text-xs text-gray-400">收到好友发来的隐身房间号？在此输入直接进组：</p>
           <div class="grid grid-cols-2 gap-2 text-sm">
-            <input type="text" id="direct-room-id" placeholder="6位房间号 (如 8f9k2a)" maxlength="10" class="bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
-            <input type="password" id="direct-room-pwd" placeholder="密码 (无则留空)" maxlength="16" class="bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
+            <input type="text" id="direct-room-id" placeholder="6位房间号" maxlength="10" class="bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
+            <input type="password" id="direct-room-pwd" placeholder="密码" maxlength="16" class="bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
           </div>
-          <button onclick="joinDirectRoom()" class="w-full py-2 rounded font-bold text-xs bg-[#262c3d] hover:bg-[#323a50] text-amber-300 border border-[#8c6f3e] transition cursor-pointer">
-            🚀 定向传送进组
-          </button>
+          <button onclick="joinDirectRoom()" class="w-full py-2 rounded font-bold text-xs bg-[#262c3d] hover:bg-[#323a50] text-amber-300 border border-[#8c6f3e] transition cursor-pointer">🚀 定向传送进组</button>
         </div>
       </div>
 
-      <!-- 右侧：实时公开房间列表 -->
       <div class="lg:col-span-8 bg-[#151924] p-6 rounded-lg gold-border min-h-[480px] flex flex-col">
         <div class="flex items-center justify-between border-b border-[#2e3446] pb-3 mb-4">
           <div>
             <h2 class="wow-serif text-xl text-amber-400 font-bold">当前公开营火列表</h2>
-            <p class="text-xs text-gray-400 mt-1">实时同步在线车队（开启“完全隐身”的房间不会在此处暴露）</p>
+            <p class="text-xs text-gray-400 mt-1">实时同步在线车队</p>
           </div>
           <span id="cf-room-count" class="text-xs px-2.5 py-1 rounded bg-amber-500/10 border border-amber-500/30 text-amber-300">0 个公开房间</span>
         </div>
@@ -195,23 +189,14 @@
           </div>
         </div>
         <div class="flex flex-wrap items-center gap-2">
-          <button id="btn-voice-toggle" onclick="toggleVoice()" class="px-3 py-2 rounded text-xs font-bold bg-emerald-700/40 hover:bg-emerald-600/50 text-emerald-200 border border-emerald-500/50 transition cursor-pointer">
-            🎙️ 加入小队语音
-          </button>
-          <button id="btn-mic-mute" onclick="toggleMute()" class="hidden px-3 py-2 rounded text-xs font-bold bg-[#262c3d] hover:bg-[#323a50] text-amber-300 border border-[#8c6f3e] transition cursor-pointer">
-            🔊 麦克风已开
-          </button>
-          <button onclick="copyInviteLink()" class="px-3 py-2 rounded text-xs font-bold gold-btn transition cursor-pointer">
-            📋 复制邀请链接
-          </button>
-          <button onclick="leaveRoom()" class="px-3 py-2 rounded border border-red-500/50 bg-red-500/10 text-red-300 hover:bg-red-500/20 text-xs font-bold transition cursor-pointer">
-            🚪 离开营火
-          </button>
+          <button id="btn-voice-toggle" onclick="toggleVoice()" class="px-3 py-2 rounded text-xs font-bold bg-emerald-700/40 hover:bg-emerald-600/50 text-emerald-200 border border-emerald-500/50 transition cursor-pointer">🎙️ 加入语音</button>
+          <button id="btn-mic-mute" onclick="toggleMute()" class="hidden px-3 py-2 rounded text-xs font-bold bg-[#262c3d] text-amber-300 border border-[#8c6f3e] transition cursor-pointer">🔊 麦克风已开</button>
+          <button onclick="copyInviteLink()" class="px-3 py-2 rounded text-xs font-bold gold-btn transition cursor-pointer">📋 复制邀请链接</button>
+          <button onclick="leaveRoom()" class="px-3 py-2 rounded border border-red-500/50 bg-red-500/10 text-red-300 hover:bg-red-500/20 text-xs font-bold transition cursor-pointer">🚪 离开营火</button>
         </div>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <!-- 队伍成员列表（支持队长踢人） -->
         <div class="lg:col-span-5 space-y-3">
           <div class="flex items-center justify-between">
             <h3 class="text-sm font-bold text-amber-300">👥 小队成员 (<span id="room-member-count">1</span>/5)</h3>
@@ -221,14 +206,11 @@
           <div id="remote-audios" class="hidden"></div>
         </div>
 
-        <!-- 房间内私密实时聊天 -->
         <div class="lg:col-span-7 flex flex-col bg-[#0b0d13] border border-[#3a3226] rounded-lg p-4 h-[340px]">
-          <div class="text-xs text-gray-400 border-b border-[#2e3446] pb-2 mb-2 flex justify-between">
-            <span>🛡️ 房间内加密频道（仅小队成员可见，解散即焚）</span>
-          </div>
+          <div class="text-xs text-gray-400 border-b border-[#2e3446] pb-2 mb-2">🛡️ 房间内加密频道（解散即焚）</div>
           <div id="room-chat-box" class="flex-1 overflow-y-auto space-y-2 text-sm pr-1"></div>
           <div class="mt-3 flex gap-2">
-            <input type="text" id="room-chat-input" placeholder="输入战术讨论、YY号或集合石暗号..." onkeydown="if(event.key==='Enter') sendRoomChat()" class="flex-1 bg-[#151924] border border-[#3a3226] rounded px-3 py-2 text-sm text-amber-100 focus:outline-none focus:border-amber-500">
+            <input type="text" id="room-chat-input" placeholder="输入战术讨论..." onkeydown="if(event.key==='Enter') sendRoomChat()" class="flex-1 bg-[#151924] border border-[#3a3226] rounded px-3 py-2 text-sm text-amber-100 focus:outline-none focus:border-amber-500">
             <button onclick="sendRoomChat()" class="px-4 py-2 rounded text-sm font-bold gold-btn cursor-pointer">发送</button>
           </div>
         </div>
@@ -236,27 +218,116 @@
     </div>
   </section>
 
-  <!-- 3. 小游戏模块 -->
+  <!-- 3. 英雄秘典与数据模拟模块 -->
+  <section id="sec-guide" class="hidden space-y-6">
+    <div class="bg-[#151924] p-6 rounded-lg gold-border space-y-4">
+      <h2 class="wow-serif text-xl text-amber-400 font-bold">📜 泽风岛英雄秘典与数据模拟器</h2>
+      <p class="text-xs text-gray-400">结合开荒实测数据，提供配装属性模拟与核心攻略速查。</p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+        <!-- 模拟器组件 -->
+        <div class="bg-[#0b0d13] p-4 rounded border border-[#3a3226] space-y-3">
+          <h3 class="text-sm font-bold text-amber-300">⚡ 简易 DPS 与属性模拟器</h3>
+          <div class="grid grid-cols-2 gap-3 text-sm">
+            <div>
+              <label class="block text-gray-400 text-xs mb-1">主属性 (力量/智力)</label>
+              <input type="number" id="sim-main-stat" value="1200" oninput="runSimulation()" class="w-full bg-[#151924] border border-[#3a3226] rounded px-3 py-1.5 text-amber-100">
+            </div>
+            <div>
+              <label class="block text-gray-400 text-xs mb-1">暴击等级 (%)</label>
+              <input type="number" id="sim-crit" value="35" oninput="runSimulation()" class="w-full bg-[#151924] border border-[#3a3226] rounded px-3 py-1.5 text-amber-100">
+            </div>
+            <div>
+              <label class="block text-gray-400 text-xs mb-1">急速等级 (%)</label>
+              <input type="number" id="sim-haste" value="20" oninput="runSimulation()" class="w-full bg-[#151924] border border-[#3a3226] rounded px-3 py-1.5 text-amber-100">
+            </div>
+            <div>
+              <label class="block text-gray-400 text-xs mb-1">精通等级 (%)</label>
+              <input type="number" id="sim-mastery" value="25" oninput="runSimulation()" class="w-full bg-[#151924] border border-[#3a3226] rounded px-3 py-1.5 text-amber-100">
+            </div>
+          </div>
+          <div class="p-3 bg-[#151924] rounded border border-[#8c6f3e]/40 flex items-center justify-between mt-3">
+            <span class="text-xs text-gray-300">预估循环秒伤 (Simulated DPS)：</span>
+            <span id="sim-result-dps" class="text-lg font-bold font-mono text-amber-400">14,250 DPS</span>
+          </div>
+        </div>
+
+        <!-- 攻略速查组件 -->
+        <div class="bg-[#0b0d13] p-4 rounded border border-[#3a3226] space-y-3 text-sm">
+          <h3 class="text-sm font-bold text-amber-300">🗺️ 泽风岛开荒要点速查</h3>
+          <ul class="space-y-2 text-xs text-gray-300 list-disc list-inside">
+            <li><strong class="text-amber-200">新种族天裔</strong>：自带 3% 闪避与法术抗性，极力推荐开荒物理系或坦克职业。</li>
+            <li><strong class="text-amber-200">魔法高塔副本</strong>：注意走位躲避地板技能，治疗职业需留好爆发群抬。</li>
+            <li><strong class="text-amber-200">经典魔塔速通</strong>：黄门留给关键层数，前期优先加满攻击力。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. 逐风酒馆论坛模块 -->
+  <section id="sec-forum" class="hidden space-y-6">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <!-- 发帖表单 -->
+      <div class="lg:col-span-4 bg-[#151924] p-6 rounded-lg gold-border space-y-4">
+        <div class="border-b border-[#2e3446] pb-3">
+          <h2 class="wow-serif text-xl text-amber-400 font-bold">🍺 发布酒馆新帖</h2>
+          <p class="text-xs text-gray-400 mt-1">分享开荒心得、组队秘籍或吐槽奇闻异事</p>
+        </div>
+        <div class="space-y-3 text-sm">
+          <div>
+            <label class="block text-gray-300 mb-1">选择版块</label>
+            <select id="forum-category" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
+              <option value="综合讨论">🔥 综合讨论</option>
+              <option value="开荒组队">🛡️ 组队招募</option>
+              <option value="欧皇晒图">✨ 欧皇晒图</option>
+              <option value="Bug反馈">🛠️ Bug反馈</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-gray-300 mb-1">帖子标题</label>
+            <input type="text" id="forum-title" placeholder="简述你的核心观点..." maxlength="40" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
+          </div>
+          <div>
+            <label class="block text-gray-300 mb-1">署名昵称</label>
+            <input type="text" id="forum-author" value="灰烬使者" maxlength="12" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
+          </div>
+          <div>
+            <label class="block text-gray-300 mb-1">帖子内容</label>
+            <textarea id="forum-content" rows="4" placeholder="详细聊聊你的见解..." maxlength="300" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500 resize-none"></textarea>
+          </div>
+        </div>
+        <button onclick="submitPost()" class="w-full py-3 rounded font-bold text-base gold-btn transition cursor-pointer mt-2">✍️ 提交发布</button>
+      </div>
+
+      <!-- 帖子列表 -->
+      <div class="lg:col-span-8 bg-[#151924] p-6 rounded-lg gold-border min-h-[500px] flex flex-col">
+        <div class="flex items-center justify-between border-b border-[#2e3446] pb-3 mb-4">
+          <div>
+            <h2 class="wow-serif text-xl text-amber-400 font-bold">逐风酒馆广场</h2>
+            <p class="text-xs text-gray-400 mt-1">实时展示社区所有冒险者的最新动态</p>
+          </div>
+          <button onclick="loadPosts()" class="px-3 py-1.5 rounded text-xs bg-[#262c3d] text-amber-300 border border-[#8c6f3e] hover:bg-[#323a50] transition cursor-pointer">🔄 刷新列表</button>
+        </div>
+        <div id="forum-posts-list" class="space-y-4 flex-1"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. 摸鱼小游戏模块 -->
   <section id="sec-games" class="hidden space-y-4">
     <div class="bg-[#151924] p-4 md:p-6 rounded-lg gold-border">
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#2e3446] pb-4 mb-4">
         <div>
           <h2 class="wow-serif text-xl text-amber-400 font-bold">排队等待 & 休闲小游戏</h2>
-          <p class="text-xs text-gray-400 mt-1">点击下方按钮切换游戏，若画面加载缓慢可点击右侧“新窗口全屏玩”</p>
+          <p class="text-xs text-gray-400 mt-1">点击下方按钮切换游戏</p>
         </div>
         <div class="flex flex-wrap items-center gap-3">
-          <button onclick="selectGame('tower')" id="btn-game-tower" class="px-4 py-2 rounded border border-[#3a3226] text-sm font-bold transition game-btn-active">
-            🧙‍♂️ 魔法高塔 (Solomon's Keep)
-          </button>
-          <button onclick="selectGame('mota')" id="btn-game-mota" class="px-4 py-2 rounded border border-[#3a3226] text-sm font-bold text-gray-300 hover:text-amber-300 transition">
-            🏰 经典魔塔
-          </button>
-          <a id="external-game-link" href="https://solomons-keep-web-chao.scotty6174.chatgpt.site/" target="_blank" rel="noopener noreferrer" class="px-3 py-2 rounded text-xs font-bold gold-btn transition">
-            ↗ 新窗口全屏玩
-          </a>
+          <button onclick="selectGame('tower')" id="btn-game-tower" class="px-4 py-2 rounded border border-[#3a3226] text-sm font-bold transition game-btn-active">🧙‍♂️ 魔法高塔</button>
+          <button onclick="selectGame('mota')" id="btn-game-mota" class="px-4 py-2 rounded border border-[#3a3226] text-sm font-bold text-gray-300 hover:text-amber-300 transition">🏰 经典魔塔</button>
+          <a id="external-game-link" href="https://solomons-keep-web-chao.scotty6174.chatgpt.site/" target="_blank" rel="noopener noreferrer" class="px-3 py-2 rounded text-xs font-bold gold-btn transition">↗ 全屏玩</a>
         </div>
       </div>
-
       <div class="w-full bg-black rounded-lg overflow-hidden border border-[#3a3226] relative" style="height: 75vh; min-height: 550px;">
         <iframe id="game-iframe" src="https://solomons-keep-web-chao.scotty6174.chatgpt.site/" class="w-full h-full border-0" allow="fullscreen; autoplay; gamepad" allowfullscreen></iframe>
       </div>
@@ -272,7 +343,7 @@
   };
 
   function switchTab(id) {
-    ['card', 'campfire', 'games'].forEach(t => {
+    ['card', 'campfire', 'guide', 'forum', 'games'].forEach(t => {
       document.getElementById('sec-' + t).classList.toggle('hidden', t !== id);
       const btn = document.getElementById('tab-' + t);
       if (t === id) {
@@ -283,6 +354,7 @@
         btn.classList.add('text-gray-400');
       }
     });
+    if (id === 'forum') loadPosts();
   }
 
   function selectGame(key) {
@@ -301,7 +373,82 @@
     });
   }
 
-  // --- Socket.io 营火大厅与 WebRTC 语音逻辑 ---
+  // --- 论坛逻辑 ---
+  async function loadPosts() {
+    try {
+      const res = await fetch('/api/posts');
+      const json = await res.json();
+      const container = document.getElementById('forum-posts-list');
+      if (!json.success || json.data.length === 0) {
+        container.innerHTML = `<div class="text-center py-16 text-gray-500 text-sm">🍺 酒馆里空空如也，快来发布第一篇高见吧！</div>`;
+        return;
+      }
+      container.innerHTML = json.data.map(p => `
+          <div class="p-4 bg-[#0b0d13] border border-[#2e3446] rounded-lg space-y-2">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <span class="text-xs px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-300">${escapeHtml(p.category)}</span>
+                <h3 class="font-bold text-amber-100 text-base">${escapeHtml(p.title)}</h3>
+              </div>
+              <span class="text-xs text-gray-500 font-mono">${p.createdAt.substring(5, 16)}</span>
+            </div>
+            <p class="text-sm text-gray-300 whitespace-pre-line">${escapeHtml(p.content)}</p>
+            <div class="flex items-center justify-between pt-2 border-t border-[#1f2437] text-xs text-gray-400">
+              <span>✍️ 楼主：${escapeHtml(p.author)}</span>
+              <button onclick="likePost('${p.id}')" class="px-3 py-1 rounded bg-[#151924] hover:bg-[#22293a] text-amber-300 border border-[#3a3226] transition cursor-pointer">
+                🔥 点赞 (${p.likes})
+              </button>
+            </div>
+          </div>
+        `).join('');
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function submitPost() {
+    const category = document.getElementById('forum-category').value;
+    const title = document.getElementById('forum-title').value.trim();
+    const author = document.getElementById('forum-author').value.trim() || '无名冒险者';
+    const content = document.getElementById('forum-content').value.trim();
+    if (!title || !content) {
+      alert('标题和内容不能为空！');
+      return;
+    }
+    try {
+      const res = await fetch('/api/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ category, title, author, content })
+      });
+      const json = await res.json();
+      if (json.success) {
+        document.getElementById('forum-title').value = '';
+        document.getElementById('forum-content').value = '';
+        loadPosts();
+      }
+    } catch (e) {
+      alert('发布失败');
+    }
+  }
+
+  async function likePost(postId) {
+    await fetch(`/api/posts/${postId}/like`, { method: 'POST' });
+    loadPosts();
+  }
+
+  // --- 属性模拟器简易逻辑 ---
+  function runSimulation() {
+    const main = parseFloat(document.getElementById('sim-main-stat').value) || 0;
+    const crit = parseFloat(document.getElementById('sim-crit').value) || 0;
+    const haste = parseFloat(document.getElementById('sim-haste').value) || 0;
+    const mastery = parseFloat(document.getElementById('sim-mastery').value) || 0;
+
+    const dps = Math.round(main * 3.5 * (1 + crit / 100) * (1 + haste / 120) * (1 + mastery / 150));
+    document.getElementById('sim-result-dps').textContent = dps.toLocaleString() + ' DPS';
+  }
+
+  // --- Socket.io 营火大厅与语音逻辑 ---
   const socket = io();
   let currentRoomId = '';
   let localStream = null;
@@ -313,30 +460,20 @@
     document.getElementById('cf-room-count').textContent = `${rooms.length} 个公开房间`;
     const container = document.getElementById('cf-room-list');
     if (rooms.length === 0) {
-      container.innerHTML = `
-          <div class="text-center py-16 text-gray-500 text-sm">
-            <div class="text-3xl mb-2">🪵</div>
-            暂无公开招募的营火，可在左侧创建房间，或使用房间号定向进入隐身房间！
-          </div>`;
+      container.innerHTML = `<div class="text-center py-16 text-gray-500 text-sm">🪵 暂无公开招募的营火，快在左侧点燃你的车队吧！</div>`;
       return;
     }
     container.innerHTML = rooms.map(r => `
         <div class="p-4 bg-[#0b0d13] border border-[#2e3446] hover:border-[#8c6f3e] rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition">
           <div class="space-y-1">
             <div class="flex items-center space-x-2">
-              <span class="text-xs px-2 py-0.5 rounded font-bold ${r.faction === 'horde' ? 'bg-red-900/40 text-red-300 border border-red-700/40' : 'bg-blue-900/40 text-blue-300 border border-blue-700/40'}">
-                ${r.faction === 'horde' ? '部落' : '联盟'}
-              </span>
-              <span class="text-xs px-2 py-0.5 rounded ${r.isLocked ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'bg-emerald-900/30 text-emerald-300 border border-emerald-700/30'}">
-                ${r.isLocked ? '🔒 私密加锁' : '🔓 公开招募'}
-              </span>
+              <span class="text-xs px-2 py-0.5 rounded font-bold ${r.faction === 'horde' ? 'bg-red-900/40 text-red-300' : 'bg-blue-900/40 text-blue-300'}">${r.faction === 'horde' ? '部落' : '联盟'}</span>
+              <span class="text-xs px-2 py-0.5 rounded ${r.isLocked ? 'bg-amber-500/20 text-amber-300' : 'bg-emerald-900/30 text-emerald-300'}">${r.isLocked ? '🔒 加锁' : '🔓 公开'}</span>
               <h3 class="font-bold text-amber-100 text-base">${escapeHtml(r.title)}</h3>
             </div>
-            <p class="text-xs text-gray-400">房间号：<span class="font-mono text-amber-300/80">${r.id}</span> · 队长：${escapeHtml(r.leader)} · 人数：${r.memberCount}/${r.maxMembers}</p>
+            <p class="text-xs text-gray-400">房间号：<span class="font-mono text-amber-300">${r.id}</span> · 队长：${escapeHtml(r.leader)} · 人数：${r.memberCount}/${r.maxMembers}</p>
           </div>
-          <button onclick="joinRoom('${r.id}', ${r.isLocked})" class="px-4 py-2 rounded text-xs font-bold gold-btn shrink-0 cursor-pointer">
-            ${r.isLocked ? '🔑 输入密码加入' : '✋ 加入小队'}
-          </button>
+          <button onclick="joinRoom('${r.id}', ${r.isLocked})" class="px-4 py-2 rounded text-xs font-bold gold-btn shrink-0 cursor-pointer">${r.isLocked ? '🔑 输入密码' : '✋ 加入'}</button>
         </div>
       `).join('');
   });
@@ -349,28 +486,10 @@
     renderRoomDetail(room);
   });
 
-  socket.on('room:updated', (room) => {
-    renderRoomDetail(room);
-  });
-
-  socket.on('room:left', () => {
-    stopVoice();
-    currentRoomId = '';
-    document.getElementById('campfire-room').classList.add('hidden');
-    document.getElementById('campfire-lobby').classList.remove('hidden');
-  });
-
-  socket.on('room:kicked', (msg) => {
-    stopVoice();
-    currentRoomId = '';
-    alert(msg);
-    document.getElementById('campfire-room').classList.add('hidden');
-    document.getElementById('campfire-lobby').classList.remove('hidden');
-  });
-
-  socket.on('room:error', (msg) => {
-    alert(msg);
-  });
+  socket.on('room:updated', (room) => { renderRoomDetail(room); });
+  socket.on('room:left', () => { stopVoice(); currentRoomId = ''; document.getElementById('campfire-room').classList.add('hidden'); document.getElementById('campfire-lobby').classList.remove('hidden'); });
+  socket.on('room:kicked', (msg) => { stopVoice(); currentRoomId = ''; alert(msg); document.getElementById('campfire-room').classList.add('hidden'); document.getElementById('campfire-lobby').classList.remove('hidden'); });
+  socket.on('room:error', (msg) => { alert(msg); });
 
   socket.on('room:chat', (msg) => {
     const box = document.getElementById('room-chat-box');
@@ -386,7 +505,7 @@
     box.scrollTop = box.scrollHeight;
   });
 
-  // --- WebRTC 实时语音信令处理 ---
+  // WebRTC 语音信令
   socket.on('voice:peer-joined', async ({ peerId }) => {
     if (!localStream || peerId === socket.id) return;
     const pc = createPeerConnection(peerId);
@@ -397,9 +516,7 @@
 
   socket.on('voice:signal', async ({ fromPeerId, signal }) => {
     if (!localStream) return;
-    let pc = peerConnections[fromPeerId];
-    if (!pc) pc = createPeerConnection(fromPeerId);
-
+    let pc = peerConnections[fromPeerId] || createPeerConnection(fromPeerId);
     if (signal.type === 'offer') {
       await pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
       const answer = await pc.createAnswer();
@@ -412,184 +529,124 @@
     }
   });
 
-  socket.on('voice:peer-left', ({ peerId }) => {
-    closePeerConnection(peerId);
-  });
+  socket.on('voice:peer-left', ({ peerId }) => { closePeerConnection(peerId); });
 
   function createPeerConnection(peerId) {
     if (peerConnections[peerId]) closePeerConnection(peerId);
     const pc = new RTCPeerConnection(rtcConfig);
     peerConnections[peerId] = pc;
-
     localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-
-    pc.onicecandidate = (e) => {
-      if (e.candidate) {
-        socket.emit('voice:signal', { toPeerId: peerId, signal: { type: 'candidate', candidate: e.candidate } });
-      }
-    };
-
+    pc.onicecandidate = (e) => { if (e.candidate) socket.emit('voice:signal', { toPeerId: peerId, signal: { type: 'candidate', candidate: e.candidate } }); };
     pc.ontrack = (e) => {
-      let audio = document.getElementById('audio-' + peerId);
-      if (!audio) {
-        audio = document.createElement('audio');
-        audio.id = 'audio-' + peerId;
-        audio.autoplay = true;
-        document.getElementById('remote-audios').appendChild(audio);
-      }
+      let audio = document.getElementById('audio-' + peerId) || document.createElement('audio');
+      audio.id = 'audio-' + peerId; audio.autoplay = true;
+      document.getElementById('remote-audios').appendChild(audio);
       audio.srcObject = e.streams[0];
     };
-
     return pc;
   }
 
   function closePeerConnection(peerId) {
-    if (peerConnections[peerId]) {
-      peerConnections[peerId].close();
-      delete peerConnections[peerId];
-    }
+    if (peerConnections[peerId]) { peerConnections[peerId].close(); delete peerConnections[peerId]; }
     const audio = document.getElementById('audio-' + peerId);
     if (audio) audio.remove();
   }
 
   async function toggleVoice() {
-    if (localStream) {
-      stopVoice();
-      socket.emit('voice:leave');
-      return;
-    }
+    if (localStream) { stopVoice(); socket.emit('voice:leave'); return; }
     try {
       localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
       isMuted = false;
       document.getElementById('btn-voice-toggle').textContent = '☎️ 断开语音';
-      document.getElementById('btn-voice-toggle').className = 'px-3 py-2 rounded text-xs font-bold bg-red-800/40 hover:bg-red-700/50 text-red-200 border border-red-500/50 transition cursor-pointer';
+      document.getElementById('btn-voice-toggle').className = 'px-3 py-2 rounded text-xs font-bold bg-red-800/40 text-red-200 border border-red-500/50 cursor-pointer';
       document.getElementById('btn-mic-mute').classList.remove('hidden');
-      document.getElementById('btn-mic-mute').textContent = '🔊 麦克风已开';
-      document.getElementById('voice-status-hint').textContent = '🎙️ 语音通话中';
+      document.getElementById('voice-status-hint').textContent = '🎙️ 语音中';
       document.getElementById('voice-status-hint').className = 'text-[11px] text-emerald-400 font-bold';
       socket.emit('voice:join');
-    } catch (err) {
-      alert('无法访问麦克风，请确认浏览器已授予麦克风权限（且通过 HTTPS 访问）：' + err.message);
-    }
+    } catch (err) { alert('无法访问麦克风：' + err.message); }
   }
 
   function toggleMute() {
     if (!localStream) return;
     isMuted = !isMuted;
     localStream.getAudioTracks().forEach(t => t.enabled = !isMuted);
-    const btn = document.getElementById('btn-mic-mute');
-    btn.textContent = isMuted ? '🔇 已静音' : '🔊 麦克风已开';
+    document.getElementById('btn-mic-mute').textContent = isMuted ? '🔇 已静音' : '🔊 麦克风已开';
   }
 
   function stopVoice() {
-    if (localStream) {
-      localStream.getTracks().forEach(t => t.stop());
-      localStream = null;
-    }
+    if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
     Object.keys(peerConnections).forEach(closePeerConnection);
-    document.getElementById('btn-voice-toggle').textContent = '🎙️ 加入小队语音';
-    document.getElementById('btn-voice-toggle').className = 'px-3 py-2 rounded text-xs font-bold bg-emerald-700/40 hover:bg-emerald-600/50 text-emerald-200 border border-emerald-500/50 transition cursor-pointer';
+    document.getElementById('btn-voice-toggle').textContent = '🎙️ 加入语音';
+    document.getElementById('btn-voice-toggle').className = 'px-3 py-2 rounded text-xs font-bold bg-emerald-700/40 text-emerald-200 border border-emerald-500/50 cursor-pointer';
     document.getElementById('btn-mic-mute').classList.add('hidden');
     document.getElementById('voice-status-hint').textContent = '未连接语音';
     document.getElementById('voice-status-hint').className = 'text-[11px] text-gray-400';
   }
 
-  // --- 房间操作函数 ---
   function createRoom() {
-    const nickname = document.getElementById('cf-nickname').value;
-    const faction = document.getElementById('cf-faction').value;
-    const role = document.getElementById('cf-role').value;
-    const title = document.getElementById('cf-title').value;
-    const password = document.getElementById('cf-password').value;
-    const isHidden = document.getElementById('cf-hidden').checked;
-    socket.emit('room:create', { nickname, faction, role, title, password, isHidden });
+    socket.emit('room:create', {
+      nickname: document.getElementById('cf-nickname').value,
+      faction: document.getElementById('cf-faction').value,
+      role: document.getElementById('cf-role').value,
+      title: document.getElementById('cf-title').value,
+      password: document.getElementById('cf-password').value,
+      isHidden: document.getElementById('cf-hidden').checked
+    });
   }
 
   function joinRoom(roomId, isLocked) {
-    let password = '';
-    if (isLocked) {
-      password = prompt('🔒 该房间已加锁，请输入房间暗号/密码：');
-      if (password === null) return;
-    }
-    const nickname = document.getElementById('cf-nickname').value || '热心队友';
-    const role = document.getElementById('cf-role').value || '⚔️ 输出';
-    socket.emit('room:join', { roomId, nickname, role, password });
+    let password = isLocked ? prompt('🔒 输入房间暗号：') : '';
+    if (isLocked && password === null) return;
+    socket.emit('room:join', { roomId, nickname: document.getElementById('cf-nickname').value || '热心队友', role: document.getElementById('cf-role').value, password });
   }
 
   function joinDirectRoom() {
-    const roomId = document.getElementById('direct-room-id').value.trim();
-    const password = document.getElementById('direct-room-pwd').value.trim();
-    if (!roomId) {
-      alert('请输入6位房间号！');
-      return;
-    }
-    const nickname = document.getElementById('cf-nickname').value || '神秘队友';
-    const role = document.getElementById('cf-role').value || '⚔️ 输出';
-    socket.emit('room:join', { roomId, nickname, role, password });
+    socket.emit('room:join', {
+      roomId: document.getElementById('direct-room-id').value.trim(),
+      nickname: document.getElementById('cf-nickname').value || '神秘队友',
+      role: document.getElementById('cf-role').value,
+      password: document.getElementById('direct-room-pwd').value.trim()
+    });
   }
 
   function kickMember(targetId, targetName) {
-    if (!confirm(`确定要将「${targetName}」移出小队吗？`)) return;
-    socket.emit('room:kick', { targetId });
+    if (confirm(`确定要将「${targetName}」移出小队吗？`)) socket.emit('room:kick', { targetId });
   }
 
   function copyInviteLink() {
     if (!currentRoomId) return;
-    const inviteUrl = `${window.location.origin}/?room=${currentRoomId}`;
-    const copyText = `🔥 快来加入我的《魔兽世界：无限》营火小队！\n🔑 房间号：${currentRoomId}\n🔗 定向传送链接：${inviteUrl}`;
-    navigator.clipboard.writeText(copyText).then(() => {
-      alert('✅ 房间号与专属邀请链接已复制到剪贴板，快去发给亲友吧！');
-    }).catch(() => {
-      prompt('请手动复制以下邀请信息：', copyText);
-    });
+    const url = `${window.location.origin}/?room=${currentRoomId}`;
+    navigator.clipboard.writeText(`🔥 营火小队邀请：${currentRoomId}，直达链接：${url}`).then(() => alert('✅ 已复制邀请链接！'));
   }
 
-  function leaveRoom() {
-    socket.emit('room:leave');
-  }
-
+  function leaveRoom() { socket.emit('room:leave'); }
   function sendRoomChat() {
     const input = document.getElementById('room-chat-input');
-    const text = input.value.trim();
-    if (!text) return;
-    socket.emit('room:chat', { text });
-    input.value = '';
+    if (input.value.trim()) { socket.emit('room:chat', { text: input.value.trim() }); input.value = ''; }
   }
 
   function renderRoomDetail(room) {
     const isMeLeader = (room.leaderId === socket.id);
-    const privacyBadge = room.isHidden ? '👻 隐身' : (room.isLocked ? '🔒 加锁' : '🔓 公开');
     document.getElementById('room-lock-badge').textContent = room.isHidden ? '👻' : (room.isLocked ? '🔒' : '🔓');
     document.getElementById('room-title-display').textContent = room.title;
     document.getElementById('room-id-badge').textContent = `房间号: ${room.id}`;
-    document.getElementById('room-meta-display').textContent = `${privacyBadge}房间 · 队长：${room.leader}`;
+    document.getElementById('room-meta-display').textContent = `${room.isHidden ? '隐身' : (room.isLocked ? '加锁' : '公开')} · 队长：${room.leader}`;
     document.getElementById('room-member-count').textContent = room.members.length;
-    document.getElementById('room-member-list').innerHTML = room.members.map(m => {
-      const isLeader = (m.id === room.leaderId);
-      const voiceBadge = m.inVoice ? '<span class="text-[11px] px-1.5 py-0.5 rounded bg-emerald-900/40 text-emerald-300 border border-emerald-600/40">🎙️ 语音中</span>' : '';
-      const kickBtn = (isMeLeader && m.id !== socket.id)
-              ? `<button onclick="kickMember('${m.id}', '${escapeHtml(m.name)}')" class="text-xs px-2 py-0.5 rounded bg-red-900/30 hover:bg-red-700/50 text-red-300 border border-red-700/40 transition cursor-pointer">踢出</button>`
-              : '';
-      return `
-          <div class="p-3 bg-[#0b0d13] border border-[#2e3446] rounded flex items-center justify-between gap-2">
-            <div class="flex items-center space-x-2">
-              <span class="font-bold text-amber-100 text-sm">${isLeader ? '👑 ' : ''}${escapeHtml(m.name)}</span>
-              ${voiceBadge}
-            </div>
-            <div class="flex items-center space-x-2">
-              <span class="text-xs px-2 py-0.5 rounded bg-[#1f2437] text-amber-300 border border-[#3a3226]">${escapeHtml(m.role)}</span>
-              ${kickBtn}
-            </div>
+    document.getElementById('room-member-list').innerHTML = room.members.map(m => `
+        <div class="p-3 bg-[#0b0d13] border border-[#2e3446] rounded flex items-center justify-between gap-2">
+          <div class="flex items-center space-x-2">
+            <span class="font-bold text-amber-100 text-sm">${m.id === room.leaderId ? '👑 ' : ''}${escapeHtml(m.name)}</span>
+            ${m.inVoice ? '<span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/40 text-emerald-300">🎙️ 语音中</span>' : ''}
           </div>
-        `;
-    }).join('');
+          <div class="flex items-center space-x-2">
+            <span class="text-xs px-2 py-0.5 rounded bg-[#1f2437] text-amber-300">${escapeHtml(m.role)}</span>
+            ${isMeLeader && m.id !== socket.id ? `<button onclick="kickMember('${m.id}', '${escapeHtml(m.name)}')" class="text-xs px-2 py-0.5 rounded bg-red-900/30 text-red-300 cursor-pointer">踢出</button>` : ''}
+          </div>
+        </div>
+      `).join('');
   }
 
-  function escapeHtml(str) {
-    return String(str).replace(/[&<>"']/g, s => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[s]));
-  }
-
-  // --- 英雄名片绘制逻辑 ---
+  // 英雄名片绘制
   function renderCard() {
     const canvas = document.getElementById('heroCanvas');
     const ctx = canvas.getContext('2d');
@@ -607,16 +664,13 @@
 
     ctx.strokeStyle = '#9c7a44'; ctx.lineWidth = 4; ctx.strokeRect(18, 18, 764, 414);
     ctx.fillStyle = '#a39274'; ctx.font = 'bold 15px sans-serif'; ctx.fillText('WORLD OF WARCRAFT : FOREVER · gamemate.fun', 48, 62);
-
     ctx.fillStyle = classColor; ctx.font = 'bold 46px serif'; ctx.fillText(name, 48, 135);
     ctx.fillStyle = '#fbbf24'; ctx.font = 'bold 18px sans-serif'; ctx.fillText(`Lv.60 | ${realm} | ${race} ${className}`, 48, 175);
-
     ctx.fillStyle = 'rgba(0,0,0,0.45)'; ctx.fillRect(48, 220, 704, 70);
     ctx.strokeStyle = '#3d3322'; ctx.strokeRect(48, 220, 704, 70);
     ctx.fillStyle = '#d6c7b2'; ctx.font = 'italic 16px sans-serif'; ctx.fillText(`“ ${motto} ”`, 68, 262);
-
     ctx.fillStyle = '#756650'; ctx.font = '13px sans-serif'; ctx.textAlign = 'right';
-    ctx.fillText('🔗 访问 gamemate.fun 生成你的专属名片', 752, 402);
+    ctx.fillText('🔗 访问 gamemate.fun 获得专属名片', 752, 402);
     ctx.textAlign = 'left';
   }
 
@@ -627,14 +681,18 @@
     link.click();
   }
 
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, s => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[s]));
+  }
+
   window.onload = () => {
     renderCard();
+    runSimulation();
     const params = new URLSearchParams(window.location.search);
     const roomParam = params.get('room');
     if (roomParam) {
       switchTab('campfire');
       document.getElementById('direct-room-id').value = roomParam.trim();
-      document.getElementById('direct-room-pwd').focus();
     }
   };
 </script>
