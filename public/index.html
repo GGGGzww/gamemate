@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>魔兽世界：无限 (WoW: Forever) - gamemate.fun 开荒营地</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;900&display=swap');
+        body { background-color: #0b0d13; background-image: radial-gradient(circle at 50% 0%, #1f2437 0%, #0b0d13 75%); color: #e2d8c5; font-family: system-ui, -apple-system, sans-serif; }
+        .wow-serif { font-family: 'Noto Serif SC', serif; }
+        .gold-border { border: 1px solid #8c6f3e; box-shadow: 0 0 15px rgba(0, 0, 0, 0.8), inset 0 0 12px rgba(140, 111, 62, 0.15); }
+        .gold-btn { background: linear-gradient(180deg, #b88a44 0%, #7a5823 100%); border: 1px solid #ffd885; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.9); }
+        .gold-btn:hover { background: linear-gradient(180deg, #cfa055 0%, #8f682b 100%); }
+        .tab-active { border-bottom: 2px solid #f59e0b; color: #fbbf24; background: rgba(245, 158, 11, 0.1); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+<header class="border-b border-[#3a3226] bg-[#11141d]/90 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <span class="text-2xl">⚔️</span>
+            <div>
+                <h1 class="wow-serif text-lg md:text-xl font-bold text-amber-400 tracking-wider">魔兽世界：无限</h1>
+                <p class="text-[11px] text-gray-400 -mt-1">gamemate.fun 开荒营地</p>
+            </div>
+        </div>
+        <nav class="flex space-x-1 md:space-x-4 text-sm font-medium">
+            <button onclick="switchTab('card')" id="tab-card" class="px-3 py-5 transition tab-active">🪪 英雄名片</button>
+            <button onclick="switchTab('radar')" id="tab-radar" class="px-3 py-5 transition text-gray-400 hover:text-amber-300">🗺️ 开荒雷达</button>
+            <button onclick="switchTab('campfire')" id="tab-campfire" class="px-3 py-5 transition text-gray-400 hover:text-amber-300">🔥 营火大厅</button>
+        </nav>
+    </div>
+</header>
+<main class="flex-1 max-w-6xl w-full mx-auto px-4 py-8">
+    <section id="sec-card" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div class="lg:col-span-5 bg-[#151924] p-6 rounded-lg gold-border space-y-4">
+            <div class="border-b border-[#2e3446] pb-3">
+                <h2 class="wow-serif text-xl text-amber-400 font-bold">生成你的开荒英雄帖</h2>
+                <p class="text-xs text-gray-400 mt-1">填写角色信息，一键导出高清复古海报分享至群聊</p>
+            </div>
+            <div class="space-y-3 text-sm">
+                <div>
+                    <label class="block text-gray-300 mb-1">角色名称 (ID)</label>
+                    <input type="text" id="inp-name" value="灰烬使者" maxlength="12" oninput="renderCard()" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-gray-300 mb-1">服务器</label>
+                        <input type="text" id="inp-realm" value="泽风岛 (PvP)" maxlength="10" oninput="renderCard()" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-gray-300 mb-1">所属阵营</label>
+                        <select id="inp-faction" onchange="renderCard()" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
+                            <option value="horde">🔴 为了部落 (Horde)</option>
+                            <option value="alliance">🔵 为了联盟 (Alliance)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-gray-300 mb-1">种族与新组合</label>
+                        <select id="inp-race" onchange="renderCard()" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
+                            <option value="天裔 (新种族)">✨ 天裔 (新种族)</option>
+                            <option value="亡灵">💀 亡灵</option>
+                            <option value="矮人">🍺 矮人</option>
+                            <option value="兽人">🪓 兽人</option>
+                            <option value="人类">🛡️ 人类</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-300 mb-1">职业与专精</label>
+                        <select id="inp-class" onchange="renderCard()" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
+                            <option value="圣骑士|#F48CBA">🔨 圣骑士 (亡灵骑)</option>
+                            <option value="萨满祭司|#0070DD">⚡ 萨满祭司 (矮人萨)</option>
+                            <option value="战士|#C69B6D">⚔️ 战士</option>
+                            <option value="法师|#3FC7EB">❄️ 法师</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-gray-300 mb-1">开荒宣言</label>
+                    <input type="text" id="inp-motto" value="gamemate.fun 寻找稳定开荒队友！" maxlength="26" oninput="renderCard()" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
+                </div>
+            </div>
+            <button onclick="downloadCard()" class="w-full py-3 rounded font-bold text-base gold-btn transition cursor-pointer mt-2">📥 一键保存高清名片 (PNG)</button>
+        </div>
+        <div class="lg:col-span-7 flex flex-col items-center">
+            <div class="w-full flex justify-between items-center mb-2 px-1">
+                <span class="text-xs text-gray-400">实时海报预览</span>
+                <span class="text-xs text-amber-400/80">800 × 450 px</span>
+            </div>
+            <div class="w-full overflow-hidden rounded-lg gold-border bg-black flex justify-center">
+                <canvas id="heroCanvas" width="800" height="450" class="w-full h-auto max-w-[800px]"></canvas>
+            </div>
+        </div>
+    </section>
+    <section id="sec-radar" class="hidden space-y-6">
+        <div class="bg-[#151924] p-6 rounded-lg gold-border">
+            <h2 class="wow-serif text-xl text-amber-400 font-bold mb-1">开荒雷达与副本进度</h2>
+            <p class="text-xs text-gray-400 mb-6">勾选状态会自动保存在你的浏览器中</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="p-4 bg-[#0b0d13] rounded border border-[#2e3446]">
+                    <h3 class="text-lg font-bold text-amber-200">🏝️ 泽风岛新区域</h3>
+                    <label class="flex items-center space-x-2 mt-4 text-sm cursor-pointer">
+                        <input type="checkbox" onchange="localStorage.setItem('m1', this.checked)" id="chk-map1" class="accent-amber-500">
+                        <span>已开启飞行点</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="sec-campfire" class="hidden">
+        <div class="bg-[#151924] p-8 rounded-lg gold-border text-center space-y-3">
+            <div class="text-4xl">🔥</div>
+            <h2 class="wow-serif text-xl text-amber-400 font-bold">营火组队大厅</h2>
+            <p class="text-sm text-gray-400">实时组队与 WebRTC 语音功能正在加载中...</p>
+        </div>
+    </section>
+</main>
+<script>
+    function switchTab(id) {
+        ['card', 'radar', 'campfire'].forEach(t => {
+            document.getElementById('sec-' + t).classList.toggle('hidden', t !== id);
+            const btn = document.getElementById('tab-' + t);
+            if (t === id) { btn.classList.add('tab-active'); btn.classList.remove('text-gray-400'); }
+            else { btn.classList.remove('tab-active'); btn.classList.add('text-gray-400'); }
+        });
+    }
+    function renderCard() {
+        const canvas = document.getElementById('heroCanvas');
+        const ctx = canvas.getContext('2d');
+        const name = document.getElementById('inp-name').value || '无名英雄';
+        const realm = document.getElementById('inp-realm').value || '服务器';
+        const faction = document.getElementById('inp-faction').value;
+        const race = document.getElementById('inp-race').value;
+        const [className, classColor] = document.getElementById('inp-class').value.split('|');
+        const motto = document.getElementById('inp-motto').value;
+
+        const bgGrad = ctx.createLinearGradient(0, 0, 800, 450);
+        bgGrad.addColorStop(0, faction === 'horde' ? '#2a0f12' : '#0f1d33');
+        bgGrad.addColorStop(1, '#0b0d13');
+        ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, 800, 450);
+
+        ctx.strokeStyle = '#9c7a44'; ctx.lineWidth = 4; ctx.strokeRect(18, 18, 764, 414);
+        ctx.fillStyle = '#a39274'; ctx.font = 'bold 15px sans-serif'; ctx.fillText('WORLD OF WARCRAFT : FOREVER · gamemate.fun', 48, 62);
+
+        ctx.fillStyle = classColor; ctx.font = 'bold 46px serif'; ctx.fillText(name, 48, 135);
+        ctx.fillStyle = '#fbbf24'; ctx.font = 'bold 18px sans-serif'; ctx.fillText(`Lv.60 | ${realm} | ${race} ${className}`, 48, 175);
+
+        ctx.fillStyle = 'rgba(0,0,0,0.45)'; ctx.fillRect(48, 220, 704, 70);
+        ctx.strokeStyle = '#3d3322'; ctx.strokeRect(48, 220, 704, 70);
+        ctx.fillStyle = '#d6c7b2'; ctx.font = 'italic 16px sans-serif'; ctx.fillText(`“ ${motto} ”`, 68, 262);
+
+        ctx.fillStyle = '#756650'; ctx.font = '13px sans-serif'; ctx.textAlign = 'right';
+        ctx.fillText('🔗 访问 gamemate.fun 生成你的专属名片', 752, 402);
+        ctx.textAlign = 'left';
+    }
+    function downloadCard() {
+        const link = document.createElement('a');
+        link.download = 'wow_forever_card.png';
+        link.href = document.getElementById('heroCanvas').toDataURL('image/png');
+        link.click();
+    }
+    window.onload = () => { renderCard(); if(localStorage.getItem('m1')==='true') document.getElementById('chk-map1').checked = true; };
+</script>
+</body>
+</html>
