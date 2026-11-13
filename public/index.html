@@ -15,9 +15,367 @@
     .gold-btn:hover { background: linear-gradient(180deg, #cfa055 0%, #8f682b 100%); }
     .tab-active { border-bottom: 2px solid #f59e0b; color: #fbbf24; background: rgba(245, 158, 11, 0.1); }
     .game-btn-active { border-color: #f59e0b; background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+
+    /* =========================================================
+       GAMEMATE · Dark Gold UI Refresh
+       仅覆盖视觉层；原有 DOM ID、事件、接口和业务脚本保持不变
+       ========================================================= */
+    :root {
+      color-scheme: dark;
+      --gm-bg: #0b0d13;
+      --gm-panel: #121722;
+      --gm-panel-2: #171e2b;
+      --gm-panel-3: #0e131d;
+      --gm-line: rgba(183, 146, 83, .22);
+      --gm-line-strong: rgba(213, 170, 93, .46);
+      --gm-gold: #fbbf24;
+      --gm-gold-soft: #e7bd72;
+      --gm-text: #e8e1d4;
+      --gm-muted: #9299a8;
+      --gm-shadow: 0 18px 48px rgba(0,0,0,.28);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; background: var(--gm-bg); }
+    body {
+      min-height: 100vh;
+      color: var(--gm-text) !important;
+      background:
+        radial-gradient(ellipse at 50% -18%, rgba(126,91,43,.20), transparent 46%),
+        radial-gradient(ellipse at 0% 42%, rgba(33,52,75,.14), transparent 34%),
+        linear-gradient(180deg, #10141e 0%, #0b0d13 34%, #090b10 100%) !important;
+      font-family: Inter, "Microsoft YaHei", "PingFang SC", system-ui, sans-serif !important;
+      letter-spacing: .01em;
+    }
+    body::before {
+      content: "";
+      position: fixed; inset: 0; z-index: -1; pointer-events: none;
+      opacity: .16;
+      background-image:
+        linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.014) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: linear-gradient(to bottom, black, transparent 78%);
+    }
+    .wow-serif { font-family: "Noto Serif SC", "Songti SC", serif !important; letter-spacing: .035em; }
+    header {
+      background: rgba(11,14,21,.88) !important;
+      border-color: rgba(202,160,86,.25) !important;
+      box-shadow: 0 8px 30px rgba(0,0,0,.24);
+      backdrop-filter: blur(18px) saturate(135%) !important;
+    }
+    header > div {
+      max-width: 1320px !important;
+      min-height: 68px;
+      height: auto !important;
+      gap: 18px;
+    }
+    header h1 { color: #f3c76d !important; text-shadow: 0 0 24px rgba(251,191,36,.14); }
+    header nav { scrollbar-width: none; }
+    header nav::-webkit-scrollbar { display:none; }
+    header nav button {
+      position: relative;
+      white-space: nowrap;
+      padding: 23px 13px !important;
+      color: #9da4b2 !important;
+      border-bottom: 2px solid transparent;
+      transition: color .18s ease, background .18s ease, border-color .18s ease;
+    }
+    header nav button:hover { color: #f7d58e !important; background: rgba(251,191,36,.055); }
+    header nav button.tab-active {
+      color: #ffd477 !important;
+      background: linear-gradient(180deg, rgba(251,191,36,.10), rgba(251,191,36,.025)) !important;
+      border-bottom: 2px solid #e8b85c !important;
+      box-shadow: inset 0 -10px 22px -18px rgba(251,191,36,.65);
+    }
+    main { max-width: 1320px !important; padding-top: 34px !important; padding-bottom: 64px !important; }
+    section { animation: gm-fade-in .24s ease both; }
+    @keyframes gm-fade-in { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
+
+    .gold-border {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(145deg, rgba(24,30,43,.97), rgba(16,21,31,.98)) !important;
+      border: 1px solid var(--gm-line) !important;
+      border-radius: 13px !important;
+      box-shadow: var(--gm-shadow), inset 0 1px 0 rgba(255,255,255,.025) !important;
+    }
+    .gold-border::before {
+      content:""; position:absolute; left:22px; right:22px; top:0; height:1px;
+      background: linear-gradient(90deg, transparent, rgba(238,190,105,.42), transparent);
+      pointer-events:none;
+    }
+    .gold-border h2 { color:#f1c66e !important; }
+    .gold-border h3 { color:#eac47c !important; }
+    .gold-border > div.border-b,
+    .gold-border .border-b { border-color: rgba(191,157,100,.16) !important; }
+    .gold-btn {
+      color:#21180a !important;
+      background: linear-gradient(180deg, #f4cd7d 0%, #d9a94f 52%, #b98232 100%) !important;
+      border:1px solid #f8d995 !important;
+      border-radius:7px !important;
+      text-shadow:none !important;
+      box-shadow: 0 5px 16px rgba(180,125,43,.16), inset 0 1px 0 rgba(255,255,255,.34);
+      transition: transform .16s ease, filter .16s ease, box-shadow .16s ease;
+    }
+    .gold-btn:hover {
+      filter:brightness(1.08);
+      transform:translateY(-1px);
+      box-shadow:0 8px 22px rgba(180,125,43,.24), inset 0 1px 0 rgba(255,255,255,.42);
+    }
+    button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+    button { cursor:pointer; }
+    button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+      outline:2px solid rgba(251,191,36,.75) !important; outline-offset:2px;
+    }
+    input, select, textarea {
+      color:#f0e4cd !important;
+      background:rgba(8,11,17,.78) !important;
+      border:1px solid rgba(174,145,96,.24) !important;
+      border-radius:7px !important;
+      transition:border-color .16s ease, box-shadow .16s ease, background .16s ease;
+    }
+    input::placeholder, textarea::placeholder { color:#687181 !important; }
+    input:focus, select:focus, textarea:focus {
+      border-color:rgba(232,183,91,.78) !important;
+      box-shadow:0 0 0 3px rgba(251,191,36,.075) !important;
+      background:#0d121c !important;
+      outline:none !important;
+    }
+    label { color:#c4c0b8 !important; }
+    .tab-active { border-bottom-color:#fbbf24 !important; color:#fbbf24 !important; }
+
+    /* 首页：资讯与插件是核心入口，社区动态保持轻量 */
+    #sec-home > div { gap:22px !important; }
+    #sec-home > div > .gold-border:first-child {
+      padding:25px 28px !important;
+      border-color:rgba(219,174,94,.42) !important;
+      background:
+        radial-gradient(ellipse at 92% 0%, rgba(171,120,44,.13), transparent 42%),
+        linear-gradient(135deg, #1a202c, #111722 72%) !important;
+      box-shadow:0 20px 54px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.04) !important;
+    }
+    #home-news-list a {
+      padding:13px 12px !important; margin:0 -4px !important;
+      border-bottom:1px solid rgba(174,145,96,.13) !important;
+      border-radius:7px !important;
+      transition:background .16s ease, padding .16s ease;
+    }
+    #home-news-list a:hover { background:rgba(251,191,36,.055) !important; padding-left:16px !important; }
+    #home-news-list a > div:first-child { color:#f4dfb4 !important; font-size:14px; line-height:1.65; }
+    #home-news-list a > div:nth-child(2) { color:#aab1bd !important; line-height:1.65; }
+    #home-news-list a > div:last-child { color:#737e8e !important; }
+    #home-news-badge { letter-spacing:.12em; }
+    #sec-home .grid > .gold-border { padding:21px !important; }
+    #home-posts-list > div, #home-guides-list > div, #home-rooms-list > div, #home-addons-list > div {
+      padding:12px 10px !important;
+      border-color:rgba(174,145,96,.12) !important;
+      border-radius:7px !important;
+      transition:background .16s ease;
+    }
+    #home-posts-list > div:hover, #home-guides-list > div:hover,
+    #home-rooms-list > div:hover, #home-addons-list > div:hover { background:rgba(255,255,255,.025) !important; }
+    #sec-home > div > .gold-border:nth-of-type(3) { padding:21px !important; }
+    #sec-home > div > .gold-border:last-of-type {
+      padding:23px !important;
+      border-color:rgba(219,174,94,.34) !important;
+      background:linear-gradient(135deg, rgba(35,31,24,.88), rgba(17,22,31,.98)) !important;
+    }
+    #home-addons-list > div { padding:14px 12px !important; }
+    #home-addons-list > div > div:first-child { color:#f5dca8 !important; }
+    #home-stats { color:#687384 !important; padding-top:5px; }
+
+    /* 营火、模拟器、论坛、插件：统一面板和表单节奏 */
+    #sec-campfire .gold-border, #sec-guide .gold-border,
+    #sec-forum .gold-border, #sec-addons .gold-border { border-radius:13px !important; }
+    #sec-campfire .gold-border, #sec-forum .gold-border, #sec-addons .gold-border { padding:24px !important; }
+    #cf-hidden { accent-color:#d9a94f; }
+    #cf-room-list > div, #room-member-list > div, #addons-list > div, #forum-posts-list > div {
+      border-color:rgba(174,145,96,.18) !important;
+      border-radius:9px !important;
+      background:rgba(9,13,20,.58) !important;
+    }
+    #cf-room-list > div:hover, #addons-list > div:hover, #forum-posts-list > div:hover {
+      border-color:rgba(225,179,94,.48) !important;
+      background:rgba(14,19,29,.92) !important;
+    }
+    #room-chat-box { scrollbar-width:thin; scrollbar-color:#4d4435 transparent; }
+    #room-chat-box > div { padding:7px 9px; border-radius:6px; background:rgba(255,255,255,.025); }
+    #sec-guide .bg-\[\#0b0d13\] {
+      background:rgba(8,12,19,.64) !important;
+      border-color:rgba(174,145,96,.20) !important;
+      border-radius:9px !important;
+    }
+    #sim-result-dps { color:#ffd477 !important; font-size:22px !important; }
+    #forum-posts-list .post-card { padding:18px !important; }
+    #forum-posts-list .post-card h3 { line-height:1.55; }
+    #addons-list > div { padding:19px !important; }
+    #addons-list a { color:#f4d18a !important; }
+    #addons-list a:hover { filter:brightness(1.15); }
+    #forum-board-nav button { padding:7px 13px !important; }
+    #forum-board-nav button:hover { border-color:rgba(225,179,94,.6) !important; }
+    #post-modal > div {
+      background:linear-gradient(145deg,#1a2130,#111722) !important;
+      border-radius:14px !important;
+      box-shadow:0 28px 90px rgba(0,0,0,.62) !important;
+    }
+    #post-modal-replies > div { border-color:rgba(174,145,96,.18) !important; border-radius:7px !important; }
+    #game-iframe { background:#050608; }
+    #btn-game-tower, #btn-game-mota { border-radius:7px !important; }
+    .game-btn-active { color:#ffd477 !important; border-color:#c79a4c !important; background:rgba(251,191,36,.12) !important; }
+
+    /* 滚动条 */
+    * { scrollbar-width:thin; scrollbar-color:#514632 #10141d; }
+    ::-webkit-scrollbar { width:8px; height:8px; }
+    ::-webkit-scrollbar-track { background:#10141d; }
+    ::-webkit-scrollbar-thumb { background:#514632; border-radius:10px; }
+    ::-webkit-scrollbar-thumb:hover { background:#80683f; }
+
+    @media (max-width: 900px) {
+      header > div { align-items:flex-start !important; flex-direction:column; padding-top:12px; padding-bottom:0; gap:4px; }
+      header nav { width:100%; margin:0 -2px; }
+      header nav button { padding:13px 11px !important; font-size:12px !important; }
+      main { padding-top:22px !important; }
+    }
+    @media (max-width: 640px) {
+      main { padding-left:13px !important; padding-right:13px !important; padding-bottom:38px !important; }
+      #sec-home > div { gap:14px !important; }
+      .gold-border { border-radius:10px !important; }
+      #sec-home > div > .gold-border:first-child { padding:17px !important; }
+      #sec-home .grid > .gold-border, #sec-home > div > .gold-border:nth-of-type(3),
+      #sec-home > div > .gold-border:last-of-type { padding:16px !important; }
+      #sec-campfire .gold-border, #sec-forum .gold-border, #sec-addons .gold-border { padding:17px !important; }
+      #sec-campfire, #sec-guide, #sec-forum, #sec-addons, #sec-games { gap:14px !important; }
+      #home-news-list a { padding:11px 7px !important; }
+      #home-news-list a > div:first-child { font-size:13px; }
+      #cf-room-list > div, #addons-list > div, #forum-posts-list > div { padding:13px !important; }
+      #post-modal { align-items:flex-end !important; padding:8px !important; }
+      #post-modal > div { max-height:90vh !important; padding:18px !important; border-radius:14px 14px 8px 8px !important; }
+      #post-modal-reply-author { width:76px !important; }
+      #game-iframe { min-height:420px; }
+      #sec-games .w-full[style*="height"] { height:65vh !important; min-height:420px !important; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior:auto !important; animation-duration:.01ms !important; transition-duration:.01ms !important; }
+    }
+
   </style>
 </head>
 <body class="min-h-screen flex flex-col">
+<div id="conn-banner" class="hidden sticky top-0 z-[60] bg-red-900/90 text-red-100 text-center text-sm py-2 px-4"></div>
+<div id="post-modal" class="hidden fixed inset-0 z-[70] flex items-center justify-center bg-black/70 p-4">
+  <div class="bg-[#151924] rounded-lg gold-border max-w-lg w-full p-6 space-y-3 max-h-[85vh] overflow-y-auto">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <span id="post-modal-category" class="text-xs px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-300"></span>
+        <h3 id="post-modal-title" class="font-bold text-amber-100 text-lg mt-2"></h3>
+      </div>
+      <button onclick="closePostModal()" class="text-gray-400 hover:text-amber-300 text-xl leading-none px-2">✕</button>
+    </div>
+    <p id="post-modal-meta" class="text-xs text-gray-400"></p>
+    <p id="post-modal-content" class="text-sm text-gray-200 whitespace-pre-line"></p>
+    <div class="pt-3 border-t border-[#2e3446]">
+      <h4 class="text-sm font-bold text-amber-300 mb-2">💬 回帖 (<span id="post-modal-reply-count">0</span>)</h4>
+      <div id="post-modal-replies" class="space-y-2 max-h-44 overflow-y-auto text-sm"></div>
+      <div class="flex gap-2 mt-3">
+        <input id="post-modal-reply-author" placeholder="昵称" maxlength="12" class="w-24 shrink-0 bg-[#0b0d13] border border-[#3a3226] rounded px-2 py-1.5 text-amber-100 text-sm focus:outline-none focus:border-amber-500">
+        <input id="post-modal-reply-content" placeholder="说点什么…" maxlength="300" class="flex-1 min-w-0 bg-[#0b0d13] border border-[#3a3226] rounded px-2 py-1.5 text-amber-100 text-sm focus:outline-none focus:border-amber-500">
+        <button id="post-modal-reply-submit" class="px-3 py-1.5 rounded bg-[#262c3d] text-amber-300 border border-[#8c6f3e] text-sm cursor-pointer shrink-0">回复</button>
+      </div>
+    </div>
+    <div class="flex items-center justify-between pt-3 border-t border-[#2e3446]">
+      <button id="post-modal-like" class="px-3 py-1.5 rounded bg-[#0b0d13] text-amber-300 border border-[#3a3226] text-sm cursor-pointer">🔥 点赞 (0)</button>
+      <button onclick="closePostModal()" class="px-3 py-1.5 rounded bg-[#262c3d] text-amber-300 border border-[#8c6f3e] text-sm cursor-pointer">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- 发帖弹窗：点“发布新帖”弹出，提交后自动关闭 -->
+<div id="publish-modal" class="hidden fixed inset-0 z-[70] flex items-center justify-center bg-black/70 p-4">
+  <div class="bg-[#151924] rounded-lg gold-border max-w-lg w-full p-6 space-y-4 max-h-[85vh] overflow-y-auto">
+    <div class="flex items-start justify-between gap-3 border-b border-[#2e3446] pb-3">
+      <div>
+        <h3 class="wow-serif text-xl text-amber-400 font-bold">🍺 发布酒馆新帖</h3>
+        <p class="text-xs text-gray-400 mt-1">分享开荒心得、组队秘籍或吐槽奇闻异事</p>
+      </div>
+      <button onclick="closePublishModal()" class="text-gray-400 hover:text-amber-300 text-xl leading-none px-2">✕</button>
+    </div>
+    <div class="space-y-3 text-sm">
+      <div>
+        <label class="block text-gray-300 mb-1">选择版块</label>
+        <select id="forum-category" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
+          <option value="">请选择版块</option>
+          <option value="综合讨论">🔥 综合讨论</option>
+          <option value="开荒组队">🛡️ 组队招募</option>
+          <option value="攻略心得">📜 攻略心得</option>
+          <option value="开荒战报">⚔️ 开荒战报</option>
+          <option value="欧皇晒图">✨ 欧皇晒图</option>
+          <option value="Bug反馈">🛠️ Bug反馈</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-gray-300 mb-1">帖子标题</label>
+        <input type="text" id="forum-title" placeholder="简述你的核心观点..." maxlength="40" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
+      </div>
+      <div>
+        <label class="block text-gray-300 mb-1">署名昵称</label>
+        <input type="text" id="forum-author" value="灰烬使者" maxlength="12" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
+      </div>
+      <div>
+        <label class="block text-gray-300 mb-1">帖子内容</label>
+        <textarea id="forum-content" rows="4" placeholder="详细聊聊你的见解..." maxlength="300" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500 resize-none"></textarea>
+      </div>
+    </div>
+    <div class="flex gap-2">
+      <button onclick="submitPost()" class="flex-1 py-3 rounded font-bold text-base gold-btn transition cursor-pointer">✍️ 提交发布</button>
+      <button onclick="closePublishModal()" class="px-4 py-3 rounded bg-[#262c3d] text-amber-300 border border-[#8c6f3e] text-sm cursor-pointer">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- 分享插件弹窗：点“分享插件”弹出，提交后自动关闭 -->
+<div id="share-addon-modal" class="hidden fixed inset-0 z-[70] flex items-center justify-center bg-black/70 p-4">
+  <div class="bg-[#151924] rounded-lg gold-border max-w-lg w-full p-6 space-y-4 max-h-[85vh] overflow-y-auto">
+    <div class="flex items-start justify-between gap-3 border-b border-[#2e3446] pb-3">
+      <div>
+        <h3 class="wow-serif text-xl text-amber-400 font-bold">🧩 分享插件</h3>
+        <p class="text-xs text-gray-400 mt-1">分享你常用的 WA、DBM、姓名板等插件</p>
+      </div>
+      <button onclick="closeShareAddonModal()" class="text-gray-400 hover:text-amber-300 text-xl leading-none px-2">✕</button>
+    </div>
+    <div class="space-y-3 text-sm">
+      <div>
+        <label class="block text-gray-300 mb-1">插件名称 *</label>
+        <input type="text" id="addon-name" placeholder="如：WeakAuras" maxlength="40" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-gray-300 mb-1">插件版本</label>
+          <input type="text" id="addon-version" placeholder="如：5.20.1" maxlength="20" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
+        </div>
+        <div>
+          <label class="block text-gray-300 mb-1">适用版本</label>
+          <input type="text" id="addon-game-version" placeholder="如：无限 / 11.0" maxlength="20" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
+        </div>
+      </div>
+      <div>
+        <label class="block text-gray-300 mb-1">署名昵称</label>
+        <input type="text" id="addon-author" value="灰烬使者" maxlength="12" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
+      </div>
+      <div>
+        <label class="block text-gray-300 mb-1">简介</label>
+        <textarea id="addon-desc" rows="3" placeholder="这个插件是干嘛的，好用在哪…" maxlength="200" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500 resize-none"></textarea>
+      </div>
+      <div>
+        <label class="block text-gray-300 mb-1">下载链接 *</label>
+        <input type="text" id="addon-url" placeholder="https://..." maxlength="300" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
+      </div>
+    </div>
+    <div class="flex gap-2">
+      <button onclick="submitAddon()" class="flex-1 py-3 rounded font-bold text-base gold-btn transition cursor-pointer">🧩 提交分享</button>
+      <button onclick="closeShareAddonModal()" class="px-4 py-3 rounded bg-[#262c3d] text-amber-300 border border-[#8c6f3e] text-sm cursor-pointer">取消</button>
+    </div>
+  </div>
+</div>
 <header class="border-b border-[#3a3226] bg-[#11141d]/90 backdrop-blur sticky top-0 z-50">
   <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
     <div class="flex items-center space-x-3">
@@ -28,76 +386,73 @@
       </div>
     </div>
     <nav class="flex space-x-1 text-xs md:text-sm font-medium overflow-x-auto">
-      <button onclick="switchTab('card')" id="tab-card" class="px-2.5 py-5 transition tab-active">🪪 名片</button>
+      <button onclick="switchTab('home')" id="tab-home" class="px-2.5 py-5 transition tab-active">🏠 首页</button>
       <button onclick="switchTab('campfire')" id="tab-campfire" class="px-2.5 py-5 transition text-gray-400 hover:text-amber-300">🔥 营火</button>
       <button onclick="switchTab('guide')" id="tab-guide" class="px-2.5 py-5 transition text-gray-400 hover:text-amber-300">📜 秘典与模拟</button>
       <button onclick="switchTab('forum')" id="tab-forum" class="px-2.5 py-5 transition text-gray-400 hover:text-amber-300">🍺 酒馆论坛</button>
+      <button onclick="switchTab('addons')" id="tab-addons" class="px-2.5 py-5 transition text-gray-400 hover:text-amber-300">🧩 插件分享</button>
       <button onclick="switchTab('games')" id="tab-games" class="px-2.5 py-5 transition text-gray-400 hover:text-amber-300">🎮 小游戏</button>
     </nav>
   </div>
 </header>
 
 <main class="flex-1 max-w-6xl w-full mx-auto px-4 py-8">
-  <!-- 1. 英雄名片模块 -->
-  <section id="sec-card" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-    <div class="lg:col-span-5 bg-[#151924] p-6 rounded-lg gold-border space-y-4">
-      <div class="border-b border-[#2e3446] pb-3">
-        <h2 class="wow-serif text-xl text-amber-400 font-bold">生成你的开荒英雄帖</h2>
-        <p class="text-xs text-gray-400 mt-1">填写角色信息，一键导出高清复古海报分享至群聊</p>
-      </div>
-      <div class="space-y-3 text-sm">
-        <div>
-          <label class="block text-gray-300 mb-1">角色名称 (ID)</label>
-          <input type="text" id="inp-name" value="灰烬使者" maxlength="12" oninput="renderCard()" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
+  <!-- 1. 首页聚合 -->
+  <section id="sec-home">
+    <div class="space-y-6">
+      <div class="bg-[#151924] p-6 rounded-lg gold-border">
+        <div class="flex items-center justify-between border-b border-[#2e3446] pb-3 mb-2">
+          <h2 class="wow-serif text-xl text-amber-400 font-bold">📢 最新资讯<span id="home-news-badge" class="hidden ml-2 text-[10px] px-1.5 py-0.5 rounded bg-red-500/20 border border-red-500/40 text-red-300 align-middle">NEW</span></h2>
+          <span class="flex items-center gap-2"><span class="text-xs text-gray-400">来源：魔兽世界官网</span><button onclick="toggleHomeMod('news')" id="home-mod-news-toggle" class="text-amber-300 hover:text-amber-100 text-sm leading-none px-1 cursor-pointer" title="折叠/展开">▾</button></span>
         </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-gray-300 mb-1">服务器</label>
-            <input type="text" id="inp-realm" value="泽风岛 (PvP)" maxlength="10" oninput="renderCard()" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
-          </div>
-          <div>
-            <label class="block text-gray-300 mb-1">所属阵营</label>
-            <select id="inp-faction" onchange="renderCard()" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
-              <option value="horde">🔴 为了部落 (Horde)</option>
-              <option value="alliance">🔵 为了联盟 (Alliance)</option>
-            </select>
-          </div>
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-gray-300 mb-1">种族与组合</label>
-            <select id="inp-race" onchange="renderCard()" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
-              <option value="天裔 (新种族)">✨ 天裔 (新种族)</option>
-              <option value="亡灵">💀 亡灵</option>
-              <option value="矮人">🍺 矮人</option>
-              <option value="兽人">🪓 兽人</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-gray-300 mb-1">职业与专精</label>
-            <select id="inp-class" onchange="renderCard()" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
-              <option value="圣骑士|#F48CBA">🔨 圣骑士 (亡灵骑)</option>
-              <option value="萨满祭司|#0070DD">⚡ 萨满祭司 (矮人萨)</option>
-              <option value="战士|#C69B6D">⚔️ 战士</option>
-              <option value="法师|#3FC7EB">❄️ 法师</option>
-            </select>
-          </div>
-        </div>
-        <div>
-          <label class="block text-gray-300 mb-1">开荒宣言</label>
-          <input type="text" id="inp-motto" value="gamemate.fun 寻找稳定开荒队友！" maxlength="26" oninput="renderCard()" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
+        <div id="home-mod-news-body">
+          <div id="home-news-list" class="space-y-1"></div>
+          <button id="home-news-more" onclick="toggleNewsExpand()" class="hidden mt-2 text-xs text-amber-300 hover:underline cursor-pointer"></button>
         </div>
       </div>
-      <button onclick="downloadCard()" class="w-full py-3 rounded font-bold text-base gold-btn transition cursor-pointer mt-2">📥 一键保存高清名片 (PNG)</button>
-    </div>
-    <div class="lg:col-span-7 flex flex-col items-center">
-      <div class="w-full flex justify-between items-center mb-2 px-1">
-        <span class="text-xs text-gray-400">实时海报预览</span>
-        <span class="text-xs text-amber-400/80">800 × 450 px</span>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-[#151924] p-6 rounded-lg gold-border">
+          <div class="flex items-center justify-between border-b border-[#2e3446] pb-3 mb-2">
+            <h2 class="wow-serif text-xl text-amber-400 font-bold">📰 最新帖子</h2>
+            <button onclick="toggleHomeMod('posts')" id="home-mod-posts-toggle" class="text-amber-300 hover:text-amber-100 text-sm leading-none px-1 cursor-pointer" title="折叠/展开">▾</button>
+          </div>
+          <div id="home-mod-posts-body">
+            <div id="home-posts-list"></div>
+            <button onclick="switchTab('forum')" class="mt-3 text-xs text-amber-300 hover:underline cursor-pointer">查看更多 →</button>
+          </div>
+        </div>
+        <div class="bg-[#151924] p-6 rounded-lg gold-border">
+          <div class="flex items-center justify-between border-b border-[#2e3446] pb-3 mb-2">
+            <h2 class="wow-serif text-xl text-amber-400 font-bold">🔥 公开营火</h2>
+            <button onclick="toggleHomeMod('rooms')" id="home-mod-rooms-toggle" class="text-amber-300 hover:text-amber-100 text-sm leading-none px-1 cursor-pointer" title="折叠/展开">▾</button>
+          </div>
+          <div id="home-mod-rooms-body">
+            <div id="home-rooms-list"></div>
+            <button onclick="switchTab('campfire')" class="mt-3 text-xs text-amber-300 hover:underline cursor-pointer">查看更多 →</button>
+          </div>
+        </div>
       </div>
-      <div class="w-full overflow-hidden rounded-lg gold-border bg-black flex justify-center">
-        <canvas id="heroCanvas" width="800" height="450" class="w-full h-auto max-w-[800px]"></canvas>
+      <div class="bg-[#151924] p-6 rounded-lg gold-border">
+        <div class="flex items-center justify-between border-b border-[#2e3446] pb-3 mb-2">
+          <h2 class="wow-serif text-xl text-amber-400 font-bold">⭐ 精华攻略</h2>
+          <span class="flex items-center gap-2"><span class="text-xs text-gray-400">攻略心得版块点赞最高</span><button onclick="toggleHomeMod('guides')" id="home-mod-guides-toggle" class="text-amber-300 hover:text-amber-100 text-sm leading-none px-1 cursor-pointer" title="折叠/展开">▾</button></span>
+        </div>
+        <div id="home-mod-guides-body">
+          <div id="home-guides-list"></div>
+          <button onclick="viewMoreGuides()" class="mt-3 text-xs text-amber-300 hover:underline cursor-pointer">查看更多 →</button>
+        </div>
       </div>
+      <div class="bg-[#151924] p-6 rounded-lg gold-border">
+        <div class="flex items-center justify-between border-b border-[#2e3446] pb-3 mb-2">
+          <h2 class="wow-serif text-xl text-amber-400 font-bold">🧩 热门插件</h2>
+          <button onclick="toggleHomeMod('addons')" id="home-mod-addons-toggle" class="text-amber-300 hover:text-amber-100 text-sm leading-none px-1 cursor-pointer" title="折叠/展开">▾</button>
+        </div>
+        <div id="home-mod-addons-body">
+          <div id="home-addons-list"></div>
+          <button onclick="switchTab('addons')" class="mt-3 text-xs text-amber-300 hover:underline cursor-pointer">查看更多 →</button>
+        </div>
+      </div>
+      <p id="home-stats" class="text-xs text-gray-500 text-center"></p>
     </div>
   </section>
 
@@ -108,7 +463,7 @@
         <div class="bg-[#151924] p-6 rounded-lg gold-border space-y-4">
           <div class="border-b border-[#2e3446] pb-3">
             <h2 class="wow-serif text-xl text-amber-400 font-bold">🔥 点燃新的营火</h2>
-            <p class="text-xs text-gray-400 mt-1">支持密码锁、隐身模式与实时 P2P 语音通话</p>
+            <p class="text-xs text-gray-400 mt-1">支持密码锁与隐身模式</p>
           </div>
           <div class="space-y-3 text-sm">
             <div>
@@ -167,7 +522,7 @@
         <div class="flex items-center justify-between border-b border-[#2e3446] pb-3 mb-4">
           <div>
             <h2 class="wow-serif text-xl text-amber-400 font-bold">当前公开营火列表</h2>
-            <p class="text-xs text-gray-400 mt-1">实时同步在线车队</p>
+            <p class="text-xs text-gray-400 mt-1">公开房间与招募信息</p>
           </div>
           <span id="cf-room-count" class="text-xs px-2.5 py-1 rounded bg-amber-500/10 border border-amber-500/30 text-amber-300">0 个公开房间</span>
         </div>
@@ -189,8 +544,6 @@
           </div>
         </div>
         <div class="flex flex-wrap items-center gap-2">
-          <button id="btn-voice-toggle" onclick="toggleVoice()" class="px-3 py-2 rounded text-xs font-bold bg-emerald-700/40 hover:bg-emerald-600/50 text-emerald-200 border border-emerald-500/50 transition cursor-pointer">🎙️ 加入语音</button>
-          <button id="btn-mic-mute" onclick="toggleMute()" class="hidden px-3 py-2 rounded text-xs font-bold bg-[#262c3d] text-amber-300 border border-[#8c6f3e] transition cursor-pointer">🔊 麦克风已开</button>
           <button onclick="copyInviteLink()" class="px-3 py-2 rounded text-xs font-bold gold-btn transition cursor-pointer">📋 复制邀请链接</button>
           <button onclick="leaveRoom()" class="px-3 py-2 rounded border border-red-500/50 bg-red-500/10 text-red-300 hover:bg-red-500/20 text-xs font-bold transition cursor-pointer">🚪 离开营火</button>
         </div>
@@ -198,19 +551,14 @@
 
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div class="lg:col-span-5 space-y-3">
-          <div class="flex items-center justify-between">
-            <h3 class="text-sm font-bold text-amber-300">👥 小队成员 (<span id="room-member-count">1</span>/5)</h3>
-            <span id="voice-status-hint" class="text-[11px] text-gray-400">未连接语音</span>
-          </div>
+          <h3 class="text-sm font-bold text-amber-300">👥 小队成员 (<span id="room-member-count">1</span>/5)</h3>
           <div id="room-member-list" class="space-y-2"></div>
-          <div id="remote-audios" class="hidden"></div>
         </div>
 
         <div class="lg:col-span-7 flex flex-col bg-[#0b0d13] border border-[#3a3226] rounded-lg p-4 h-[340px]">
-          <div class="text-xs text-gray-400 border-b border-[#2e3446] pb-2 mb-2">🛡️ 房间内加密频道（解散即焚）</div>
           <div id="room-chat-box" class="flex-1 overflow-y-auto space-y-2 text-sm pr-1"></div>
           <div class="mt-3 flex gap-2">
-            <input type="text" id="room-chat-input" placeholder="输入战术讨论..." onkeydown="if(event.key==='Enter') sendRoomChat()" class="flex-1 bg-[#151924] border border-[#3a3226] rounded px-3 py-2 text-sm text-amber-100 focus:outline-none focus:border-amber-500">
+            <input type="text" id="room-chat-input" placeholder="输入消息..." onkeydown="if(event.key==='Enter') sendRoomChat()" class="flex-1 bg-[#151924] border border-[#3a3226] rounded px-3 py-2 text-sm text-amber-100 focus:outline-none focus:border-amber-500">
             <button onclick="sendRoomChat()" class="px-4 py-2 rounded text-sm font-bold gold-btn cursor-pointer">发送</button>
           </div>
         </div>
@@ -252,14 +600,13 @@
           </div>
         </div>
 
-        <!-- 攻略速查组件 -->
+        <!-- 攻略速查组件：读攻略心得版块的帖子，有人发攻略就自动出现 -->
         <div class="bg-[#0b0d13] p-4 rounded border border-[#3a3226] space-y-3 text-sm">
-          <h3 class="text-sm font-bold text-amber-300">🗺️ 泽风岛开荒要点速查</h3>
-          <ul class="space-y-2 text-xs text-gray-300 list-disc list-inside">
-            <li><strong class="text-amber-200">新种族天裔</strong>：自带 3% 闪避与法术抗性，极力推荐开荒物理系或坦克职业。</li>
-            <li><strong class="text-amber-200">魔法高塔副本</strong>：注意走位躲避地板技能，治疗职业需留好爆发群抬。</li>
-            <li><strong class="text-amber-200">经典魔塔速通</strong>：黄门留给关键层数，前期优先加满攻击力。</li>
-          </ul>
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-amber-300">🗺️ 攻略心得</h3>
+            <button onclick="switchTab('forum')" class="text-xs text-amber-300 hover:underline cursor-pointer">去发攻略 →</button>
+          </div>
+          <div id="guide-posts-list" class="space-y-2"></div>
         </div>
       </div>
     </div>
@@ -267,50 +614,36 @@
 
   <!-- 4. 逐风酒馆论坛模块 -->
   <section id="sec-forum" class="hidden space-y-6">
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-      <!-- 发帖表单 -->
-      <div class="lg:col-span-4 bg-[#151924] p-6 rounded-lg gold-border space-y-4">
-        <div class="border-b border-[#2e3446] pb-3">
-          <h2 class="wow-serif text-xl text-amber-400 font-bold">🍺 发布酒馆新帖</h2>
-          <p class="text-xs text-gray-400 mt-1">分享开荒心得、组队秘籍或吐槽奇闻异事</p>
+    <div class="bg-[#151924] p-6 rounded-lg gold-border min-h-[500px] flex flex-col">
+      <div class="flex items-center justify-between border-b border-[#2e3446] pb-3 mb-4">
+        <div>
+          <h2 class="wow-serif text-xl text-amber-400 font-bold">逐风酒馆广场</h2>
+          <p class="text-xs text-gray-400 mt-1">展示社区冒险者的最新动态</p>
         </div>
-        <div class="space-y-3 text-sm">
-          <div>
-            <label class="block text-gray-300 mb-1">选择版块</label>
-            <select id="forum-category" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
-              <option value="综合讨论">🔥 综合讨论</option>
-              <option value="开荒组队">🛡️ 组队招募</option>
-              <option value="欧皇晒图">✨ 欧皇晒图</option>
-              <option value="Bug反馈">🛠️ Bug反馈</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-gray-300 mb-1">帖子标题</label>
-            <input type="text" id="forum-title" placeholder="简述你的核心观点..." maxlength="40" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
-          </div>
-          <div>
-            <label class="block text-gray-300 mb-1">署名昵称</label>
-            <input type="text" id="forum-author" value="灰烬使者" maxlength="12" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
-          </div>
-          <div>
-            <label class="block text-gray-300 mb-1">帖子内容</label>
-            <textarea id="forum-content" rows="4" placeholder="详细聊聊你的见解..." maxlength="300" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500 resize-none"></textarea>
-          </div>
-        </div>
-        <button onclick="submitPost()" class="w-full py-3 rounded font-bold text-base gold-btn transition cursor-pointer mt-2">✍️ 提交发布</button>
-      </div>
-
-      <!-- 帖子列表 -->
-      <div class="lg:col-span-8 bg-[#151924] p-6 rounded-lg gold-border min-h-[500px] flex flex-col">
-        <div class="flex items-center justify-between border-b border-[#2e3446] pb-3 mb-4">
-          <div>
-            <h2 class="wow-serif text-xl text-amber-400 font-bold">逐风酒馆广场</h2>
-            <p class="text-xs text-gray-400 mt-1">实时展示社区所有冒险者的最新动态</p>
-          </div>
+        <div class="flex gap-2">
+          <button onclick="openPublishModal()" class="px-3 py-1.5 rounded text-xs font-bold gold-btn transition cursor-pointer">✍️ 发布新帖</button>
           <button onclick="loadPosts()" class="px-3 py-1.5 rounded text-xs bg-[#262c3d] text-amber-300 border border-[#8c6f3e] hover:bg-[#323a50] transition cursor-pointer">🔄 刷新列表</button>
         </div>
-        <div id="forum-posts-list" class="space-y-4 flex-1"></div>
       </div>
+      <div id="forum-board-nav" class="flex flex-wrap gap-2 mb-4"></div>
+      <div id="forum-posts-list" class="space-y-4 flex-1"></div>
+    </div>
+  </section>
+
+  <!-- 插件分享模块 -->
+  <section id="sec-addons" class="hidden space-y-6">
+    <div class="bg-[#151924] p-6 rounded-lg gold-border min-h-[500px] flex flex-col">
+      <div class="flex items-center justify-between border-b border-[#2e3446] pb-3 mb-4">
+        <div>
+          <h2 class="wow-serif text-xl text-amber-400 font-bold">插件仓库</h2>
+          <p class="text-xs text-gray-400 mt-1">按下载量排序，链接均为分享者提供，请自行甄别</p>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="openShareAddonModal()" class="px-3 py-1.5 rounded text-xs font-bold gold-btn transition cursor-pointer">🧩 分享插件</button>
+          <button onclick="loadAddons()" class="px-3 py-1.5 rounded text-xs bg-[#262c3d] text-amber-300 border border-[#8c6f3e] hover:bg-[#323a50] transition cursor-pointer">🔄 刷新</button>
+        </div>
+      </div>
+      <div id="addons-list" class="space-y-4 flex-1"></div>
     </div>
   </section>
 
@@ -329,7 +662,7 @@
         </div>
       </div>
       <div class="w-full bg-black rounded-lg overflow-hidden border border-[#3a3226] relative" style="height: 75vh; min-height: 550px;">
-        <iframe id="game-iframe" src="https://solomons-keep-web-chao.scotty6174.chatgpt.site/" class="w-full h-full border-0" allow="fullscreen; autoplay; gamepad" allowfullscreen></iframe>
+        <iframe id="game-iframe" data-src="https://solomons-keep-web-chao.scotty6174.chatgpt.site/" class="w-full h-full border-0" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-fullscreen" allow="fullscreen; autoplay; gamepad" allowfullscreen></iframe>
       </div>
     </div>
   </section>
@@ -343,9 +676,13 @@
   };
 
   function switchTab(id) {
-    ['card', 'campfire', 'guide', 'forum', 'games'].forEach(t => {
-      document.getElementById('sec-' + t).classList.toggle('hidden', t !== id);
+    if (!['home', 'campfire', 'guide', 'forum', 'addons', 'games'].includes(id)) return;
+    if (id === 'games') loadGameIframe();
+    ['home', 'campfire', 'guide', 'forum', 'addons', 'games'].forEach(t => {
+      const sec = document.getElementById('sec-' + t);
+      if (sec) sec.classList.toggle('hidden', t !== id);
       const btn = document.getElementById('tab-' + t);
+      if (!btn) return;
       if (t === id) {
         btn.classList.add('tab-active');
         btn.classList.remove('text-gray-400');
@@ -355,14 +692,26 @@
       }
     });
     if (id === 'forum') loadPosts();
+    if (id === 'home') loadHome();
+    if (id === 'addons') loadAddons();
+    if (id === 'guide') loadGuides();
+  }
+
+  function loadGameIframe(key) {
+    const iframe = document.getElementById('game-iframe');
+    if (!iframe) return;
+    const url = GAMES[key || 'tower'];
+    if (iframe.getAttribute('src') !== url) iframe.src = url;
   }
 
   function selectGame(key) {
+    if (!(key in GAMES)) return;
     const url = GAMES[key];
-    document.getElementById('game-iframe').src = url;
+    loadGameIframe(key);
     document.getElementById('external-game-link').href = url;
     ['tower', 'mota'].forEach(k => {
       const btn = document.getElementById('btn-game-' + k);
+      if (!btn) return;
       if (k === key) {
         btn.classList.add('game-btn-active');
         btn.classList.remove('text-gray-300');
@@ -374,17 +723,62 @@
   }
 
   // --- 论坛逻辑 ---
-  async function loadPosts() {
+  // 一人一帖只能赞一次：点赞记录存在后端 post_likes 表，key 是本机的持久身份
+  function getLikedPosts() {
+    try { return JSON.parse(localStorage.getItem('gm-liked-posts') || '[]'); } catch (e) { return []; }
+  }
+  function setLikedPost(postId, liked) {
+    let arr = getLikedPosts();
+    if (liked) { if (!arr.includes(postId)) arr.push(postId); }
+    else { arr = arr.filter(x => x !== postId); }
+    localStorage.setItem('gm-liked-posts', JSON.stringify(arr));
+  }
+
+  const FORUM_BOARDS = ['综合讨论', '开荒组队', '攻略心得', '开荒战报', '欧皇晒图', 'Bug反馈'];
+  let currentBoard = '';
+
+  function renderBoardNav() {
+    const nav = document.getElementById('forum-board-nav');
+    if (!nav) return;
+    const all = [{ label: '全部', value: '' }, ...FORUM_BOARDS.map(b => ({ label: b, value: b }))];
+    nav.innerHTML = all.map(b => `<button onclick="setBoard('${b.value}')" class="px-3 py-1 rounded-full text-xs border cursor-pointer transition ${currentBoard === b.value ? 'bg-amber-500/20 text-amber-300 border-amber-500/50' : 'bg-[#0b0d13] text-gray-300 border-[#3a3226] hover:border-[#8c6f3e]'}">${escapeHtml(b.label)}</button>`).join('');
+  }
+  function setBoard(cat) { currentBoard = cat; renderBoardNav(); loadPosts(); }
+
+  async function submitPost() {
+    const category = document.getElementById('forum-category').value;
+    const title = document.getElementById('forum-title').value.trim();
+    const author = document.getElementById('forum-author').value.trim();
+    const content = document.getElementById('forum-content').value.trim();
+    if (!category) { alert('请选择版块'); return; }
+    if (!title || !content) { alert('标题和内容不能为空'); return; }
     try {
-      const res = await fetch('/api/posts');
+      const res = await fetch('/api/posts', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ category, title, author, content })
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) { alert(json.detail || '发布失败'); return; }
+      document.getElementById('forum-title').value = '';
+      document.getElementById('forum-content').value = '';
+      closePublishModal();
+      currentBoard = category; renderBoardNav(); loadPosts();
+    } catch (e) { alert('发布失败，请检查网络'); }
+  }
+
+  async function loadPosts() {
+    renderBoardNav();
+    try {
+      const res = await fetch('/api/posts' + (currentBoard ? '?category=' + encodeURIComponent(currentBoard) : ''));
       const json = await res.json();
       const container = document.getElementById('forum-posts-list');
       if (!json.success || json.data.length === 0) {
         container.innerHTML = `<div class="text-center py-16 text-gray-500 text-sm">🍺 酒馆里空空如也，快来发布第一篇高见吧！</div>`;
         return;
       }
+      const liked = getLikedPosts();
       container.innerHTML = json.data.map(p => `
-          <div class="p-4 bg-[#0b0d13] border border-[#2e3446] rounded-lg space-y-2">
+          <div data-post-id="${p.id}" class="post-card p-4 bg-[#0b0d13] border border-[#2e3446] hover:border-[#8c6f3e] rounded-lg space-y-2 cursor-pointer transition">
             <div class="flex items-center justify-between">
               <div class="flex items-center space-x-2">
                 <span class="text-xs px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-300">${escapeHtml(p.category)}</span>
@@ -395,8 +789,9 @@
             <p class="text-sm text-gray-300 whitespace-pre-line">${escapeHtml(p.content)}</p>
             <div class="flex items-center justify-between pt-2 border-t border-[#1f2437] text-xs text-gray-400">
               <span>✍️ 楼主：${escapeHtml(p.author)}</span>
-              <button onclick="likePost('${p.id}')" class="px-3 py-1 rounded bg-[#151924] hover:bg-[#22293a] text-amber-300 border border-[#3a3226] transition cursor-pointer">
-                🔥 点赞 (${p.likes})
+              <span>👁 ${p.views || 0} · 💬 ${p.replyCount || 0} · 最后回复 ${p.lastReplyAt ? p.lastReplyAt.substring(5, 16) : '—'}</span>
+              <button data-like-id="${p.id}" class="like-btn px-3 py-1 rounded bg-[#151924] hover:bg-[#22293a] text-amber-300 border border-[#3a3226] transition cursor-pointer">
+                ${liked.includes(p.id) ? '❤️ 已赞' : '🔥 点赞'} (${p.likes})
               </button>
             </div>
           </div>
@@ -406,35 +801,339 @@
     }
   }
 
-  async function submitPost() {
-    const category = document.getElementById('forum-category').value;
-    const title = document.getElementById('forum-title').value.trim();
-    const author = document.getElementById('forum-author').value.trim() || '无名冒险者';
-    const content = document.getElementById('forum-content').value.trim();
-    if (!title || !content) {
-      alert('标题和内容不能为空！');
-      return;
-    }
+  // 帖子列表事件委托：点赞按钮走点赞切换，点卡片其他地方打开详情
+  document.getElementById('forum-posts-list').addEventListener('click', (e) => {
+    const likeBtn = e.target.closest('[data-like-id]');
+    if (likeBtn) { toggleLike(likeBtn.dataset.likeId, likeBtn); return; }
+    const card = e.target.closest('[data-post-id]');
+    if (card) openPostModal(card.dataset.postId);
+  });
+
+  async function toggleLike(postId, btn) {
+    const liked = getLikedPosts().includes(postId);
     try {
-      const res = await fetch('/api/posts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ category, title, author, content })
+      const res = await fetch(`/api/posts/${postId}/${liked ? 'unlike' : 'like'}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ voter: myClientId })
       });
       const json = await res.json();
-      if (json.success) {
-        document.getElementById('forum-title').value = '';
-        document.getElementById('forum-content').value = '';
-        loadPosts();
+      if (!json.success) return;
+      setLikedPost(postId, !liked);
+      if (btn) btn.textContent = `${!liked ? '❤️ 已赞' : '🔥 点赞'} (${json.likes})`;
+      const modalBtn = document.getElementById('post-modal-like');
+      if (modalBtn && modalBtn.dataset.postId === postId) {
+        modalBtn.textContent = `${!liked ? '❤️ 已赞' : '🔥 点赞'} (${json.likes})`;
       }
+    } catch (e) { console.error(e); }
+  }
+
+  let currentModalPostId = '';
+  async function openPostModal(postId) {
+    try {
+      const res = await fetch(`/api/posts/${postId}`);
+      const json = await res.json();
+      if (!json.success) { alert('帖子不存在或已被删除'); return; }
+      const p = json.data;
+      currentModalPostId = p.id;
+      document.getElementById('post-modal-category').textContent = p.category;
+      document.getElementById('post-modal-title').textContent = p.title;
+      document.getElementById('post-modal-meta').textContent = `✍️ ${p.author} · ${p.createdAt} · ${p.category} · 👁 ${p.views || 0}`;
+      document.getElementById('post-modal-content').textContent = p.content;
+      const likeBtn = document.getElementById('post-modal-like');
+      likeBtn.dataset.postId = p.id;
+      likeBtn.textContent = `${getLikedPosts().includes(p.id) ? '❤️ 已赞' : '🔥 点赞'} (${p.likes})`;
+      document.getElementById('post-modal-reply-count').textContent = p.replyCount || 0;
+      const repliesBox = document.getElementById('post-modal-replies');
+      repliesBox.innerHTML = (p.replies && p.replies.length)
+        ? p.replies.map(r => `<div class="p-2 bg-[#0b0d13] border border-[#2e3446] rounded"><div class="text-xs text-gray-400">💬 ${escapeHtml(r.author)} · ${r.createdAt.substring(5, 16)}</div><div class="text-gray-200 mt-0.5">${escapeHtml(r.content)}</div></div>`).join('')
+        : `<div class="text-gray-500 text-xs py-2">还没有回帖，来抢沙发吧！</div>`;
+      document.getElementById('post-modal-reply-author').value = document.getElementById('forum-author').value || '';
+      document.getElementById('post-modal').classList.remove('hidden');
+    } catch (e) { alert('帖子加载失败，请检查网络'); }
+  }
+  function closePostModal() {
+    document.getElementById('post-modal').classList.add('hidden');
+    currentModalPostId = '';
+  }
+  function openPublishModal() {
+    document.getElementById('publish-modal').classList.remove('hidden');
+  }
+  function closePublishModal() {
+    document.getElementById('publish-modal').classList.add('hidden');
+  }
+  function openShareAddonModal() {
+    document.getElementById('share-addon-modal').classList.remove('hidden');
+  }
+  function closeShareAddonModal() {
+    document.getElementById('share-addon-modal').classList.add('hidden');
+  }
+  async function submitReply() {
+    const contentEl = document.getElementById('post-modal-reply-content');
+    const content = contentEl.value.trim();
+    if (!currentModalPostId) return;
+    if (!content) { alert('回帖内容不能为空'); return; }
+    const author = document.getElementById('post-modal-reply-author').value.trim();
+    try {
+      const res = await fetch(`/api/posts/${currentModalPostId}/replies`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ author, content })
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) { alert(json.detail || '回帖失败'); return; }
+      contentEl.value = '';
+      openPostModal(currentModalPostId);
+      loadPosts();
+    } catch (e) { alert('回帖失败，请检查网络'); }
+  }
+  document.getElementById('post-modal').addEventListener('click', (e) => {
+    if (e.target.id === 'post-modal') closePostModal();
+  });
+  document.getElementById('publish-modal').addEventListener('click', (e) => {
+    if (e.target.id === 'publish-modal') closePublishModal();
+  });
+  document.getElementById('share-addon-modal').addEventListener('click', (e) => {
+    if (e.target.id === 'share-addon-modal') closeShareAddonModal();
+  });
+  document.getElementById('post-modal-like').addEventListener('click', (e) => {
+    if (currentModalPostId) toggleLike(currentModalPostId, e.currentTarget);
+  });
+  document.getElementById('post-modal-reply-submit').addEventListener('click', submitReply);
+  document.getElementById('post-modal-reply-content').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') submitReply();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { closePostModal(); closePublishModal(); closeShareAddonModal(); }
+  });
+
+  // --- 首页聚合 ---
+  function renderHomeRooms(rooms) {
+    const box = document.getElementById('home-rooms-list');
+    if (!box) return;
+    if (!rooms || rooms.length === 0) {
+      box.innerHTML = `<div class="text-gray-500 text-sm py-4">🪵 暂无公开招募的营火</div>`;
+      return;
+    }
+    box.innerHTML = rooms.slice(0, 5).map(r => `<div class="flex items-center justify-between gap-2 py-2 border-b border-[#1f2437] last:border-0">
+      <div class="min-w-0">
+        <div class="text-sm font-bold text-amber-100 truncate">${escapeHtml(r.title)}</div>
+        <div class="text-xs text-gray-400">队长 ${escapeHtml(r.leader)} · ${r.memberCount}/${r.maxMembers} 人${r.isLocked ? ' · 🔒' : ''}</div>
+      </div>
+      <button onclick="switchTab('campfire')" class="px-3 py-1 rounded text-xs gold-btn shrink-0 cursor-pointer">去加入</button>
+    </div>`).join('');
+  }
+
+  async function loadGuides() {
+    try {
+      const res = await fetch('/api/posts?category=' + encodeURIComponent('攻略心得'));
+      const json = await res.json();
+      const box = document.getElementById('guide-posts-list');
+      if (!box) return;
+      if (!json.success || !json.data.length) {
+        box.innerHTML = `<div class="text-gray-500 text-xs py-2">攻略心得版块还没有帖子，去发一篇吧！</div>`;
+        return;
+      }
+      box.innerHTML = json.data.slice(0, 6).map(p => `<div onclick="openPostModal('${p.id}')" class="p-2 bg-[#151924] border border-[#2e3446] hover:border-[#8c6f3e] rounded cursor-pointer transition">
+        <div class="text-sm text-amber-100 font-bold truncate">${escapeHtml(p.title)}</div>
+        <div class="text-xs text-gray-400 mt-0.5">${escapeHtml(p.author)} · 🔥 ${p.likes} · 💬 ${p.replyCount || 0} · ${p.createdAt.substring(5, 16)}</div>
+      </div>`).join('');
+    } catch (e) { console.error(e); }
+  }
+
+  // 首页模块化：各区块可折叠，状态记在浏览器里；资讯默认只显示 4 条
+  const HOME_MOD_BODY = { news: 'home-mod-news-body', posts: 'home-mod-posts-body', rooms: 'home-mod-rooms-body', guides: 'home-mod-guides-body', addons: 'home-mod-addons-body' };
+  function getHomeModState() {
+    try { return JSON.parse(localStorage.getItem('gm-home-collapsed') || '{}'); } catch (e) { return {}; }
+  }
+  function toggleHomeMod(key) {
+    const body = document.getElementById(HOME_MOD_BODY[key]);
+    const btn = document.getElementById('home-mod-' + key + '-toggle');
+    if (!body) return;
+    const collapsed = body.classList.toggle('hidden');
+    if (btn) btn.textContent = collapsed ? '▸' : '▾';
+    const st = getHomeModState();
+    if (collapsed) st[key] = true; else delete st[key];
+    try { localStorage.setItem('gm-home-collapsed', JSON.stringify(st)); } catch (e) {}
+  }
+  function applyHomeModState() {
+    const st = getHomeModState();
+    Object.keys(HOME_MOD_BODY).forEach(key => {
+      const body = document.getElementById(HOME_MOD_BODY[key]);
+      const btn = document.getElementById('home-mod-' + key + '-toggle');
+      if (!body) return;
+      const collapsed = !!st[key];
+      body.classList.toggle('hidden', collapsed);
+      if (btn) btn.textContent = collapsed ? '▸' : '▾';
+    });
+  }
+  let cachedNews = [];
+  let newsExpanded = false;
+  function renderHomeNews() {
+    const box = document.getElementById('home-news-list');
+    const more = document.getElementById('home-news-more');
+    if (!box) return;
+    if (!cachedNews.length) {
+      box.innerHTML = `<div class="text-gray-500 text-sm py-2">暂无资讯，稍后再来看看</div>`;
+      if (more) more.classList.add('hidden');
+      return;
+    }
+    const shown = newsExpanded ? cachedNews.slice(0, 8) : cachedNews.slice(0, 4);
+    box.innerHTML = shown.map(n => `<a href="${n.url}" target="_blank" rel="noopener" class="block py-2 border-b border-[#1f2437] last:border-0 hover:bg-[#0b0d13] rounded px-2 -mx-2">
+      <div class="text-sm text-amber-100 font-bold">📰 ${escapeHtml(n.title)}</div>
+      <div class="text-xs text-gray-400 mt-0.5">${escapeHtml(n.summary || '')}</div>
+      <div class="text-[11px] text-gray-500 mt-0.5">${escapeHtml(n.source)} · ${escapeHtml(n.publishedAt || '')}</div>
+    </a>`).join('');
+    if (more) {
+      if (cachedNews.length > 4) {
+        more.classList.remove('hidden');
+        more.textContent = newsExpanded ? '收起 ▲' : `展开全部（${Math.min(cachedNews.length, 8)} 条）▼`;
+      } else more.classList.add('hidden');
+    }
+  }
+  function toggleNewsExpand() { newsExpanded = !newsExpanded; renderHomeNews(); }
+  function viewMoreGuides() { currentBoard = '攻略心得'; switchTab('forum'); }
+  async function loadHomeNews() {
+    const badge = document.getElementById('home-news-badge');
+    if (badge) badge.classList.add('hidden');
+    try {
+      const res = await fetch('/api/news');
+      const json = await res.json();
+      cachedNews = (json.success && json.data) ? json.data : [];
+      renderHomeNews();
+    } catch (e) { console.error(e); }
+  }
+  applyHomeModState();
+
+  function homePostRow(p) {
+    return `<div onclick="openPostModal('${p.id}')" class="py-2 border-b border-[#1f2437] last:border-0 cursor-pointer hover:bg-[#0b0d13] rounded px-2 -mx-2">
+      <div class="text-sm text-amber-100 font-bold truncate">${escapeHtml(p.title)}</div>
+      <div class="text-xs text-gray-400">${escapeHtml(p.category)} · ${escapeHtml(p.author)} · 🔥 ${p.likes} · 💬 ${p.replyCount || 0}</div>
+    </div>`;
+  }
+
+  async function loadHome() {
+    loadHomeNews();
+    renderHomeRooms(lastLobbyRooms);
+    try {
+      const res = await fetch('/api/home');
+      const json = await res.json();
+      if (!json.success) return;
+      const d = json.data;
+      const postsBox = document.getElementById('home-posts-list');
+      postsBox.innerHTML = d.latest.length
+        ? d.latest.map(homePostRow).join('')
+        : `<div class="text-gray-500 text-sm py-4">酒馆里空空如也</div>`;
+      const gBox = document.getElementById('home-guides-list');
+      gBox.innerHTML = d.topGuides.length
+        ? d.topGuides.map(homePostRow).join('')
+        : `<div class="text-gray-500 text-sm py-4">攻略心得版块还没有帖子，去发一篇吧！</div>`;
+      document.getElementById('home-stats').textContent = `共 ${d.stats.posts} 篇帖子 · ${d.stats.rooms} 个公开房间 · ${d.stats.categories.length} 个版块`;
+    } catch (e) { console.error(e); }
+    try {
+      const ares = await fetch('/api/addons');
+      const ajson = await ares.json();
+      const aBox = document.getElementById('home-addons-list');
+      if (aBox) {
+        aBox.innerHTML = (ajson.success && ajson.data.length)
+          ? ajson.data.slice(0, 3).map(a => `<div onclick="switchTab('addons')" class="py-2 border-b border-[#1f2437] last:border-0 cursor-pointer hover:bg-[#0b0d13] rounded px-2 -mx-2">
+              <div class="text-sm text-amber-100 font-bold truncate">🧩 ${escapeHtml(a.name)}${a.version ? ' v' + escapeHtml(a.version) : ''}</div>
+              <div class="text-xs text-gray-400">⬇️ ${a.downloads || 0} 次下载 · 🔥 ${a.likes}${a.gameVersion ? ' · ' + escapeHtml(a.gameVersion) : ''}</div>
+            </div>`).join('')
+          : `<div class="text-gray-500 text-sm py-4">仓库还是空的，来分享第一个插件吧！</div>`;
+      }
+    } catch (e) { console.error(e); }
+  }
+
+  // --- 插件分享 ---
+  function getLikedAddons() {
+    try { return JSON.parse(localStorage.getItem('gm-liked-addons') || '[]'); } catch (e) { return []; }
+  }
+  function setLikedAddon(addonId, liked) {
+    let arr = getLikedAddons();
+    if (liked) { if (!arr.includes(addonId)) arr.push(addonId); }
+    else { arr = arr.filter(x => x !== addonId); }
+    localStorage.setItem('gm-liked-addons', JSON.stringify(arr));
+  }
+
+  async function loadAddons() {
+    try {
+      const res = await fetch('/api/addons');
+      const json = await res.json();
+      const container = document.getElementById('addons-list');
+      if (!json.success || json.data.length === 0) {
+        container.innerHTML = `<div class="text-center py-16 text-gray-500 text-sm">🧩 仓库还是空的，来分享第一个插件吧！</div>`;
+        return;
+      }
+      const liked = getLikedAddons();
+      container.innerHTML = json.data.map(a => `
+          <div class="p-4 bg-[#0b0d13] border border-[#2e3446] hover:border-[#8c6f3e] rounded-lg space-y-2 transition">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center space-x-2 min-w-0">
+                <h3 class="font-bold text-amber-100 text-base truncate">${escapeHtml(a.name)}</h3>
+                ${a.version ? `<span class="text-xs px-2 py-0.5 rounded bg-blue-900/40 text-blue-300 shrink-0">v${escapeHtml(a.version)}</span>` : ''}
+                ${a.gameVersion ? `<span class="text-xs px-2 py-0.5 rounded bg-emerald-900/30 text-emerald-300 shrink-0">${escapeHtml(a.gameVersion)}</span>` : ''}
+              </div>
+              <span class="text-xs text-gray-500 font-mono shrink-0">${a.createdAt.substring(5, 16)}</span>
+            </div>
+            <p class="text-sm text-gray-300 whitespace-pre-line">${escapeHtml(a.description || '（无简介）')}</p>
+            <div class="flex items-center justify-between pt-2 border-t border-[#1f2437] text-xs text-gray-400">
+              <span>🧑‍💻 分享者：${escapeHtml(a.author)} · ⬇️ ${a.downloads || 0} 次下载</span>
+              <span class="flex items-center gap-2">
+                <a href="${escapeHtml(a.downloadUrl)}" target="_blank" rel="noopener" onclick="trackAddonDownload('${a.id}')" class="px-3 py-1 rounded bg-[#262c3d] text-amber-300 border border-[#8c6f3e] hover:bg-[#323a50] transition">⬇️ 下载</a>
+                <button data-addon-like-id="${a.id}" class="addon-like-btn px-3 py-1 rounded bg-[#151924] hover:bg-[#22293a] text-amber-300 border border-[#3a3226] transition cursor-pointer">
+                  ${liked.includes(a.id) ? '❤️ 已赞' : '🔥 点赞'} (${a.likes})
+                </button>
+              </span>
+            </div>
+          </div>
+        `).join('');
     } catch (e) {
-      alert('发布失败');
+      console.error(e);
     }
   }
 
-  async function likePost(postId) {
-    await fetch(`/api/posts/${postId}/like`, { method: 'POST' });
-    loadPosts();
+  document.getElementById('addons-list').addEventListener('click', (e) => {
+    const likeBtn = e.target.closest('[data-addon-like-id]');
+    if (likeBtn) toggleAddonLike(likeBtn.dataset.addonLikeId, likeBtn);
+  });
+
+  async function toggleAddonLike(addonId, btn) {
+    const liked = getLikedAddons().includes(addonId);
+    try {
+      const res = await fetch(`/api/addons/${addonId}/${liked ? 'unlike' : 'like'}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ voter: myClientId })
+      });
+      const json = await res.json();
+      if (!json.success) return;
+      setLikedAddon(addonId, !liked);
+      if (btn) btn.textContent = `${!liked ? '❤️ 已赞' : '🔥 点赞'} (${json.likes})`;
+    } catch (e) { console.error(e); }
+  }
+
+  async function trackAddonDownload(addonId) {
+    try { await fetch(`/api/addons/${addonId}/download`, { method: 'POST' }); } catch (e) {}
+  }
+
+  async function submitAddon() {
+    const name = document.getElementById('addon-name').value.trim();
+    const version = document.getElementById('addon-version').value.trim();
+    const gameVersion = document.getElementById('addon-game-version').value.trim();
+    const author = document.getElementById('addon-author').value.trim();
+    const description = document.getElementById('addon-desc').value.trim();
+    const downloadUrl = document.getElementById('addon-url').value.trim();
+    if (!name) { alert('请填写插件名称'); return; }
+    if (!/^https?:\/\//.test(downloadUrl)) { alert('下载链接请以 http:// 或 https:// 开头'); return; }
+    try {
+      const res = await fetch('/api/addons', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, version, game_version: gameVersion, author, description, download_url: downloadUrl })
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) { alert(json.detail || '分享失败'); return; }
+      ['addon-name', 'addon-version', 'addon-game-version', 'addon-desc', 'addon-url'].forEach(id => { document.getElementById(id).value = ''; });
+      closeShareAddonModal();
+      loadAddons();
+    } catch (e) { alert('分享失败，请检查网络'); }
   }
 
   // --- 属性模拟器简易逻辑 ---
@@ -448,15 +1147,58 @@
     document.getElementById('sim-result-dps').textContent = dps.toLocaleString() + ' DPS';
   }
 
-  // --- Socket.io 营火大厅与语音逻辑 ---
-  const socket = io();
+  function showConnBanner(text) {
+    const b = document.getElementById('conn-banner');
+    if (!b) return;
+    if (!text) { b.classList.add('hidden'); b.textContent = ''; return; }
+    b.textContent = text;
+    b.classList.remove('hidden');
+  }
+
+  // 持久身份：断线重连后还是同一个人、还是队长；也用作论坛点赞的 voter key
+  let myClientId = localStorage.getItem('gm-client-id');
+  if (!myClientId) {
+    myClientId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : ('c-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10));
+    localStorage.setItem('gm-client-id', myClientId);
+  }
+  let lastJoin = null;
+  let lastUsedPassword = '';
+  let currentRoomLocked = false;
+  let lastRoomDetail = null;
+
+  // --- Socket.io 营火大厅实时逻辑 ---
+  let socket;
+  if (typeof io === 'undefined') {
+    showConnBanner('实时服务加载失败，正在尝试备用线路…');
+    const fb = document.createElement('script');
+    fb.src = 'https://unpkg.com/socket.io-client@4.7.5/dist/socket.io.min.js';
+    fb.onload = () => location.reload();
+    fb.onerror = () => showConnBanner('实时服务加载失败（socket.io 未加载），请检查网络后刷新页面');
+    document.head.appendChild(fb);
+    socket = { id: '', connected: false, on() {}, emit() {} };
+  } else {
+    socket = io();
+  }
+  let lastLobbyRooms = [];
   let currentRoomId = '';
-  let localStream = null;
-  let isMuted = false;
-  const peerConnections = {};
-  const rtcConfig = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+  socket.on('connect', () => {
+    showConnBanner('');
+    if (lastJoin) {
+      socket.emit('room:join', { roomId: lastJoin.roomId, nickname: lastJoin.nickname, role: lastJoin.role, password: lastJoin.password, clientId: myClientId });
+    }
+  });
+  socket.on('news:new', (info) => {
+    const badge = document.getElementById('home-news-badge');
+    if (badge) badge.classList.remove('hidden');
+    const homeSec = document.getElementById('sec-home');
+    if (homeSec && !homeSec.classList.contains('hidden')) loadHomeNews();
+  });
+  socket.on('disconnect', () => { showConnBanner('连接已断开，正在重连…'); });
+  socket.on('connect_error', () => { showConnBanner('实时服务连接失败，请检查网络后刷新页面'); });
 
   socket.on('lobby:list', (rooms) => {
+    lastLobbyRooms = rooms;
+    renderHomeRooms(rooms);
     document.getElementById('cf-room-count').textContent = `${rooms.length} 个公开房间`;
     const container = document.getElementById('cf-room-list');
     if (rooms.length === 0) {
@@ -480,15 +1222,18 @@
 
   socket.on('room:joined', (room) => {
     currentRoomId = room.id;
+    lastRoomDetail = room;
+    currentRoomLocked = !!room.isLocked;
+    lastJoin = { roomId: room.id, nickname: document.getElementById('cf-nickname').value || '热心队友', role: document.getElementById('cf-role').value || '⚔️ 输出', password: lastUsedPassword };
     document.getElementById('campfire-lobby').classList.add('hidden');
     document.getElementById('campfire-room').classList.remove('hidden');
     document.getElementById('room-chat-box').innerHTML = '';
     renderRoomDetail(room);
   });
 
-  socket.on('room:updated', (room) => { renderRoomDetail(room); });
-  socket.on('room:left', () => { stopVoice(); currentRoomId = ''; document.getElementById('campfire-room').classList.add('hidden'); document.getElementById('campfire-lobby').classList.remove('hidden'); });
-  socket.on('room:kicked', (msg) => { stopVoice(); currentRoomId = ''; alert(msg); document.getElementById('campfire-room').classList.add('hidden'); document.getElementById('campfire-lobby').classList.remove('hidden'); });
+  socket.on('room:updated', (room) => { lastRoomDetail = room; renderRoomDetail(room); });
+  socket.on('room:left', () => { currentRoomId = ''; lastJoin = null; document.getElementById('campfire-room').classList.add('hidden'); document.getElementById('campfire-lobby').classList.remove('hidden'); });
+  socket.on('room:kicked', (msg) => { currentRoomId = ''; lastJoin = null; alert(msg); document.getElementById('campfire-room').classList.add('hidden'); document.getElementById('campfire-lobby').classList.remove('hidden'); });
   socket.on('room:error', (msg) => { alert(msg); });
 
   socket.on('room:chat', (msg) => {
@@ -505,108 +1250,34 @@
     box.scrollTop = box.scrollHeight;
   });
 
-  // WebRTC 语音信令
-  socket.on('voice:peer-joined', async ({ peerId }) => {
-    if (!localStream || peerId === socket.id) return;
-    const pc = createPeerConnection(peerId);
-    const offer = await pc.createOffer();
-    await pc.setLocalDescription(offer);
-    socket.emit('voice:signal', { toPeerId: peerId, signal: { type: 'offer', sdp: offer } });
-  });
-
-  socket.on('voice:signal', async ({ fromPeerId, signal }) => {
-    if (!localStream) return;
-    let pc = peerConnections[fromPeerId] || createPeerConnection(fromPeerId);
-    if (signal.type === 'offer') {
-      await pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
-      const answer = await pc.createAnswer();
-      await pc.setLocalDescription(answer);
-      socket.emit('voice:signal', { toPeerId: fromPeerId, signal: { type: 'answer', sdp: answer } });
-    } else if (signal.type === 'answer') {
-      await pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
-    } else if (signal.type === 'candidate' && signal.candidate) {
-      try { await pc.addIceCandidate(new RTCIceCandidate(signal.candidate)); } catch (e) {}
-    }
-  });
-
-  socket.on('voice:peer-left', ({ peerId }) => { closePeerConnection(peerId); });
-
-  function createPeerConnection(peerId) {
-    if (peerConnections[peerId]) closePeerConnection(peerId);
-    const pc = new RTCPeerConnection(rtcConfig);
-    peerConnections[peerId] = pc;
-    localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-    pc.onicecandidate = (e) => { if (e.candidate) socket.emit('voice:signal', { toPeerId: peerId, signal: { type: 'candidate', candidate: e.candidate } }); };
-    pc.ontrack = (e) => {
-      let audio = document.getElementById('audio-' + peerId) || document.createElement('audio');
-      audio.id = 'audio-' + peerId; audio.autoplay = true;
-      document.getElementById('remote-audios').appendChild(audio);
-      audio.srcObject = e.streams[0];
-    };
-    return pc;
-  }
-
-  function closePeerConnection(peerId) {
-    if (peerConnections[peerId]) { peerConnections[peerId].close(); delete peerConnections[peerId]; }
-    const audio = document.getElementById('audio-' + peerId);
-    if (audio) audio.remove();
-  }
-
-  async function toggleVoice() {
-    if (localStream) { stopVoice(); socket.emit('voice:leave'); return; }
-    try {
-      localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-      isMuted = false;
-      document.getElementById('btn-voice-toggle').textContent = '☎️ 断开语音';
-      document.getElementById('btn-voice-toggle').className = 'px-3 py-2 rounded text-xs font-bold bg-red-800/40 text-red-200 border border-red-500/50 cursor-pointer';
-      document.getElementById('btn-mic-mute').classList.remove('hidden');
-      document.getElementById('voice-status-hint').textContent = '🎙️ 语音中';
-      document.getElementById('voice-status-hint').className = 'text-[11px] text-emerald-400 font-bold';
-      socket.emit('voice:join');
-    } catch (err) { alert('无法访问麦克风：' + err.message); }
-  }
-
-  function toggleMute() {
-    if (!localStream) return;
-    isMuted = !isMuted;
-    localStream.getAudioTracks().forEach(t => t.enabled = !isMuted);
-    document.getElementById('btn-mic-mute').textContent = isMuted ? '🔇 已静音' : '🔊 麦克风已开';
-  }
-
-  function stopVoice() {
-    if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
-    Object.keys(peerConnections).forEach(closePeerConnection);
-    document.getElementById('btn-voice-toggle').textContent = '🎙️ 加入语音';
-    document.getElementById('btn-voice-toggle').className = 'px-3 py-2 rounded text-xs font-bold bg-emerald-700/40 text-emerald-200 border border-emerald-500/50 cursor-pointer';
-    document.getElementById('btn-mic-mute').classList.add('hidden');
-    document.getElementById('voice-status-hint').textContent = '未连接语音';
-    document.getElementById('voice-status-hint').className = 'text-[11px] text-gray-400';
-  }
-
   function createRoom() {
+    const password = document.getElementById('cf-password').value;
+    lastUsedPassword = password;
     socket.emit('room:create', {
       nickname: document.getElementById('cf-nickname').value,
       faction: document.getElementById('cf-faction').value,
       role: document.getElementById('cf-role').value,
       title: document.getElementById('cf-title').value,
-      password: document.getElementById('cf-password').value,
-      isHidden: document.getElementById('cf-hidden').checked
+      password,
+      isHidden: document.getElementById('cf-hidden').checked,
+      clientId: myClientId
     });
   }
 
   function joinRoom(roomId, isLocked) {
     let password = isLocked ? prompt('🔒 输入房间暗号：') : '';
     if (isLocked && password === null) return;
-    socket.emit('room:join', { roomId, nickname: document.getElementById('cf-nickname').value || '热心队友', role: document.getElementById('cf-role').value, password });
+    lastUsedPassword = password || '';
+    socket.emit('room:join', { roomId, nickname: document.getElementById('cf-nickname').value || '热心队友', role: document.getElementById('cf-role').value, password, clientId: myClientId });
   }
 
   function joinDirectRoom() {
-    socket.emit('room:join', {
-      roomId: document.getElementById('direct-room-id').value.trim(),
-      nickname: document.getElementById('cf-nickname').value || '神秘队友',
-      role: document.getElementById('cf-role').value,
-      password: document.getElementById('direct-room-pwd').value.trim()
-    });
+    const roomId = document.getElementById('direct-room-id').value.trim();
+    if (!roomId) { alert('请输入6位房间号！'); return; }
+    const password = document.getElementById('direct-room-pwd').value.trim();
+    lastUsedPassword = password;
+    lastJoin = { roomId, nickname: document.getElementById('cf-nickname').value || '神秘队友', role: document.getElementById('cf-role').value || '⚔️ 输出', password };
+    socket.emit('room:join', { roomId, nickname: lastJoin.nickname, role: lastJoin.role, password, clientId: myClientId });
   }
 
   function kickMember(targetId, targetName) {
@@ -615,7 +1286,9 @@
 
   function copyInviteLink() {
     if (!currentRoomId) return;
-    const url = `${window.location.origin}/?room=${currentRoomId}`;
+    const url = currentRoomLocked && lastUsedPassword
+      ? `${window.location.origin}/?room=${currentRoomId}&pwd=${encodeURIComponent(lastUsedPassword)}`
+      : `${window.location.origin}/?room=${currentRoomId}`;
     navigator.clipboard.writeText(`🔥 营火小队邀请：${currentRoomId}，直达链接：${url}`).then(() => alert('✅ 已复制邀请链接！'));
   }
 
@@ -625,8 +1298,14 @@
     if (input.value.trim()) { socket.emit('room:chat', { text: input.value.trim() }); input.value = ''; }
   }
 
+  document.getElementById('room-member-list').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-kick-id]');
+    if (!btn) return;
+    kickMember(btn.dataset.kickId, btn.dataset.kickName);
+  });
+
   function renderRoomDetail(room) {
-    const isMeLeader = (room.leaderId === socket.id);
+    const isMeLeader = (room.leaderId === myClientId);
     document.getElementById('room-lock-badge').textContent = room.isHidden ? '👻' : (room.isLocked ? '🔒' : '🔓');
     document.getElementById('room-title-display').textContent = room.title;
     document.getElementById('room-id-badge').textContent = `房间号: ${room.id}`;
@@ -636,49 +1315,13 @@
         <div class="p-3 bg-[#0b0d13] border border-[#2e3446] rounded flex items-center justify-between gap-2">
           <div class="flex items-center space-x-2">
             <span class="font-bold text-amber-100 text-sm">${m.id === room.leaderId ? '👑 ' : ''}${escapeHtml(m.name)}</span>
-            ${m.inVoice ? '<span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/40 text-emerald-300">🎙️ 语音中</span>' : ''}
           </div>
           <div class="flex items-center space-x-2">
             <span class="text-xs px-2 py-0.5 rounded bg-[#1f2437] text-amber-300">${escapeHtml(m.role)}</span>
-            ${isMeLeader && m.id !== socket.id ? `<button onclick="kickMember('${m.id}', '${escapeHtml(m.name)}')" class="text-xs px-2 py-0.5 rounded bg-red-900/30 text-red-300 cursor-pointer">踢出</button>` : ''}
+            ${isMeLeader && m.id !== myClientId ? `<button data-kick-id="${m.id}" data-kick-name="${escapeHtml(m.name)}" class="text-xs px-2 py-0.5 rounded bg-red-900/30 text-red-300 cursor-pointer">踢出</button>` : ''}
           </div>
         </div>
       `).join('');
-  }
-
-  // 英雄名片绘制
-  function renderCard() {
-    const canvas = document.getElementById('heroCanvas');
-    const ctx = canvas.getContext('2d');
-    const name = document.getElementById('inp-name').value || '无名英雄';
-    const realm = document.getElementById('inp-realm').value || '服务器';
-    const faction = document.getElementById('inp-faction').value;
-    const race = document.getElementById('inp-race').value;
-    const [className, classColor] = document.getElementById('inp-class').value.split('|');
-    const motto = document.getElementById('inp-motto').value;
-
-    const bgGrad = ctx.createLinearGradient(0, 0, 800, 450);
-    bgGrad.addColorStop(0, faction === 'horde' ? '#2a0f12' : '#0f1d33');
-    bgGrad.addColorStop(1, '#0b0d13');
-    ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, 800, 450);
-
-    ctx.strokeStyle = '#9c7a44'; ctx.lineWidth = 4; ctx.strokeRect(18, 18, 764, 414);
-    ctx.fillStyle = '#a39274'; ctx.font = 'bold 15px sans-serif'; ctx.fillText('WORLD OF WARCRAFT : FOREVER · gamemate.fun', 48, 62);
-    ctx.fillStyle = classColor; ctx.font = 'bold 46px serif'; ctx.fillText(name, 48, 135);
-    ctx.fillStyle = '#fbbf24'; ctx.font = 'bold 18px sans-serif'; ctx.fillText(`Lv.60 | ${realm} | ${race} ${className}`, 48, 175);
-    ctx.fillStyle = 'rgba(0,0,0,0.45)'; ctx.fillRect(48, 220, 704, 70);
-    ctx.strokeStyle = '#3d3322'; ctx.strokeRect(48, 220, 704, 70);
-    ctx.fillStyle = '#d6c7b2'; ctx.font = 'italic 16px sans-serif'; ctx.fillText(`“ ${motto} ”`, 68, 262);
-    ctx.fillStyle = '#756650'; ctx.font = '13px sans-serif'; ctx.textAlign = 'right';
-    ctx.fillText('🔗 访问 gamemate.fun 获得专属名片', 752, 402);
-    ctx.textAlign = 'left';
-  }
-
-  function downloadCard() {
-    const link = document.createElement('a');
-    link.download = 'wow_forever_card.png';
-    link.href = document.getElementById('heroCanvas').toDataURL('image/png');
-    link.click();
   }
 
   function escapeHtml(str) {
@@ -686,13 +1329,17 @@
   }
 
   window.onload = () => {
-    renderCard();
     runSimulation();
     const params = new URLSearchParams(window.location.search);
     const roomParam = params.get('room');
+    const pwdParam = params.get('pwd');
     if (roomParam) {
       switchTab('campfire');
       document.getElementById('direct-room-id').value = roomParam.trim();
+      if (pwdParam) document.getElementById('direct-room-pwd').value = pwdParam;
+      joinDirectRoom();
+    } else {
+      switchTab('home');
     }
   };
 </script>
