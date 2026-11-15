@@ -1,131 +1,1140 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>魔兽世界：无限 (WoW: Forever) - gamemate.fun 开荒营地</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;900&display=swap');
-    body { background-color: #0b0d13; background-image: radial-gradient(circle at 50% 0%, #1f2437 0%, #0b0d13 75%); color: #e2d8c5; font-family: system-ui, -apple-system, sans-serif; }
-    .wow-serif { font-family: 'Noto Serif SC', serif; }
-    .gold-border { border: 1px solid #8c6f3e; box-shadow: 0 0 15px rgba(0, 0, 0, 0.8), inset 0 0 12px rgba(140, 111, 62, 0.15); }
-    .gold-btn { background: linear-gradient(180deg, #b88a44 0%, #7a5823 100%); border: 1px solid #ffd885; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.9); }
-    .gold-btn:hover { background: linear-gradient(180deg, #cfa055 0%, #8f682b 100%); }
-    .tab-active { border-bottom: 2px solid #f59e0b; color: #fbbf24; background: rgba(245, 158, 11, 0.1); }
-    .game-btn-active { border-color: #f59e0b; background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&family=Noto+Serif+SC:wght@600;700;900&display=swap');
+
+    /* =========================================================
+       双主题系统：🌙 暗金 (gold) & ☀️ 明亮 (light, 默认)
+       ========================================================= */
+    :root, [data-theme="gold"] {
+      color-scheme: dark;
+      --bg-void: #070a10;
+      --bg-sidebar: linear-gradient(180deg, #0b101b 0%, #070a12 100%);
+      --bg-grad-1: rgba(217, 152, 43, 0.18);
+      --bg-grad-2: rgba(29, 78, 216, 0.10);
+      --grid-line: rgba(229, 179, 75, 0.03);
+      --panel-bg: linear-gradient(165deg, rgba(20, 27, 42, 0.96) 0%, rgba(12, 16, 26, 0.98) 100%);
+      --panel-sub: rgba(9, 13, 21, 0.72);
+      --panel-sub-hover: rgba(24, 33, 52, 0.85);
+      --panel-border: rgba(212, 165, 78, 0.24);
+      --panel-glow: rgba(212, 165, 78, 0.05);
+      --accent-shine: rgba(255, 217, 125, 0.65);
+      --accent-main: #f5c25c;
+      --accent-soft: #fde68a;
+      --accent-muted: rgba(245, 194, 92, 0.14);
+      --accent-border: rgba(245, 194, 92, 0.38);
+      --btn-text: #1c1103;
+      --btn-grad: linear-gradient(180deg, #ffe299 0%, #eab64d 48%, #c28527 100%);
+      --btn-border: #fff0c2;
+      --btn-shadow: rgba(217, 149, 38, 0.38);
+      --input-bg: #080b12;
+      --text-main: #f1eadc;
+      --text-title: #fef3c7;
+      --text-sub: #94a3b8;
+      --text-muted: #64748b;
+      --nav-item-bg: rgba(255, 255, 255, 0.02);
+      --nav-item-hover: rgba(245, 194, 92, 0.08);
+      --nav-icon-bg: rgba(15, 21, 34, 0.9);
+      --shadow-card: 0 16px 40px -12px rgba(0, 0, 0, 0.65);
+    }
+
+    /* ☀️ 明亮主题 (圣光象牙金 Light Mode - 默认) */
+    [data-theme="light"] {
+      color-scheme: light;
+      --bg-void: #f4f1ea;
+      --bg-sidebar: linear-gradient(180deg, #ffffff 0%, #f7f3eb 100%);
+      --bg-grad-1: rgba(217, 152, 43, 0.12);
+      --bg-grad-2: rgba(59, 130, 246, 0.06);
+      --grid-line: rgba(180, 135, 55, 0.05);
+      --panel-bg: linear-gradient(165deg, #ffffff 0%, #fcfaf5 100%);
+      --panel-sub: #f6f2e9;
+      --panel-sub-hover: #efe8d8;
+      --panel-border: rgba(186, 142, 62, 0.28);
+      --panel-glow: rgba(212, 165, 78, 0.08);
+      --accent-shine: rgba(202, 138, 4, 0.45);
+      --accent-main: #b45309;
+      --accent-soft: #92400e;
+      --accent-muted: rgba(217, 119, 6, 0.10);
+      --accent-border: rgba(180, 83, 9, 0.32);
+      --btn-text: #ffffff;
+      --btn-grad: linear-gradient(180deg, #d97706 0%, #b45309 55%, #92400e 100%);
+      --btn-border: #f59e0b;
+      --btn-shadow: rgba(180, 83, 9, 0.28);
+      --input-bg: #ffffff;
+      --text-main: #1e293b;
+      --text-title: #78350f;
+      --text-sub: #475569;
+      --text-muted: #64748b;
+      --nav-item-bg: rgba(180, 135, 55, 0.04);
+      --nav-item-hover: rgba(217, 119, 6, 0.10);
+      --nav-icon-bg: #f3ede0;
+      --shadow-card: 0 12px 32px -10px rgba(120, 85, 30, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; background: var(--bg-void); }
+
+    body {
+      min-height: 100vh;
+      color: var(--text-main);
+      font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-void);
+      background-image:
+        radial-gradient(ellipse 80% 40% at 55% -5%, var(--bg-grad-1), transparent 60%),
+        radial-gradient(ellipse 45% 35% at 15% 25%, var(--bg-grad-2), transparent 55%);
+      transition: background-color 0.25s ease, color 0.25s ease;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background-image:
+        linear-gradient(var(--grid-line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: linear-gradient(to bottom, black 15%, transparent 88%);
+    }
+
+    /* 明亮模式下的 Tailwind 深色硬编码颜色智能适配 */
+    [data-theme="light"] .text-amber-100,
+    [data-theme="light"] .text-amber-200,
+    [data-theme="light"] .text-amber-300 { color: #78350f !important; }
+    [data-theme="light"] .text-gray-200,
+    [data-theme="light"] .text-gray-300 { color: #334155 !important; }
+    [data-theme="light"] .text-gray-400,
+    [data-theme="light"] .text-gray-500 { color: #64748b !important; }
+    [data-theme="light"] .bg-\[\#080b12\],
+    [data-theme="light"] .bg-\[\#080b12\]\/90,
+    [data-theme="light"] .bg-\[\#0a0e17\]\/85,
+    [data-theme="light"] .bg-\[\#0c101a\],
+    [data-theme="light"] .bg-\[\#101624\],
+    [data-theme="light"] .bg-\[\#0d121d\] {
+      background-color: var(--panel-sub) !important;
+      border-color: var(--panel-border) !important;
+    }
+
+    .wow-serif { font-family: 'Noto Serif SC', 'Cinzel', serif; letter-spacing: 0.03em; }
+    .wow-en { font-family: 'Cinzel', serif; letter-spacing: 0.08em; }
+
+    /* =========================================================
+       🧭 方案B：战网左侧固定导航栏布局架构
+       ========================================================= */
+    @media (min-width: 768px) {
+      body { padding-left: 256px; }
+      header.gm-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 256px;
+        z-index: 55;
+        background: var(--bg-sidebar);
+        border-right: 1px solid var(--panel-border);
+        box-shadow: 12px 0 36px rgba(0, 0, 0, 0.18);
+        display: flex;
+        flex-direction: column;
+      }
+      header.gm-sidebar .gm-sidebar-inner {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        padding: 20px 16px 16px;
+        gap: 16px;
+      }
+      header.gm-sidebar nav {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        flex: 1;
+        overflow-y: auto;
+        padding: 6px 0;
+      }
+    }
+
+    @media (max-width: 767px) {
+      header.gm-sidebar {
+        position: sticky;
+        top: 0;
+        z-index: 55;
+        background: var(--bg-sidebar);
+        border-bottom: 1px solid var(--panel-border);
+        backdrop-filter: blur(16px);
+      }
+      header.gm-sidebar .gm-sidebar-inner {
+        padding: 10px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      header.gm-sidebar .gm-mobile-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      header.gm-sidebar nav {
+        display: flex;
+        flex-direction: row;
+        gap: 6px;
+        overflow-x: auto;
+        padding-bottom: 2px;
+      }
+      header.gm-sidebar nav .nav-sub { display: none; }
+      header.gm-sidebar nav .gm-nav-btn {
+        padding: 7px 11px;
+        flex-shrink: 0;
+      }
+      header.gm-sidebar .gm-sidebar-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding-top: 6px;
+        border-top: 1px solid var(--panel-border);
+      }
+    }
+
+    /* =========================================================
+       2.2 左侧菜单按钮全新 UI 设计（图标槽 + 主副标题 + 侧边流光条）
+       ========================================================= */
+    .gm-nav-btn {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      width: 100%;
+      padding: 9px 11px;
+      border-radius: 12px;
+      background: var(--nav-item-bg);
+      border: 1px solid transparent;
+      color: var(--text-sub);
+      text-align: left;
+      transition: all 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+      cursor: pointer;
+    }
+    .gm-nav-btn .nav-icon-box {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      background: var(--nav-icon-bg);
+      border: 1px solid var(--panel-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+      transition: all 0.18s ease;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+    .gm-nav-btn .nav-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+      line-height: 1.25;
+      white-space: nowrap;
+    }
+    .gm-nav-btn .nav-sub {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      white-space: nowrap;
+    }
+    .gm-nav-btn:hover {
+      background: var(--nav-item-hover);
+      border-color: var(--panel-border);
+      transform: translateX(2px);
+    }
+    .gm-nav-btn:hover .nav-icon-box {
+      border-color: var(--accent-main);
+      transform: scale(1.04);
+    }
+    .gm-nav-btn.tab-active {
+      background: linear-gradient(90deg, var(--accent-muted) 0%, rgba(245, 194, 92, 0.03) 100%);
+      border-color: var(--accent-border);
+      box-shadow: 0 6px 18px -8px var(--panel-glow);
+    }
+    .gm-nav-btn.tab-active::before {
+      content: "";
+      position: absolute;
+      left: -1px;
+      top: 20%;
+      bottom: 20%;
+      width: 3.5px;
+      border-radius: 0 4px 4px 0;
+      background: var(--accent-main);
+      box-shadow: 0 0 10px var(--accent-main);
+    }
+    .gm-nav-btn.tab-active .nav-icon-box {
+      background: var(--btn-grad);
+      color: var(--btn-text);
+      border-color: var(--btn-border);
+      box-shadow: 0 4px 12px var(--btn-shadow);
+    }
+    .gm-nav-btn.tab-active .nav-label {
+      color: var(--accent-soft);
+      font-weight: 700;
+    }
+
+    /* 史诗级主题面板 */
+    .epic-panel {
+      position: relative;
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 14px;
+      box-shadow: var(--shadow-card), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      overflow: hidden;
+      transition: background 0.25s ease, border-color 0.25s ease;
+    }
+    .epic-panel::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 15%;
+      right: 15%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent-shine), transparent);
+      pointer-events: none;
+    }
+
+    /* 首页顶部横幅 */
+    .hero-citadel {
+      position: relative;
+      background:
+        radial-gradient(circle at 90% 20%, var(--bg-grad-1), transparent 48%),
+        var(--panel-bg);
+      border: 1px solid var(--accent-border);
+      border-left: 4px solid var(--accent-main);
+      border-radius: 14px;
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+    }
+
+    /* 按钮 */
+    .gold-btn {
+      position: relative;
+      color: var(--btn-text);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      background: var(--btn-grad);
+      border: 1px solid var(--btn-border);
+      border-radius: 9px;
+      box-shadow: 0 4px 14px -3px var(--btn-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+      transition: all 0.16s ease;
+    }
+    .gold-btn:hover {
+      filter: brightness(1.06);
+      transform: translateY(-1px);
+    }
+
+    .ghost-btn {
+      color: var(--accent-soft);
+      font-weight: 600;
+      background: var(--panel-sub);
+      border: 1px solid var(--panel-border);
+      border-radius: 9px;
+      transition: all 0.16s ease;
+    }
+    .ghost-btn:hover {
+      background: var(--accent-muted);
+      border-color: var(--accent-main);
+    }
+
+    /* 表单输入槽 */
+    input, select, textarea {
+      color: var(--text-main);
+      background: var(--input-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 9px;
+      transition: all 0.16s ease;
+    }
+    input::placeholder, textarea::placeholder { color: var(--text-muted); }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent-main);
+      box-shadow: 0 0 0 3px var(--accent-muted);
+      outline: none;
+    }
+    input:disabled { opacity: 0.7; cursor: not-allowed; }
+
+    /* 子卡片与列表项 */
+    .loot-card {
+      position: relative;
+      background: var(--panel-sub);
+      border: 1px solid var(--panel-border);
+      border-radius: 11px;
+      transition: all 0.18s ease;
+    }
+    .loot-card:hover {
+      border-color: var(--accent-main);
+      background: var(--panel-sub-hover);
+    }
+
+    .chronicle-row {
+      position: relative;
+      border-radius: 9px;
+      border: 1px solid transparent;
+      transition: all 0.15s ease;
+    }
+    .chronicle-row:hover {
+      background: var(--accent-muted);
+      border-color: var(--panel-border);
+    }
+
+    /* 左下角双主题切换胶囊 */
+    .theme-switch-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      padding: 3px;
+      border-radius: 10px;
+      background: var(--panel-sub);
+      border: 1px solid var(--panel-border);
+    }
+    .theme-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 6px 8px;
+      border-radius: 7px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-sub);
+      cursor: pointer;
+      transition: all 0.16s ease;
+    }
+    .theme-pill.active {
+      color: var(--btn-text);
+      background: var(--btn-grad);
+      font-weight: 700;
+      box-shadow: 0 2px 8px var(--btn-shadow);
+    }
+
+    /* 阵营徽光 */
+    .faction-horde { border-left: 3px solid #ef4444; }
+    .faction-alliance { border-left: 3px solid #3b82f6; }
+
+    /* 品质标签色阶 */
+    .q-legendary { color: #f97316; background: rgba(249, 115, 22, 0.14); border: 1px solid rgba(249, 115, 22, 0.35); }
+    .q-epic { color: #a855f7; background: rgba(168, 85, 247, 0.14); border: 1px solid rgba(168, 85, 247, 0.35); }
+    .q-rare { color: #3b82f6; background: rgba(59, 130, 246, 0.14); border: 1px solid rgba(59, 130, 246, 0.35); }
+    .q-uncommon { color: #10b981; background: rgba(16, 185, 129, 0.14); border: 1px solid rgba(16, 185, 129, 0.35); }
+
+    /* 资讯正文排版 */
+    .news-article { color: var(--text-main); font-size: 14px; line-height: 1.85; }
+    .news-article p { margin: 0 0 12px; }
+    .news-article h2 { color: var(--accent-main); font-size: 17px; font-weight: 700; margin: 20px 0 10px; }
+    .news-article h3 { color: var(--accent-soft); font-size: 15px; font-weight: 700; margin: 16px 0 8px; }
+    .news-article blockquote {
+      border-left: 3px solid var(--accent-main);
+      background: var(--accent-muted);
+      padding: 10px 14px;
+      margin: 0 0 12px;
+      border-radius: 0 10px 10px 0;
+    }
+
+    .game-btn-active {
+      color: var(--accent-soft);
+      border-color: var(--accent-main);
+      background: var(--accent-muted);
+    }
+
+    /* 弹窗 */
+    .gm-modal-panel {
+      background: var(--panel-bg);
+      border: 1px solid var(--accent-border);
+      border-radius: 18px;
+      box-shadow: 0 32px 96px rgba(0, 0, 0, 0.62), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      animation: gm-modal-in 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    @keyframes gm-modal-in {
+      from { opacity: 0; transform: scale(0.96) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* 宽幅详情弹窗专用装饰 */
+    .gm-modal-header-banner {
+      background:
+        radial-gradient(circle at 85% 0%, var(--bg-grad-1), transparent 55%),
+        var(--panel-sub);
+      border-bottom: 1px solid var(--panel-border);
+    }
+    .gm-avatar-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: var(--btn-grad);
+      color: var(--btn-text);
+      border: 1px solid var(--btn-border);
+      box-shadow: 0 4px 12px var(--btn-shadow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .gm-reply-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: var(--accent-muted);
+      border: 1px solid var(--accent-border);
+      color: var(--accent-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    main > section { animation: gm-fade-in 0.2s ease both; }
+    @keyframes gm-fade-in {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 图片画廊与上传预览缩略图 */
+    .gm-img-thumb {
+      position: relative;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--panel-border);
+      background: var(--input-bg);
+      cursor: zoom-in;
+      transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+    }
+    .gm-img-thumb:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent-main);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.28);
+    }
+    .gm-upload-slot {
+      position: relative;
+      width: 68px;
+      height: 68px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--accent-border);
+      background: var(--input-bg);
+      flex-shrink: 0;
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col">
-<header class="border-b border-[#3a3226] bg-[#11141d]/90 backdrop-blur sticky top-0 z-50">
-  <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-    <div class="flex items-center space-x-3">
-      <span class="text-2xl">⚔️</span>
+
+<!-- 断线提示条 -->
+<div id="conn-banner" class="hidden sticky top-0 z-[60] bg-red-950/95 border-b border-red-500/40 text-red-100 text-center text-xs sm:text-sm py-2 px-4 backdrop-blur"></div>
+
+<!-- 站内 Toast 提示容器 -->
+<div id="toast-container" class="fixed top-20 right-4 z-[95] flex flex-col gap-2 pointer-events-none max-w-xs w-full"></div>
+
+<!-- 全屏图片灯箱查看器 (Lightbox) -->
+<div id="img-lightbox" onclick="closeImageLightbox()" class="hidden fixed inset-0 z-[92] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 cursor-zoom-out">
+  <button onclick="closeImageLightbox()" class="fixed top-5 right-5 w-10 h-10 rounded-xl bg-white/10 hover:bg-amber-500/30 border border-white/20 text-white text-xl flex items-center justify-center cursor-pointer transition" title="关闭预览 (Esc)">✕</button>
+  <img id="img-lightbox-target" src="" alt="大图预览" onclick="event.stopPropagation()" class="max-w-[94vw] max-h-[90vh] object-contain rounded-2xl border border-amber-500/40 shadow-2xl cursor-default">
+</div>
+
+<!-- 房间密码输入弹窗 -->
+<div id="pwd-modal" class="hidden fixed inset-0 z-[80] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 gm-modal-backdrop">
+  <div class="gm-modal-panel max-w-sm w-full p-6 space-y-4">
+    <div class="flex items-start justify-between gap-3 border-b border-amber-500/20 pb-3">
       <div>
-        <h1 class="wow-serif text-lg font-bold text-amber-400 tracking-wider">魔兽世界：无限</h1>
-        <p class="text-[10px] text-gray-400 -mt-1">gamemate.fun 开荒营地</p>
+        <h3 class="wow-serif text-lg text-amber-300 font-bold">🔒 输入房间暗号</h3>
+        <p class="text-xs text-gray-400 mt-1">该营火房间已加锁，请输入密码加入</p>
+      </div>
+      <button onclick="closePwdModal()" class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-amber-200 hover:bg-white/5 transition text-lg leading-none shrink-0 cursor-pointer">✕</button>
+    </div>
+    <div>
+      <input type="password" id="pwd-modal-input" placeholder="请输入房间密码..." maxlength="16" class="w-full px-3.5 py-2.5 text-sm">
+    </div>
+    <div class="flex gap-2.5">
+      <button onclick="submitPwdModal()" class="flex-1 py-2.5 text-sm gold-btn cursor-pointer">🔓 确认加入</button>
+      <button onclick="closePwdModal()" class="px-4 py-2.5 ghost-btn text-sm cursor-pointer">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Modal -->
+<div id="confirm-modal" class="hidden fixed inset-0 z-[80] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 gm-modal-backdrop">
+  <div class="gm-modal-panel max-w-sm w-full p-6 space-y-4">
+    <div class="flex items-start justify-between gap-3 border-b border-amber-500/20 pb-3">
+      <h3 class="wow-serif text-lg text-amber-300 font-bold">⚠️ 指挥官确认</h3>
+      <button onclick="closeConfirmModal(false)" class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-amber-200 hover:bg-white/5 transition text-lg leading-none shrink-0 cursor-pointer">✕</button>
+    </div>
+    <p id="confirm-modal-text" class="text-sm text-gray-200 leading-relaxed"></p>
+    <div class="flex gap-2.5">
+      <button onclick="closeConfirmModal(true)" class="flex-1 py-2.5 rounded-xl border border-red-500/50 bg-red-500/20 hover:bg-red-500/30 text-red-200 text-sm font-bold transition cursor-pointer">确认执行</button>
+      <button onclick="closeConfirmModal(false)" class="px-4 py-2.5 ghost-btn text-sm cursor-pointer">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- 帖子详情弹窗（宽幅双栏沉浸式议事厅） -->
+<div id="post-modal" class="hidden fixed inset-0 z-[70] flex items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-6 gm-modal-backdrop">
+  <div class="gm-modal-panel max-w-5xl w-full h-[88vh] max-h-[820px] flex flex-col overflow-hidden">
+
+    <!-- 顶部史诗横幅标题栏 -->
+    <div class="gm-modal-header-banner px-6 py-4 sm:py-5 flex items-start justify-between gap-4 shrink-0">
+      <div class="space-y-2 min-w-0 flex-1">
+        <div class="flex flex-wrap items-center gap-2">
+          <span id="post-modal-category" class="inline-block text-xs px-3 py-0.5 rounded-full q-epic font-bold"></span>
+          <span id="post-modal-views-pill" class="text-xs px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/25 text-gray-400 font-mono">👁 0 次阅读</span>
+          <span id="post-modal-time-pill" class="text-xs text-gray-400 font-mono"></span>
+        </div>
+        <h3 id="post-modal-title" class="wow-serif font-black text-amber-100 text-xl sm:text-2xl leading-snug break-words"></h3>
+        <p id="post-modal-meta" class="hidden"></p>
+      </div>
+      <button onclick="closePostModal()" class="w-9 h-9 rounded-xl flex items-center justify-center text-gray-400 hover:text-amber-200 bg-black/10 hover:bg-amber-500/15 border border-amber-500/25 transition text-lg leading-none shrink-0 cursor-pointer" title="关闭 (Esc)">✕</button>
+    </div>
+
+    <!-- 主体双栏内容区：左侧楼主正文卷轴 (7列) + 右侧回帖楼层与讨论 (5列) -->
+    <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 min-h-0 overflow-y-auto lg:overflow-hidden">
+
+      <!-- 左栏：一楼楼主信息与正文大卷轴 -->
+      <div class="lg:col-span-7 p-6 sm:p-7 flex flex-col justify-between lg:overflow-y-auto border-b lg:border-b-0 lg:border-r border-amber-500/20">
+        <div class="space-y-5">
+          <!-- 楼主铭牌卡 -->
+          <div class="loot-card p-3.5 sm:p-4 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+              <div id="post-modal-author-avatar" class="gm-avatar-badge">灰</div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                  <span id="post-modal-author-name" class="font-bold text-amber-100 text-base truncate">灰烬使者</span>
+                  <span class="text-[10px] px-2 py-0.5 rounded-md gold-btn font-extrabold">👑 楼主 · OP</span>
+                </div>
+                <div id="post-modal-author-sub" class="text-xs text-gray-400 mt-0.5">发布于 逐风酒馆议事厅 · #1 楼</div>
+              </div>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300 shrink-0">一楼原帖</span>
+          </div>
+
+          <!-- 帖子正文区 -->
+          <div class="bg-[#080b12] border border-amber-500/25 rounded-2xl p-5 sm:p-6 shadow-inner min-h-[220px] space-y-4">
+            <p id="post-modal-content" class="text-base text-gray-200 whitespace-pre-line leading-8 tracking-wide select-text"></p>
+            <div id="post-modal-images" class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 empty:hidden"></div>
+          </div>
+        </div>
+
+        <!-- 正文底部：点赞互动大按钮与操作栏 -->
+        <div class="pt-5 mt-6 border-t border-amber-500/20 flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <button id="post-modal-like" class="px-5 py-2.5 rounded-xl gold-btn text-sm font-bold cursor-pointer transition flex items-center gap-2">
+              🔥 点赞支持 (0)
+            </button>
+            <span class="text-xs text-gray-400 hidden sm:inline">觉得这篇帖子有帮助？点个赞让更多开荒队友看到！</span>
+          </div>
+          <button onclick="document.getElementById('post-modal-reply-content').focus()" class="px-4 py-2 ghost-btn text-xs cursor-pointer">💬 参与回帖 →</button>
+        </div>
+      </div>
+
+      <!-- 右栏：回帖楼层列表 + 底部常驻回复框 -->
+      <div class="lg:col-span-5 flex flex-col bg-[#080b12]/60 min-h-[360px] lg:h-full lg:overflow-hidden">
+        <div class="px-5 py-3.5 border-b border-amber-500/20 flex items-center justify-between shrink-0">
+          <h4 class="text-sm font-bold text-amber-300 flex items-center gap-2">
+            <span>💬 冒险者回帖讨论</span>
+            <span id="post-modal-reply-count" class="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-200 font-mono">0</span>
+          </h4>
+          <span class="text-[11px] text-gray-400">按时间正序排列</span>
+        </div>
+
+        <!-- 回帖滚动容器 -->
+        <div id="post-modal-replies" class="flex-1 overflow-y-auto p-5 space-y-3"></div>
+
+        <!-- 底部常驻回复输入区（支持上传配图与 Ctrl+V 粘贴截图） -->
+        <div class="p-4 border-t border-amber-500/20 bg-[#0d121d] space-y-2.5 shrink-0">
+          <div class="flex items-center justify-between text-xs text-gray-400">
+            <div class="flex items-center gap-2">
+              <span>✍️ 发表回帖</span>
+              <label class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/15 hover:bg-amber-500/25 border border-amber-400/35 text-amber-300 cursor-pointer transition">
+                <span>🖼️ 配图 (<span id="reply-img-count">0</span>/2)</span>
+                <input type="file" id="reply-img-input" accept="image/*" multiple class="hidden" onchange="handleReplyImageFiles(this.files)">
+              </label>
+            </div>
+            <input id="post-modal-reply-author" placeholder="昵称" maxlength="12" class="w-28 px-2.5 py-1 text-xs text-right">
+          </div>
+          <div id="reply-img-preview" class="flex flex-wrap gap-2 empty:hidden"></div>
+          <div class="flex gap-2">
+            <input id="post-modal-reply-content" placeholder="说点什么，支持 Ctrl+V 粘贴截图…" maxlength="300" class="flex-1 min-w-0 px-3.5 py-2.5 text-sm">
+            <button id="post-modal-reply-submit" class="px-5 py-2.5 gold-btn text-sm font-bold cursor-pointer shrink-0">发送回复</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- 资讯正文弹窗（宽屏沉浸式蓝贴阅读器） -->
+<div id="news-modal" class="hidden fixed inset-0 z-[70] flex items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-6 gm-modal-backdrop">
+  <div class="gm-modal-panel max-w-4xl w-full h-[86vh] max-h-[800px] flex flex-col overflow-hidden">
+    <div class="gm-modal-header-banner px-6 py-5 flex items-start justify-between gap-4 shrink-0">
+      <div class="space-y-2 min-w-0">
+        <div class="flex items-center gap-2">
+          <span class="inline-block text-xs px-3 py-0.5 rounded-full q-legendary font-bold">📰 艾泽拉斯皇家蓝贴快讯</span>
+          <span id="news-modal-meta" class="text-xs text-gray-400 font-mono"></span>
+        </div>
+        <h3 id="news-modal-title" class="wow-serif font-black text-amber-100 text-xl sm:text-2xl leading-snug"></h3>
+      </div>
+      <button onclick="closeNewsModal()" class="w-9 h-9 rounded-xl flex items-center justify-center text-gray-400 hover:text-amber-200 bg-black/10 hover:bg-amber-500/15 border border-amber-500/25 transition text-lg leading-none shrink-0 cursor-pointer" title="关闭 (Esc)">✕</button>
+    </div>
+
+    <div class="flex-1 overflow-y-auto p-6 sm:p-8">
+      <div id="news-modal-body" class="news-article bg-[#080b12]/90 border border-amber-500/20 rounded-2xl p-6 sm:p-8 shadow-inner max-w-none"></div>
+    </div>
+
+    <div class="px-6 py-4 border-t border-amber-500/20 flex items-center justify-between shrink-0 bg-[#0d121d]">
+      <a id="news-modal-origin" href="#" target="_blank" rel="noopener" class="px-4 py-2 rounded-xl ghost-btn text-xs font-bold">🌐 前往暴雪官网查看原文 ↗</a>
+      <button onclick="closeNewsModal()" class="px-5 py-2 gold-btn text-xs font-bold cursor-pointer">关闭卷轴</button>
+    </div>
+  </div>
+</div>
+
+<!-- 登录/注册弹窗 -->
+<div id="auth-modal" class="hidden fixed inset-0 z-[70] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 gm-modal-backdrop">
+  <div class="gm-modal-panel max-w-sm w-full p-6 space-y-4 max-h-[86vh] overflow-y-auto">
+    <div class="flex items-start justify-between gap-3 border-b border-amber-500/20 pb-3">
+      <div>
+        <h3 id="auth-modal-title" class="wow-serif text-xl text-amber-300 font-bold">🔑 冒险者通行证</h3>
+        <p class="text-xs text-gray-400 mt-1">登录后可发帖、回帖、点赞与分享插件</p>
+      </div>
+      <button onclick="closeAuthModal()" class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-amber-200 hover:bg-white/5 transition text-lg leading-none shrink-0 cursor-pointer">✕</button>
+    </div>
+    <div class="space-y-3 text-sm">
+      <div>
+        <label class="block text-gray-300 text-xs mb-1.5">角色名 / 账号</label>
+        <input type="text" id="auth-username" placeholder="2-12 位，字母/数字/中文/下划线" maxlength="12" class="w-full px-3.5 py-2.5">
+      </div>
+      <div>
+        <label class="block text-gray-300 text-xs mb-1.5">密令</label>
+        <input type="password" id="auth-password" placeholder="4-32 位密码" maxlength="32" class="w-full px-3.5 py-2.5">
+      </div>
+      <p id="auth-error" class="hidden text-xs text-red-300 bg-red-950/60 border border-red-500/35 rounded-lg px-3 py-2"></p>
+    </div>
+    <div class="flex gap-2.5 pt-1">
+      <button id="auth-submit-btn" onclick="submitAuth()" class="flex-1 py-2.5 text-sm gold-btn cursor-pointer">登录</button>
+      <button onclick="closeAuthModal()" class="px-4 py-2.5 ghost-btn text-sm cursor-pointer">取消</button>
+    </div>
+    <p class="text-xs text-gray-400 text-center"><span id="auth-toggle-text">尚未加入营地？</span><button id="auth-toggle-btn" onclick="toggleAuthMode()" class="text-amber-300 hover:underline cursor-pointer ml-1 font-semibold">立即注册</button></p>
+  </div>
+</div>
+
+<!-- 发帖弹窗 -->
+<div id="publish-modal" class="hidden fixed inset-0 z-[70] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 gm-modal-backdrop">
+  <div class="gm-modal-panel max-w-lg w-full p-6 space-y-4 max-h-[86vh] overflow-y-auto">
+    <div class="flex items-start justify-between gap-3 border-b border-amber-500/20 pb-3">
+      <div>
+        <h3 class="wow-serif text-xl text-amber-300 font-bold">🍺 张贴酒馆悬赏 / 战报</h3>
+        <p class="text-xs text-gray-400 mt-1">分享开荒心得、组队招募或欧皇掉落时刻</p>
+      </div>
+      <button onclick="closePublishModal()" class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-amber-200 hover:bg-white/5 transition text-lg leading-none shrink-0 cursor-pointer">✕</button>
+    </div>
+    <div class="space-y-3 text-sm">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-gray-300 text-xs mb-1.5">选择议事版块</label>
+          <select id="forum-category" class="w-full px-3 py-2">
+            <option value="">请选择版块</option>
+            <option value="综合讨论">🔥 综合讨论</option>
+            <option value="开荒组队">🛡️ 组队招募</option>
+            <option value="攻略心得">📜 攻略心得</option>
+            <option value="开荒战报">⚔️ 开荒战报</option>
+            <option value="欧皇晒图">✨ 欧皇晒图</option>
+            <option value="Bug反馈">🛠️ Bug反馈</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-gray-300 text-xs mb-1.5">署名（登录账号）</label>
+          <input type="text" id="forum-author" value="灰烬使者" maxlength="12" class="w-full px-3 py-2">
+        </div>
+      </div>
+      <div>
+        <label class="block text-gray-300 text-xs mb-1.5">帖子标题</label>
+        <input type="text" id="forum-title" placeholder="简述你的核心观点..." maxlength="40" class="w-full px-3.5 py-2">
+      </div>
+      <div>
+        <label class="block text-gray-300 text-xs mb-1.5">详细内容</label>
+        <textarea id="forum-content" rows="4" placeholder="详细聊聊你的见解（支持直接 Ctrl+V 粘贴游戏截图）..." maxlength="300" class="w-full px-3.5 py-2 resize-none"></textarea>
+      </div>
+      <!-- 发帖图片上传区 -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between">
+          <label class="text-gray-300 text-xs">🖼️ 附带游戏截图 / 配图 <span class="text-gray-500">(最多 4 张，支持 Ctrl+V 粘贴)</span></label>
+          <label class="px-3 py-1 rounded-lg ghost-btn text-xs cursor-pointer inline-flex items-center gap-1.5">
+            <span>➕ 选择图片 (<span id="publish-img-count">0</span>/4)</span>
+            <input type="file" id="publish-img-input" accept="image/*" multiple class="hidden" onchange="handlePublishImageFiles(this.files)">
+          </label>
+        </div>
+        <div id="publish-img-preview" class="flex flex-wrap gap-2.5 empty:hidden pt-1"></div>
       </div>
     </div>
-    <nav class="flex space-x-1 text-xs md:text-sm font-medium overflow-x-auto">
-      <button onclick="switchTab('card')" id="tab-card" class="px-2.5 py-5 transition tab-active">🪪 名片</button>
-      <button onclick="switchTab('campfire')" id="tab-campfire" class="px-2.5 py-5 transition text-gray-400 hover:text-amber-300">🔥 营火</button>
-      <button onclick="switchTab('guide')" id="tab-guide" class="px-2.5 py-5 transition text-gray-400 hover:text-amber-300">📜 秘典与模拟</button>
-      <button onclick="switchTab('forum')" id="tab-forum" class="px-2.5 py-5 transition text-gray-400 hover:text-amber-300">🍺 酒馆论坛</button>
-      <button onclick="switchTab('games')" id="tab-games" class="px-2.5 py-5 transition text-gray-400 hover:text-amber-300">🎮 小游戏</button>
+    <div class="flex gap-2.5 pt-1">
+      <button onclick="submitPost()" class="flex-1 py-2.5 text-sm gold-btn cursor-pointer">✍️ 张贴发布</button>
+      <button onclick="closePublishModal()" class="px-4 py-2.5 ghost-btn text-sm cursor-pointer">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- 分享插件弹窗 -->
+<div id="share-addon-modal" class="hidden fixed inset-0 z-[70] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 gm-modal-backdrop">
+  <div class="gm-modal-panel max-w-lg w-full p-6 space-y-4 max-h-[86vh] overflow-y-auto">
+    <div class="flex items-start justify-between gap-3 border-b border-amber-500/20 pb-3">
+      <div>
+        <h3 class="wow-serif text-xl text-amber-300 font-bold">🧩 锻造 / 分享插件</h3>
+        <p class="text-xs text-gray-400 mt-1">分享你常用的 WA 字符串、DBM 语音包或界面整合包</p>
+      </div>
+      <button onclick="closeShareAddonModal()" class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-amber-200 hover:bg-white/5 transition text-lg leading-none shrink-0 cursor-pointer">✕</button>
+    </div>
+    <div class="space-y-3 text-sm">
+      <div>
+        <label class="block text-gray-300 text-xs mb-1.5">插件名称 *</label>
+        <input type="text" id="addon-name" placeholder="如：WeakAuras 泽风岛全首领监控" maxlength="40" class="w-full px-3.5 py-2">
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-gray-300 text-xs mb-1.5">插件版本</label>
+          <input type="text" id="addon-version" placeholder="如：5.20.1" maxlength="20" class="w-full px-3.5 py-2">
+        </div>
+        <div>
+          <label class="block text-gray-300 text-xs mb-1.5">适用版本</label>
+          <input type="text" id="addon-game-version" placeholder="如：无限 / 11.0" maxlength="20" class="w-full px-3.5 py-2">
+        </div>
+      </div>
+      <div>
+        <label class="block text-gray-300 text-xs mb-1.5">分享者（登录账号）</label>
+        <input type="text" id="addon-author" value="灰烬使者" maxlength="12" class="w-full px-3.5 py-2">
+      </div>
+      <div>
+        <label class="block text-gray-300 text-xs mb-1.5">功能简介</label>
+        <textarea id="addon-desc" rows="3" placeholder="介绍该插件的核心用途与亮点…" maxlength="200" class="w-full px-3.5 py-2 resize-none"></textarea>
+      </div>
+      <div>
+        <label class="block text-gray-300 text-xs mb-1.5">下载链接 *</label>
+        <input type="text" id="addon-url" placeholder="https://..." maxlength="300" class="w-full px-3.5 py-2">
+      </div>
+    </div>
+    <div class="flex gap-2.5 pt-1">
+      <button onclick="submitAddon()" class="flex-1 py-2.5 text-sm gold-btn cursor-pointer">🧩 提交入库</button>
+      <button onclick="closeShareAddonModal()" class="px-4 py-2.5 ghost-btn text-sm cursor-pointer">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- 🧭 左侧固定战网式导航栏 (方案B) -->
+<header class="gm-sidebar">
+  <div class="gm-sidebar-inner">
+
+    <!-- 2.1 纯净图形化专属 Logo（3D 浮雕金属字标 + 皇家双剑纹章盾） -->
+    <div class="gm-mobile-top">
+      <div onclick="switchTab('home')" class="cursor-pointer group select-none flex items-center justify-center py-1" title="返回营地总览">
+        <svg viewBox="0 0 228 62" class="w-full max-w-[220px] h-auto drop-shadow-[0_6px_16px_rgba(0,0,0,0.45)] transition-transform duration-200 group-hover:scale-[1.02]">
+          <defs>
+            <linearGradient id="gmGoldBevel" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#FFFDF0"/>
+              <stop offset="28%" stop-color="#FFE082"/>
+              <stop offset="52%" stop-color="#D99B26"/>
+              <stop offset="58%" stop-color="#9C650C"/>
+              <stop offset="85%" stop-color="#F5C451"/>
+              <stop offset="100%" stop-color="#FFF3B0"/>
+            </linearGradient>
+            <linearGradient id="gmGoldRim" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#FFF2B2"/>
+              <stop offset="50%" stop-color="#E5A93C"/>
+              <stop offset="100%" stop-color="#8A5A10"/>
+            </linearGradient>
+            <linearGradient id="gmArcaneSub" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#60A5FA"/>
+              <stop offset="50%" stop-color="#38BDF8"/>
+              <stop offset="100%" stop-color="#60A5FA"/>
+            </linearGradient>
+            <linearGradient id="gmShieldBg" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#1E293B"/>
+              <stop offset="100%" stop-color="#070A12"/>
+            </linearGradient>
+            <filter id="gmTextExtrude" x="-10%" y="-20%" width="125%" height="150%">
+              <feDropShadow dx="0" dy="1.8" stdDeviation="0" flood-color="#2A1700" flood-opacity="1"/>
+              <feDropShadow dx="0" dy="3" stdDeviation="2.2" flood-color="#000000" flood-opacity="0.75"/>
+            </filter>
+            <filter id="gmGemGlow" x="-40%" y="-40%" width="180%" height="180%">
+              <feGaussianBlur stdDeviation="2" result="blur"/>
+              <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+            </filter>
+          </defs>
+
+          <!-- 左侧：交叉双剑 + 六边形艾泽拉斯皇家盾徽 -->
+          <g transform="translate(2, 2)">
+            <line x1="8" y1="8" x2="46" y2="48" stroke="url(#gmGoldRim)" stroke-width="2" stroke-linecap="round"/>
+            <line x1="46" y1="8" x2="8" y2="48" stroke="url(#gmGoldRim)" stroke-width="2" stroke-linecap="round"/>
+            <polygon points="27,2 48,11 48,34 27,54 6,34 6,11" fill="url(#gmShieldBg)" stroke="url(#gmGoldRim)" stroke-width="2.4"/>
+            <polygon points="27,6 44,13.5 44,32.5 27,49 10,32.5 10,13.5" fill="none" stroke="rgba(255,232,163,0.32)" stroke-width="1"/>
+            <polygon points="27,10 34,17 27,24 20,17" fill="rgba(56,189,248,0.16)" stroke="rgba(125,211,252,0.4)" stroke-width="0.8"/>
+            <path d="M19.5,24.5 C16,24.5 14,27 14,30 C14,33 16.5,35.5 19.5,35.5 C23.5,35.5 25.5,24.5 34.5,24.5 C37.5,24.5 40,27 40,30 C40,33 37.5,35.5 34.5,35.5 C30.5,35.5 28.5,24.5 19.5,24.5 Z" fill="none" stroke="url(#gmGoldBevel)" stroke-width="2.8" stroke-linecap="round" filter="url(#gmTextExtrude)"/>
+            <polygon points="27,9 29,14 34,14 30,17 31.5,22 27,19 22.5,22 24,17 20,14 25,14" fill="url(#gmGoldBevel)"/>
+          </g>
+
+          <!-- 右侧：史诗级定制字标区 -->
+          <path d="M58,9 L96,9 L101,6 L106,9 L218,9" fill="none" stroke="url(#gmGoldRim)" stroke-width="1" stroke-opacity="0.55"/>
+          <polygon points="58,7.5 62,9 58,10.5" fill="#F5C25C"/>
+
+          <g filter="url(#gmTextExtrude)">
+            <text x="58" y="31" fill="url(#gmGoldBevel)" stroke="#4A2C00" stroke-width="0.6" paint-order="stroke fill" font-family="'Cinzel', 'Noto Serif SC', serif" font-weight="900" font-size="21" letter-spacing="1.5">W</text>
+            <text x="80" y="29.5" fill="url(#gmGoldBevel)" stroke="#4A2C00" stroke-width="0.6" paint-order="stroke fill" font-family="'Cinzel', 'Noto Serif SC', serif" font-weight="900" font-size="17.5" letter-spacing="1">O</text>
+            <text x="97" y="31" fill="url(#gmGoldBevel)" stroke="#4A2C00" stroke-width="0.6" paint-order="stroke fill" font-family="'Cinzel', 'Noto Serif SC', serif" font-weight="900" font-size="21" letter-spacing="1.5">W</text>
+          </g>
+
+          <g filter="url(#gmGemGlow)">
+            <polygon points="123,17 126.5,22.5 123,28 119.5,22.5" fill="#38BDF8" stroke="#FFF2B2" stroke-width="1"/>
+            <polygon points="123,19.2 124.8,22.5 123,25.8 121.2,22.5" fill="#E0F2FE"/>
+          </g>
+
+          <g filter="url(#gmTextExtrude)">
+            <text x="131" y="29.5" fill="url(#gmGoldBevel)" stroke="#4A2C00" stroke-width="0.55" paint-order="stroke fill" font-family="'Cinzel', 'Noto Serif SC', serif" font-weight="900" font-size="15.5" letter-spacing="1.2">FOREVER</text>
+          </g>
+
+          <path d="M58,37 L128,37 L138,34.5 L148,37 L220,37" fill="none" stroke="url(#gmGoldRim)" stroke-width="1.2" stroke-opacity="0.75"/>
+          <polygon points="138,33 141.5,35.8 138,38.6 134.5,35.8" fill="url(#gmGoldBevel)"/>
+
+          <rect x="58" y="42" width="34" height="13" rx="3" fill="#1E293B" stroke="url(#gmGoldRim)" stroke-width="0.9"/>
+          <text x="75" y="51.2" text-anchor="middle" fill="#FFE299" font-family="'Noto Serif SC', serif" font-weight="900" font-size="8.5" letter-spacing="1.5">无限</text>
+          <text x="98" y="51.5" fill="url(#gmArcaneSub)" font-family="'Cinzel', 'Inter', sans-serif" font-weight="700" font-size="9.2" letter-spacing="2.4">GAMEMATE CAMP</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- 2.2 菜单按钮组 + 2.4 个人中心菜单 -->
+    <nav aria-label="主导航">
+      <button onclick="switchTab('home')" id="tab-home" class="gm-nav-btn tab-active">
+        <span class="nav-icon-box">🏠</span>
+        <span class="min-w-0">
+          <span class="block nav-label">营地总览</span>
+          <span class="block nav-sub">蓝贴资讯与全局情报</span>
+        </span>
+      </button>
+
+      <button onclick="switchTab('campfire')" id="tab-campfire" class="gm-nav-btn">
+        <span class="nav-icon-box">🔥</span>
+        <span class="min-w-0">
+          <span class="block nav-label">营火集合石</span>
+          <span class="block nav-sub">5人小队招募与密语</span>
+        </span>
+      </button>
+
+      <button onclick="switchTab('guide')" id="tab-guide" class="gm-nav-btn">
+        <span class="nav-icon-box">📜</span>
+        <span class="min-w-0">
+          <span class="block nav-label">秘典与模拟</span>
+          <span class="block nav-sub">DPS推演与开荒指南</span>
+        </span>
+      </button>
+
+      <button onclick="switchTab('forum')" id="tab-forum" class="gm-nav-btn">
+        <span class="nav-icon-box">🍺</span>
+        <span class="min-w-0">
+          <span class="block nav-label">逐风酒馆</span>
+          <span class="block nav-sub">冒险者社区与战报</span>
+        </span>
+      </button>
+
+      <button onclick="switchTab('addons')" id="tab-addons" class="gm-nav-btn">
+        <span class="nav-icon-box">🧩</span>
+        <span class="min-w-0">
+          <span class="block nav-label">插件军械库</span>
+          <span class="block nav-sub">WA字符串与必备插件</span>
+        </span>
+      </button>
+
+      <button onclick="switchTab('games')" id="tab-games" class="gm-nav-btn">
+        <span class="nav-icon-box">🎮</span>
+        <span class="min-w-0">
+          <span class="block nav-label">小游戏</span>
+          <span class="block nav-sub">排队等待休闲摸鱼</span>
+        </span>
+      </button>
+
+      <button onclick="switchTab('profile')" id="tab-profile" class="gm-nav-btn">
+        <span class="nav-icon-box">👤</span>
+        <span class="min-w-0">
+          <span class="block nav-label">个人中心</span>
+          <span class="block nav-sub">我的发帖与互动消息</span>
+        </span>
+      </button>
     </nav>
+
+    <!-- 2.3 左下角底部：暗金 / 明亮双模式切换 + 账号状态 -->
+    <div class="gm-sidebar-footer space-y-3 pt-3 border-t border-amber-500/20">
+      <div class="theme-switch-group" title="切换暗金/明亮界面模式">
+        <button onclick="setUiTheme('gold')" id="theme-btn-gold" class="theme-pill">🌙 暗金</button>
+        <button onclick="setUiTheme('light')" id="theme-btn-light" class="theme-pill active">☀️ 明亮</button>
+      </div>
+      <div id="auth-area" class="flex items-center justify-between gap-2"></div>
+    </div>
+
   </div>
 </header>
 
-<main class="flex-1 max-w-6xl w-full mx-auto px-4 py-8">
-  <!-- 1. 英雄名片模块 -->
-  <section id="sec-card" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-    <div class="lg:col-span-5 bg-[#151924] p-6 rounded-lg gold-border space-y-4">
-      <div class="border-b border-[#2e3446] pb-3">
-        <h2 class="wow-serif text-xl text-amber-400 font-bold">生成你的开荒英雄帖</h2>
-        <p class="text-xs text-gray-400 mt-1">填写角色信息，一键导出高清复古海报分享至群聊</p>
-      </div>
-      <div class="space-y-3 text-sm">
-        <div>
-          <label class="block text-gray-300 mb-1">角色名称 (ID)</label>
-          <input type="text" id="inp-name" value="灰烬使者" maxlength="12" oninput="renderCard()" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-gray-300 mb-1">服务器</label>
-            <input type="text" id="inp-realm" value="泽风岛 (PvP)" maxlength="10" oninput="renderCard()" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
+<main class="flex-1 w-full max-w-none px-4 sm:px-6 lg:px-8 py-5 sm:py-6 flex flex-col">
+
+  <!-- 1. 营地总览（全宽流式铺满） -->
+  <section id="sec-home" class="space-y-5 flex-1 flex flex-col">
+
+    <!-- 第一层：战备状态与快捷行动横幅 -->
+    <div class="hero-citadel p-5 sm:p-6">
+      <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-5">
+        <div class="space-y-2 max-w-3xl">
+          <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-400/35 text-[11px] text-amber-300 font-semibold">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>泽风岛前线战备就绪 · 实时组队与战术中心</span>
           </div>
-          <div>
-            <label class="block text-gray-300 mb-1">所属阵营</label>
-            <select id="inp-faction" onchange="renderCard()" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
-              <option value="horde">🔴 为了部落 (Horde)</option>
-              <option value="alliance">🔵 为了联盟 (Alliance)</option>
-            </select>
-          </div>
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-gray-300 mb-1">种族与组合</label>
-            <select id="inp-race" onchange="renderCard()" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
-              <option value="天裔 (新种族)">✨ 天裔 (新种族)</option>
-              <option value="亡灵">💀 亡灵</option>
-              <option value="矮人">🍺 矮人</option>
-              <option value="兽人">🪓 兽人</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-gray-300 mb-1">职业与专精</label>
-            <select id="inp-class" onchange="renderCard()" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
-              <option value="圣骑士|#F48CBA">🔨 圣骑士 (亡灵骑)</option>
-              <option value="萨满祭司|#0070DD">⚡ 萨满祭司 (矮人萨)</option>
-              <option value="战士|#C69B6D">⚔️ 战士</option>
-              <option value="法师|#3FC7EB">❄️ 法师</option>
-            </select>
+          <h2 class="wow-serif text-xl sm:text-2xl font-black text-amber-100 leading-snug">
+            点燃营火，集结你的开荒远征队
+          </h2>
+          <p class="text-xs sm:text-sm text-gray-300/90 leading-relaxed">
+            同步暴雪官方最新蓝贴资讯、加密密码锁营火集结、实时配装 DPS 模拟与高赞开荒秘典。
+          </p>
+          <div class="flex flex-wrap items-center gap-2.5 pt-1">
+            <button onclick="switchTab('campfire')" class="px-4 py-2 text-xs sm:text-sm gold-btn cursor-pointer">🔥 点燃 / 加入营火</button>
+            <button onclick="switchTab('guide')" class="px-3.5 py-2 text-xs sm:text-sm ghost-btn cursor-pointer">⚡ DPS 模拟</button>
+            <button onclick="switchTab('forum')" class="px-3.5 py-2 text-xs sm:text-sm ghost-btn cursor-pointer">🍺 逛酒馆</button>
           </div>
         </div>
-        <div>
-          <label class="block text-gray-300 mb-1">开荒宣言</label>
-          <input type="text" id="inp-motto" value="gamemate.fun 寻找稳定开荒队友！" maxlength="26" oninput="renderCard()" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
+
+        <!-- 右侧三合一战备指标卡 -->
+        <div class="grid grid-cols-3 gap-3 sm:gap-4 shrink-0">
+          <div onclick="switchTab('forum')" class="cursor-pointer loot-card px-4 py-3.5 text-center min-w-[96px] sm:min-w-[125px]">
+            <div class="text-[11px] text-amber-300/80 font-medium">酒馆帖数</div>
+            <div id="hero-stat-posts" class="wow-en text-xl sm:text-2xl font-black text-amber-200 mt-0.5">--</div>
+            <div class="text-[10px] text-gray-400">社区动态</div>
+          </div>
+          <div onclick="switchTab('campfire')" class="cursor-pointer loot-card px-4 py-3.5 text-center min-w-[96px] sm:min-w-[125px]">
+            <div class="text-[11px] text-emerald-500 font-medium">活跃营火</div>
+            <div id="hero-stat-rooms" class="wow-en text-xl sm:text-2xl font-black text-emerald-500 mt-0.5">--</div>
+            <div class="text-[10px] text-gray-400">正在招募</div>
+          </div>
+          <div onclick="switchTab('addons')" class="cursor-pointer loot-card px-4 py-3.5 text-center min-w-[96px] sm:min-w-[125px]">
+            <div class="text-[11px] text-purple-500 font-medium">精选插件</div>
+            <div id="hero-stat-addons" class="wow-en text-xl sm:text-2xl font-black text-purple-500 mt-0.5">--</div>
+            <div class="text-[10px] text-gray-400">军械库</div>
+          </div>
         </div>
       </div>
-      <button onclick="downloadCard()" class="w-full py-3 rounded font-bold text-base gold-btn transition cursor-pointer mt-2">📥 一键保存高清名片 (PNG)</button>
     </div>
-    <div class="lg:col-span-7 flex flex-col items-center">
-      <div class="w-full flex justify-between items-center mb-2 px-1">
-        <span class="text-xs text-gray-400">实时海报预览</span>
-        <span class="text-xs text-amber-400/80">800 × 450 px</span>
+
+    <!-- 第二层：核心焦点双栏（左 7 官方资讯 + 右 5 实时公开营火） -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+      <div class="lg:col-span-7 epic-panel p-5 flex flex-col">
+        <div class="flex items-center justify-between border-b border-amber-500/20 pb-3 mb-3">
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded-md bg-amber-500/15 border border-amber-400/35 flex items-center justify-center text-xs">📢</span>
+            <h2 class="wow-serif text-base sm:text-lg text-amber-300 font-bold">艾泽拉斯官方快讯</h2>
+            <span id="home-news-badge" class="hidden text-[10px] px-2 py-0.5 rounded-full bg-red-500/25 border border-red-400/50 text-red-200 font-bold animate-pulse">NEW</span>
+          </div>
+          <button onclick="toggleHomeMod('news')" id="home-mod-news-toggle" class="w-7 h-7 rounded-lg flex items-center justify-center text-amber-300 hover:bg-amber-500/10 text-sm cursor-pointer" title="折叠/展开">▾</button>
+        </div>
+        <div id="home-mod-news-body" class="flex-1 flex flex-col">
+          <div id="home-news-list" class="space-y-1.5 flex-1"></div>
+          <button id="home-news-more" onclick="toggleNewsExpand()" class="hidden mt-3 self-start px-3 py-1 rounded-lg text-xs text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/25 transition cursor-pointer"></button>
+        </div>
       </div>
-      <div class="w-full overflow-hidden rounded-lg gold-border bg-black flex justify-center">
-        <canvas id="heroCanvas" width="800" height="450" class="w-full h-auto max-w-[800px]"></canvas>
+
+      <div class="lg:col-span-5 epic-panel p-5 flex flex-col">
+        <div class="flex items-center justify-between border-b border-amber-500/20 pb-3 mb-3">
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded-md bg-amber-500/15 border border-amber-400/35 flex items-center justify-center text-xs">🔥</span>
+            <h2 class="wow-serif text-base sm:text-lg text-amber-300 font-bold">前线公开营火</h2>
+          </div>
+          <button onclick="switchTab('campfire')" class="text-xs text-amber-300 hover:underline cursor-pointer">全部房间 →</button>
+        </div>
+        <div id="home-mod-rooms-body" class="flex-1 flex flex-col">
+          <div id="home-rooms-list" class="space-y-1.5 flex-1"></div>
+          <div class="mt-auto pt-3 flex justify-end">
+            <button onclick="switchTab('campfire')" class="w-full py-2 ghost-btn cursor-pointer text-xs">🔥 前往集合石创建 / 加入小队</button>
+          </div>
+        </div>
       </div>
+    </div>
+
+    <!-- 第三层：三等分对齐社区精选 -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch flex-1">
+      <div class="epic-panel p-5 flex flex-col">
+        <div class="flex items-center justify-between border-b border-amber-500/20 pb-3 mb-3">
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded-md bg-amber-500/15 border border-amber-400/35 flex items-center justify-center text-xs">📰</span>
+            <h2 class="wow-serif text-base text-amber-300 font-bold">酒馆最新动态</h2>
+          </div>
+          <button onclick="switchTab('forum')" class="text-xs text-amber-300 hover:underline cursor-pointer">更多 →</button>
+        </div>
+        <div id="home-mod-posts-body" class="flex-1 flex flex-col">
+          <div id="home-posts-list" class="space-y-1 flex-1"></div>
+        </div>
+      </div>
+
+      <div class="epic-panel p-5 flex flex-col">
+        <div class="flex items-center justify-between border-b border-amber-500/20 pb-3 mb-3">
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded-md bg-purple-500/15 border border-purple-400/35 flex items-center justify-center text-xs">⭐</span>
+            <h2 class="wow-serif text-base text-amber-300 font-bold">史诗开荒攻略</h2>
+          </div>
+          <button onclick="viewMoreGuides()" class="text-xs text-amber-300 hover:underline cursor-pointer">更多 →</button>
+        </div>
+        <div id="home-mod-guides-body" class="flex-1 flex flex-col">
+          <div id="home-guides-list" class="space-y-1 flex-1"></div>
+        </div>
+      </div>
+
+      <div class="epic-panel p-5 flex flex-col">
+        <div class="flex items-center justify-between border-b border-amber-500/20 pb-3 mb-3">
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded-md bg-blue-500/15 border border-blue-400/35 flex items-center justify-center text-xs">🧩</span>
+            <h2 class="wow-serif text-base text-amber-300 font-bold">热门战术插件</h2>
+          </div>
+          <button onclick="switchTab('addons')" class="text-xs text-amber-300 hover:underline cursor-pointer">更多 →</button>
+        </div>
+        <div id="home-mod-addons-body" class="flex-1 flex flex-col">
+          <div id="home-addons-list" class="space-y-1 flex-1"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-center pt-1">
+      <p id="home-stats" class="text-xs text-gray-400 px-4 py-1.5 rounded-full loot-card"></p>
     </div>
   </section>
 
   <!-- 2. 营火大厅模块 -->
-  <section id="sec-campfire" class="hidden">
-    <div id="campfire-lobby" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-      <div class="lg:col-span-4 space-y-6">
-        <div class="bg-[#151924] p-6 rounded-lg gold-border space-y-4">
-          <div class="border-b border-[#2e3446] pb-3">
-            <h2 class="wow-serif text-xl text-amber-400 font-bold">🔥 点燃新的营火</h2>
-            <p class="text-xs text-gray-400 mt-1">支持密码锁、隐身模式与实时 P2P 语音通话</p>
+  <section id="sec-campfire" class="hidden flex-1 flex flex-col">
+    <div id="campfire-lobby" class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch flex-1">
+      <div class="lg:col-span-4 xl:col-span-3 flex flex-col gap-5">
+        <div class="epic-panel p-5 sm:p-6 space-y-4">
+          <div class="border-b border-amber-500/20 pb-3">
+            <h2 class="wow-serif text-xl text-amber-300 font-bold">🔥 点燃新的营火</h2>
+            <p class="text-xs text-gray-400 mt-1">创建 5 人小队，支持暗号锁与完全隐身</p>
           </div>
           <div class="space-y-3 text-sm">
             <div>
-              <label class="block text-gray-300 mb-1">你的游戏昵称</label>
-              <input type="text" id="cf-nickname" value="灰烬使者" maxlength="12" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
+              <label class="block text-gray-300 text-xs mb-1.5">角色昵称</label>
+              <input type="text" id="cf-nickname" value="灰烬使者" maxlength="12" class="w-full px-3.5 py-2">
             </div>
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <label class="block text-gray-300 mb-1">阵营</label>
-                <select id="cf-faction" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
-                  <option value="horde">🔴 部落</option>
-                  <option value="alliance">🔵 联盟</option>
+                <label class="block text-gray-300 text-xs mb-1.5">所属阵营</label>
+                <select id="cf-faction" class="w-full px-3 py-2">
+                  <option value="horde">🔴 部落 (Horde)</option>
+                  <option value="alliance">🔵 联盟 (Alliance)</option>
                 </select>
               </div>
               <div>
-                <label class="block text-gray-300 mb-1">担任职责</label>
-                <select id="cf-role" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
+                <label class="block text-gray-300 text-xs mb-1.5">担任职责</label>
+                <select id="cf-role" class="w-full px-3 py-2">
                   <option value="🛡️ 坦克">🛡️ 坦克</option>
                   <option value="💚 治疗">💚 治疗</option>
                   <option value="⚔️ 输出" selected>⚔️ 输出</option>
@@ -133,85 +1142,85 @@
               </div>
             </div>
             <div>
-              <label class="block text-gray-300 mb-1">队伍招募标题</label>
-              <input type="text" id="cf-title" value="泽风岛精英任务亲友车队" maxlength="24" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
+              <label class="block text-gray-300 text-xs mb-1.5">招募宣言标题</label>
+              <input type="text" id="cf-title" value="泽风岛精英任务亲友车队" maxlength="24" class="w-full px-3.5 py-2">
             </div>
             <div>
-              <label class="block text-gray-300 mb-1">🔒 房间密码 <span class="text-xs text-gray-500">(选填)</span></label>
-              <input type="password" id="cf-password" placeholder="设置暗号保护私密性..." maxlength="16" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
+              <label class="block text-gray-300 text-xs mb-1.5">🔒 房间密码 <span class="text-gray-500">(选填)</span></label>
+              <input type="password" id="cf-password" placeholder="设置暗号保护私密性..." maxlength="16" class="w-full px-3.5 py-2">
             </div>
             <div class="pt-1">
-              <label class="flex items-start space-x-2.5 cursor-pointer bg-[#0b0d13] p-3 rounded border border-[#2e3446] hover:border-amber-500/50 transition">
-                <input type="checkbox" id="cf-hidden" class="mt-1 accent-amber-500">
+              <label class="flex items-start gap-2.5 cursor-pointer bg-[#080b12] p-3 rounded-xl border border-amber-500/20 hover:border-amber-400/50 transition">
+                <input type="checkbox" id="cf-hidden" class="mt-0.5 accent-amber-500">
                 <div>
-                  <span class="block text-amber-300 font-bold text-xs">👻 开启完全隐身模式</span>
-                  <span class="block text-[11px] text-gray-400 mt-0.5">不在大厅列表显示，仅通过房间号进入</span>
+                  <span class="block text-amber-300 font-semibold text-xs">👻 开启暗影隐身模式</span>
+                  <span class="block text-[11px] text-gray-400 mt-0.5">不在公开集合石显示，仅凭 6 位房间号直达</span>
                 </div>
               </label>
             </div>
           </div>
-          <button onclick="createRoom()" class="w-full py-3 rounded font-bold text-base gold-btn transition cursor-pointer mt-2">🔥 创建营火房间</button>
+          <button onclick="createRoom()" class="w-full py-3 text-sm gold-btn cursor-pointer mt-1">🔥 点燃营火并建队</button>
         </div>
 
-        <div class="bg-[#151924] p-5 rounded-lg gold-border space-y-3">
-          <h3 class="wow-serif text-base text-amber-400 font-bold">🔑 房间号定向进入</h3>
-          <div class="grid grid-cols-2 gap-2 text-sm">
-            <input type="text" id="direct-room-id" placeholder="6位房间号" maxlength="10" class="bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
-            <input type="password" id="direct-room-pwd" placeholder="密码" maxlength="16" class="bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
+        <div class="epic-panel p-5 space-y-3">
+          <h3 class="wow-serif text-base text-amber-300 font-bold">🔑 召唤石定向传送</h3>
+          <div class="grid grid-cols-2 gap-2.5 text-sm">
+            <input type="text" id="direct-room-id" placeholder="6位房间号" maxlength="10" class="px-3 py-2 font-mono uppercase">
+            <input type="password" id="direct-room-pwd" placeholder="密码（选填）" maxlength="16" class="px-3 py-2">
           </div>
-          <button onclick="joinDirectRoom()" class="w-full py-2 rounded font-bold text-xs bg-[#262c3d] hover:bg-[#323a50] text-amber-300 border border-[#8c6f3e] transition cursor-pointer">🚀 定向传送进组</button>
+          <button onclick="joinDirectRoom()" class="w-full py-2.5 text-xs ghost-btn cursor-pointer">🚀 接受召唤进组</button>
         </div>
       </div>
 
-      <div class="lg:col-span-8 bg-[#151924] p-6 rounded-lg gold-border min-h-[480px] flex flex-col">
-        <div class="flex items-center justify-between border-b border-[#2e3446] pb-3 mb-4">
+      <div class="lg:col-span-8 xl:col-span-9 epic-panel p-5 sm:p-6 min-h-[580px] flex flex-col">
+        <div class="flex items-center justify-between border-b border-amber-500/20 pb-3.5 mb-4">
           <div>
-            <h2 class="wow-serif text-xl text-amber-400 font-bold">当前公开营火列表</h2>
-            <p class="text-xs text-gray-400 mt-1">实时同步在线车队</p>
+            <h2 class="wow-serif text-xl text-amber-300 font-bold">⚔️ 艾泽拉斯集合石大厅</h2>
+            <p class="text-xs text-gray-400 mt-1">实时同步当前正在招募的公开小队</p>
           </div>
-          <span id="cf-room-count" class="text-xs px-2.5 py-1 rounded bg-amber-500/10 border border-amber-500/30 text-amber-300">0 个公开房间</span>
+          <span id="cf-room-count" class="text-xs px-3 py-1 rounded-full q-legendary font-bold">0 个公开房间</span>
         </div>
-        <div id="cf-room-list" class="space-y-3 flex-1"></div>
+        <div id="cf-room-list" class="grid grid-cols-1 2xl:grid-cols-2 gap-3.5 content-start flex-1"></div>
       </div>
     </div>
 
     <!-- 房间内部私密视图 -->
-    <div id="campfire-room" class="hidden bg-[#151924] p-6 rounded-lg gold-border space-y-6">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#2e3446] pb-4">
-        <div class="flex items-center space-x-3">
-          <span id="room-lock-badge" class="text-2xl">🔒</span>
+    <div id="campfire-room" class="hidden epic-panel p-5 sm:p-6 space-y-6 flex-1 flex flex-col">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-amber-500/20 pb-4">
+        <div class="flex items-center gap-3.5">
+          <div class="w-12 h-12 rounded-xl bg-[#080b12] border border-amber-500/35 flex items-center justify-center text-2xl shrink-0" id="room-lock-badge">🔒</div>
           <div>
-            <div class="flex items-center space-x-2">
-              <h2 id="room-title-display" class="wow-serif text-xl text-amber-400 font-bold">房间标题</h2>
-              <span id="room-id-badge" class="text-xs font-mono px-2 py-0.5 rounded bg-[#0b0d13] border border-[#8c6f3e] text-amber-300">ID: ------</span>
+            <div class="flex flex-wrap items-center gap-2">
+              <h2 id="room-title-display" class="wow-serif text-xl text-amber-200 font-bold">房间标题</h2>
+              <span id="room-id-badge" class="text-xs font-mono px-2.5 py-0.5 rounded-md bg-[#080b12] border border-amber-400/50 text-amber-300 font-bold">ID: ------</span>
             </div>
             <p id="room-meta-display" class="text-xs text-gray-400 mt-1">房间状态信息</p>
           </div>
         </div>
-        <div class="flex flex-wrap items-center gap-2">
-          <button id="btn-voice-toggle" onclick="toggleVoice()" class="px-3 py-2 rounded text-xs font-bold bg-emerald-700/40 hover:bg-emerald-600/50 text-emerald-200 border border-emerald-500/50 transition cursor-pointer">🎙️ 加入语音</button>
-          <button id="btn-mic-mute" onclick="toggleMute()" class="hidden px-3 py-2 rounded text-xs font-bold bg-[#262c3d] text-amber-300 border border-[#8c6f3e] transition cursor-pointer">🔊 麦克风已开</button>
-          <button onclick="copyInviteLink()" class="px-3 py-2 rounded text-xs font-bold gold-btn transition cursor-pointer">📋 复制邀请链接</button>
-          <button onclick="leaveRoom()" class="px-3 py-2 rounded border border-red-500/50 bg-red-500/10 text-red-300 hover:bg-red-500/20 text-xs font-bold transition cursor-pointer">🚪 离开营火</button>
+        <div class="flex flex-wrap items-center gap-2.5">
+          <button onclick="copyInviteLink()" class="px-4 py-2 text-xs gold-btn cursor-pointer">📋 复制召唤链接</button>
+          <button onclick="leaveRoom()" class="px-4 py-2 rounded-xl border border-red-500/45 bg-red-500/15 text-red-300 hover:bg-red-500/25 text-xs font-bold transition cursor-pointer">🚪 离开小队</button>
         </div>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div class="lg:col-span-5 space-y-3">
           <div class="flex items-center justify-between">
-            <h3 class="text-sm font-bold text-amber-300">👥 小队成员 (<span id="room-member-count">1</span>/5)</h3>
-            <span id="voice-status-hint" class="text-[11px] text-gray-400">未连接语音</span>
+            <h3 class="text-sm font-bold text-amber-300">👥 远征小队成员 (<span id="room-member-count">1</span>/5)</h3>
+            <span class="inline-flex items-center gap-1.5 text-[11px] text-emerald-500"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>营火燃烧中</span>
           </div>
-          <div id="room-member-list" class="space-y-2"></div>
-          <div id="remote-audios" class="hidden"></div>
+          <div id="room-member-list" class="space-y-2.5"></div>
         </div>
 
-        <div class="lg:col-span-7 flex flex-col bg-[#0b0d13] border border-[#3a3226] rounded-lg p-4 h-[340px]">
-          <div class="text-xs text-gray-400 border-b border-[#2e3446] pb-2 mb-2">🛡️ 房间内加密频道（解散即焚）</div>
+        <div class="lg:col-span-7 flex flex-col bg-[#080b12] border border-amber-500/25 rounded-xl p-4 h-[370px] shadow-inner">
+          <div class="text-xs text-amber-200/80 pb-2.5 mb-2.5 border-b border-amber-500/15 flex items-center justify-between">
+            <span class="font-semibold">💬 [小队频道] 战术沟通</span>
+            <span class="text-[11px] text-gray-500">Enter 发送</span>
+          </div>
           <div id="room-chat-box" class="flex-1 overflow-y-auto space-y-2 text-sm pr-1"></div>
           <div class="mt-3 flex gap-2">
-            <input type="text" id="room-chat-input" placeholder="输入战术讨论..." onkeydown="if(event.key==='Enter') sendRoomChat()" class="flex-1 bg-[#151924] border border-[#3a3226] rounded px-3 py-2 text-sm text-amber-100 focus:outline-none focus:border-amber-500">
-            <button onclick="sendRoomChat()" class="px-4 py-2 rounded text-sm font-bold gold-btn cursor-pointer">发送</button>
+            <input type="text" id="room-chat-input" placeholder="向小队发送消息..." onkeydown="if(event.key==='Enter') sendRoomChat()" class="flex-1 px-3.5 py-2 text-sm">
+            <button onclick="sendRoomChat()" class="px-4 py-2 text-sm gold-btn cursor-pointer">发送</button>
           </div>
         </div>
       </div>
@@ -219,150 +1228,481 @@
   </section>
 
   <!-- 3. 英雄秘典与数据模拟模块 -->
-  <section id="sec-guide" class="hidden space-y-6">
-    <div class="bg-[#151924] p-6 rounded-lg gold-border space-y-4">
-      <h2 class="wow-serif text-xl text-amber-400 font-bold">📜 泽风岛英雄秘典与数据模拟器</h2>
-      <p class="text-xs text-gray-400">结合开荒实测数据，提供配装属性模拟与核心攻略速查。</p>
+  <section id="sec-guide" class="hidden flex-1 flex flex-col">
+    <div class="epic-panel p-5 sm:p-6 space-y-6 flex-1 flex flex-col">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-amber-500/20 pb-4">
+        <div>
+          <h2 class="wow-serif text-xl text-amber-300 font-bold">📜 泽风岛英雄秘典与属性模拟器</h2>
+          <p class="text-xs text-gray-400 mt-1">实时推演绿字收益曲线，快速查阅前线开荒战术指南</p>
+        </div>
+        <span class="self-start sm:self-auto text-[11px] wow-en px-2.5 py-1 rounded-md bg-sky-500/10 border border-sky-400/30 text-sky-500 font-bold">SIMCRAFT ENGINE v2.4</span>
+      </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-        <!-- 模拟器组件 -->
-        <div class="bg-[#0b0d13] p-4 rounded border border-[#3a3226] space-y-3">
-          <h3 class="text-sm font-bold text-amber-300">⚡ 简易 DPS 与属性模拟器</h3>
-          <div class="grid grid-cols-2 gap-3 text-sm">
-            <div>
-              <label class="block text-gray-400 text-xs mb-1">主属性 (力量/智力)</label>
-              <input type="number" id="sim-main-stat" value="1200" oninput="runSimulation()" class="w-full bg-[#151924] border border-[#3a3226] rounded px-3 py-1.5 text-amber-100">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-6 bg-[#080b12] p-5 rounded-xl border border-amber-500/25 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-amber-300">⚡ 角色面板与秒伤推演</h3>
+            <span class="text-[11px] text-emerald-500 font-semibold">● 实时演算</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3.5 text-sm">
+            <div class="bg-[#101624] p-3.5 rounded-xl border border-amber-500/20">
+              <div class="flex justify-between text-xs mb-1.5">
+                <span class="text-amber-200 font-medium">主属性 (力/敏/智)</span>
+                <span class="text-amber-500 font-mono">MAIN</span>
+              </div>
+              <input type="number" id="sim-main-stat" value="1200" oninput="runSimulation()" class="w-full px-3 py-1.5 font-mono font-bold text-amber-100">
             </div>
-            <div>
-              <label class="block text-gray-400 text-xs mb-1">暴击等级 (%)</label>
-              <input type="number" id="sim-crit" value="35" oninput="runSimulation()" class="w-full bg-[#151924] border border-[#3a3226] rounded px-3 py-1.5 text-amber-100">
+            <div class="bg-[#101624] p-3.5 rounded-xl border border-rose-500/20">
+              <div class="flex justify-between text-xs mb-1.5">
+                <span class="text-rose-500 font-medium">暴击几率 (%)</span>
+                <span class="text-rose-500 font-mono">CRIT</span>
+              </div>
+              <input type="number" id="sim-crit" value="35" oninput="runSimulation()" class="w-full px-3 py-1.5 font-mono font-bold">
             </div>
-            <div>
-              <label class="block text-gray-400 text-xs mb-1">急速等级 (%)</label>
-              <input type="number" id="sim-haste" value="20" oninput="runSimulation()" class="w-full bg-[#151924] border border-[#3a3226] rounded px-3 py-1.5 text-amber-100">
+            <div class="bg-[#101624] p-3.5 rounded-xl border border-sky-500/20">
+              <div class="flex justify-between text-xs mb-1.5">
+                <span class="text-sky-500 font-medium">急速等级 (%)</span>
+                <span class="text-sky-500 font-mono">HASTE</span>
+              </div>
+              <input type="number" id="sim-haste" value="20" oninput="runSimulation()" class="w-full px-3 py-1.5 font-mono font-bold">
             </div>
-            <div>
-              <label class="block text-gray-400 text-xs mb-1">精通等级 (%)</label>
-              <input type="number" id="sim-mastery" value="25" oninput="runSimulation()" class="w-full bg-[#151924] border border-[#3a3226] rounded px-3 py-1.5 text-amber-100">
+            <div class="bg-[#101624] p-3.5 rounded-xl border border-purple-500/20">
+              <div class="flex justify-between text-xs mb-1.5">
+                <span class="text-purple-500 font-medium">精通加成 (%)</span>
+                <span class="text-purple-500 font-mono">MAST</span>
+              </div>
+              <input type="number" id="sim-mastery" value="25" oninput="runSimulation()" class="w-full px-3 py-1.5 font-mono font-bold">
             </div>
           </div>
-          <div class="p-3 bg-[#151924] rounded border border-[#8c6f3e]/40 flex items-center justify-between mt-3">
-            <span class="text-xs text-gray-300">预估循环秒伤 (Simulated DPS)：</span>
-            <span id="sim-result-dps" class="text-lg font-bold font-mono text-amber-400">14,250 DPS</span>
+
+          <div class="space-y-1.5 pt-1">
+            <div class="flex justify-between text-[11px] text-gray-400">
+              <span>绿字属性收益占比</span>
+              <span id="sim-stat-summary" class="font-mono text-amber-300/90">暴击 35% · 急速 20% · 精通 25%</span>
+            </div>
+            <div class="h-2.5 w-full rounded-full bg-black/20 overflow-hidden flex p-0.5 gap-0.5 border border-amber-500/20">
+              <div id="bar-crit" class="h-full bg-gradient-to-r from-rose-600 to-rose-400 rounded-l-full transition-all duration-300" style="width: 44%"></div>
+              <div id="bar-haste" class="h-full bg-gradient-to-r from-sky-600 to-sky-400 transition-all duration-300" style="width: 25%"></div>
+              <div id="bar-mastery" class="h-full bg-gradient-to-r from-purple-600 to-purple-400 rounded-r-full transition-all duration-300" style="width: 31%"></div>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-xl bg-gradient-to-r from-amber-500/15 via-transparent to-amber-500/5 border border-amber-400/45 flex items-center justify-between">
+            <div>
+              <span class="block text-xs text-amber-200 font-bold">⚔️ 团队木桩预估秒伤</span>
+              <span class="block text-[11px] text-gray-400 mt-0.5">5 分钟标准单体战斗模拟</span>
+            </div>
+            <span id="sim-result-dps" class="wow-en text-2xl sm:text-3xl font-black text-amber-300">14,250 DPS</span>
           </div>
         </div>
 
-        <!-- 攻略速查组件 -->
-        <div class="bg-[#0b0d13] p-4 rounded border border-[#3a3226] space-y-3 text-sm">
-          <h3 class="text-sm font-bold text-amber-300">🗺️ 泽风岛开荒要点速查</h3>
-          <ul class="space-y-2 text-xs text-gray-300 list-disc list-inside">
-            <li><strong class="text-amber-200">新种族天裔</strong>：自带 3% 闪避与法术抗性，极力推荐开荒物理系或坦克职业。</li>
-            <li><strong class="text-amber-200">魔法高塔副本</strong>：注意走位躲避地板技能，治疗职业需留好爆发群抬。</li>
-            <li><strong class="text-amber-200">经典魔塔速通</strong>：黄门留给关键层数，前期优先加满攻击力。</li>
-          </ul>
+        <div class="lg:col-span-6 bg-[#080b12] p-5 rounded-xl border border-amber-500/25 space-y-3.5 text-sm flex flex-col">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-amber-300">🗺️ 攻略心得卷轴</h3>
+            <button onclick="switchTab('forum')" class="text-xs text-amber-300 hover:underline cursor-pointer font-medium">撰写新攻略 →</button>
+          </div>
+          <div id="guide-posts-list" class="space-y-2.5 flex-1"></div>
         </div>
       </div>
     </div>
   </section>
 
   <!-- 4. 逐风酒馆论坛模块 -->
-  <section id="sec-forum" class="hidden space-y-6">
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-      <!-- 发帖表单 -->
-      <div class="lg:col-span-4 bg-[#151924] p-6 rounded-lg gold-border space-y-4">
-        <div class="border-b border-[#2e3446] pb-3">
-          <h2 class="wow-serif text-xl text-amber-400 font-bold">🍺 发布酒馆新帖</h2>
-          <p class="text-xs text-gray-400 mt-1">分享开荒心得、组队秘籍或吐槽奇闻异事</p>
+  <section id="sec-forum" class="hidden flex-1 flex flex-col">
+    <div class="epic-panel p-5 sm:p-6 min-h-[640px] flex-1 flex flex-col">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-amber-500/20 pb-4 mb-4">
+        <div>
+          <h2 class="wow-serif text-xl text-amber-300 font-bold">🍺 逐风酒馆公告板</h2>
+          <p class="text-xs text-gray-400 mt-1">分享开荒战报、职业心得与欧皇掉落瞬间</p>
         </div>
-        <div class="space-y-3 text-sm">
-          <div>
-            <label class="block text-gray-300 mb-1">选择版块</label>
-            <select id="forum-category" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
-              <option value="综合讨论">🔥 综合讨论</option>
-              <option value="开荒组队">🛡️ 组队招募</option>
-              <option value="欧皇晒图">✨ 欧皇晒图</option>
-              <option value="Bug反馈">🛠️ Bug反馈</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-gray-300 mb-1">帖子标题</label>
-            <input type="text" id="forum-title" placeholder="简述你的核心观点..." maxlength="40" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
-          </div>
-          <div>
-            <label class="block text-gray-300 mb-1">署名昵称</label>
-            <input type="text" id="forum-author" value="灰烬使者" maxlength="12" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500">
-          </div>
-          <div>
-            <label class="block text-gray-300 mb-1">帖子内容</label>
-            <textarea id="forum-content" rows="4" placeholder="详细聊聊你的见解..." maxlength="300" class="w-full bg-[#0b0d13] border border-[#3a3226] rounded px-3 py-2 text-amber-100 focus:outline-none focus:border-amber-500 resize-none"></textarea>
-          </div>
+        <div class="flex gap-2.5 shrink-0">
+          <button onclick="openPublishModal()" class="px-4 py-2 text-xs gold-btn cursor-pointer">✍️ 发布新帖</button>
+          <button onclick="loadPosts()" class="px-3.5 py-2 text-xs ghost-btn cursor-pointer">🔄 刷新</button>
         </div>
-        <button onclick="submitPost()" class="w-full py-3 rounded font-bold text-base gold-btn transition cursor-pointer mt-2">✍️ 提交发布</button>
       </div>
+      <div id="forum-board-nav" class="flex flex-wrap gap-2 mb-5"></div>
+      <div id="forum-posts-list" class="grid grid-cols-1 xl:grid-cols-2 gap-4 content-start flex-1"></div>
+    </div>
+  </section>
 
-      <!-- 帖子列表 -->
-      <div class="lg:col-span-8 bg-[#151924] p-6 rounded-lg gold-border min-h-[500px] flex flex-col">
-        <div class="flex items-center justify-between border-b border-[#2e3446] pb-3 mb-4">
-          <div>
-            <h2 class="wow-serif text-xl text-amber-400 font-bold">逐风酒馆广场</h2>
-            <p class="text-xs text-gray-400 mt-1">实时展示社区所有冒险者的最新动态</p>
-          </div>
-          <button onclick="loadPosts()" class="px-3 py-1.5 rounded text-xs bg-[#262c3d] text-amber-300 border border-[#8c6f3e] hover:bg-[#323a50] transition cursor-pointer">🔄 刷新列表</button>
+  <!-- 5. 插件分享模块 -->
+  <section id="sec-addons" class="hidden flex-1 flex flex-col">
+    <div class="epic-panel p-5 sm:p-6 min-h-[640px] flex-1 flex flex-col">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-amber-500/20 pb-4 mb-5">
+        <div>
+          <h2 class="wow-serif text-xl text-amber-300 font-bold">🧩 冒险者插件军械库</h2>
+          <p class="text-xs text-gray-400 mt-1">按热度和下载量排序，下载链接由社区玩家分享，请留意版本匹配</p>
         </div>
-        <div id="forum-posts-list" class="space-y-4 flex-1"></div>
+        <div class="flex gap-2.5 shrink-0">
+          <button onclick="openShareAddonModal()" class="px-4 py-2 text-xs gold-btn cursor-pointer">🧩 分享插件</button>
+          <button onclick="loadAddons()" class="px-3.5 py-2 text-xs ghost-btn cursor-pointer">🔄 刷新</button>
+        </div>
+      </div>
+      <div id="addons-list" class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4 flex-1 content-start"></div>
+    </div>
+  </section>
+
+  <!-- 6. 摸鱼小游戏模块 -->
+  <section id="sec-games" class="hidden flex-1 flex flex-col">
+    <div class="epic-panel p-4 sm:p-6 flex-1 flex flex-col">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-amber-500/20 pb-4 mb-4">
+        <div>
+          <h2 class="wow-serif text-xl text-amber-300 font-bold">🎮 集合石排队 · 炉石角休闲小游戏</h2>
+          <p class="text-xs text-gray-400 mt-1">等待团长组人间隙，来一局经典地牢爬塔消遣</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2.5">
+          <button onclick="selectGame('tower')" id="btn-game-tower" class="px-4 py-2 rounded-xl border border-amber-500/30 text-xs sm:text-sm font-bold transition game-btn-active cursor-pointer">🧙‍♂️ 魔法高塔</button>
+          <button onclick="selectGame('mota')" id="btn-game-mota" class="px-4 py-2 rounded-xl border border-amber-500/30 text-xs sm:text-sm font-bold text-gray-300 hover:text-amber-300 transition cursor-pointer">🏰 经典魔塔</button>
+          <a id="external-game-link" href="https://solomons-keep-web-chao.scotty6174.chatgpt.site/" target="_blank" rel="noopener noreferrer" class="px-4 py-2 text-xs gold-btn">↗ 全屏畅玩</a>
+        </div>
+      </div>
+      <div class="w-full bg-[#04060a] rounded-xl overflow-hidden border border-amber-500/30 shadow-2xl relative flex-1" style="height: 75vh; min-height: 540px;">
+        <iframe id="game-iframe" data-src="https://solomons-keep-web-chao.scotty6174.chatgpt.site/" class="w-full h-full border-0" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-fullscreen" allow="fullscreen; autoplay; gamepad" allowfullscreen></iframe>
       </div>
     </div>
   </section>
 
-  <!-- 5. 摸鱼小游戏模块 -->
-  <section id="sec-games" class="hidden space-y-4">
-    <div class="bg-[#151924] p-4 md:p-6 rounded-lg gold-border">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#2e3446] pb-4 mb-4">
-        <div>
-          <h2 class="wow-serif text-xl text-amber-400 font-bold">排队等待 & 休闲小游戏</h2>
-          <p class="text-xs text-gray-400 mt-1">点击下方按钮切换游戏</p>
+  <!-- 7. 👤 个人中心模块（我的帖子 / 回复我的 / 我的评论 / 我的插件） -->
+  <section id="sec-profile" class="hidden flex-1 flex flex-col">
+    <div class="epic-panel p-5 sm:p-6 flex-1 flex flex-col">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-amber-500/20 pb-5">
+        <div class="flex items-center gap-4">
+          <div class="w-14 h-14 rounded-2xl bg-amber-500/15 border border-amber-400/40 flex items-center justify-center text-2xl shadow-inner">🛡️</div>
+          <div>
+            <div class="flex items-center gap-2.5">
+              <h2 id="profile-username-title" class="wow-serif text-xl font-bold text-amber-200">未登录冒险者</h2>
+              <span id="profile-status-badge" class="text-[11px] px-2.5 py-0.5 rounded-full q-rare font-semibold">游历中</span>
+            </div>
+            <p id="profile-subtitle" class="text-xs text-gray-400 mt-1">登录账号后，这里会自动归档你发布的主题帖、收到的他人回复、你发表的评论与分享插件</p>
+          </div>
         </div>
-        <div class="flex flex-wrap items-center gap-3">
-          <button onclick="selectGame('tower')" id="btn-game-tower" class="px-4 py-2 rounded border border-[#3a3226] text-sm font-bold transition game-btn-active">🧙‍♂️ 魔法高塔</button>
-          <button onclick="selectGame('mota')" id="btn-game-mota" class="px-4 py-2 rounded border border-[#3a3226] text-sm font-bold text-gray-300 hover:text-amber-300 transition">🏰 经典魔塔</button>
-          <a id="external-game-link" href="https://solomons-keep-web-chao.scotty6174.chatgpt.site/" target="_blank" rel="noopener noreferrer" class="px-3 py-2 rounded text-xs font-bold gold-btn transition">↗ 全屏玩</a>
+        <div id="profile-action-btns" class="flex flex-wrap gap-2 shrink-0"></div>
+      </div>
+
+      <!-- 个人数据概览指标 -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 my-5">
+        <div onclick="switchProfileSubtab('posts')" class="cursor-pointer loot-card p-3.5 sm:p-4 text-center">
+          <div class="text-xs text-gray-400">我发布的帖子</div>
+          <div id="profile-count-posts" class="wow-en text-2xl font-black text-amber-300 mt-1">0</div>
+        </div>
+        <div onclick="switchProfileSubtab('inbox')" class="cursor-pointer loot-card p-3.5 sm:p-4 text-center">
+          <div class="text-xs text-gray-400">别人回复我的</div>
+          <div id="profile-count-inbox" class="wow-en text-2xl font-black text-emerald-500 mt-1">0</div>
+        </div>
+        <div onclick="switchProfileSubtab('replies')" class="cursor-pointer loot-card p-3.5 sm:p-4 text-center">
+          <div class="text-xs text-gray-400">我发表的评论</div>
+          <div id="profile-count-replies" class="wow-en text-2xl font-black text-sky-500 mt-1">0</div>
+        </div>
+        <div onclick="switchProfileSubtab('addons')" class="cursor-pointer loot-card p-3.5 sm:p-4 text-center">
+          <div class="text-xs text-gray-400">我分享的插件</div>
+          <div id="profile-count-addons" class="wow-en text-2xl font-black text-purple-500 mt-1">0</div>
         </div>
       </div>
-      <div class="w-full bg-black rounded-lg overflow-hidden border border-[#3a3226] relative" style="height: 75vh; min-height: 550px;">
-        <iframe id="game-iframe" src="https://solomons-keep-web-chao.scotty6174.chatgpt.site/" class="w-full h-full border-0" allow="fullscreen; autoplay; gamepad" allowfullscreen></iframe>
+
+      <!-- 个人中心子标签切换 -->
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-amber-500/20 pb-3 mb-4">
+        <div class="flex flex-wrap gap-2">
+          <button onclick="switchProfileSubtab('posts')" id="p-subtab-posts" class="px-4 py-1.5 rounded-lg text-xs font-bold gold-btn cursor-pointer">📜 我的帖子</button>
+          <button onclick="switchProfileSubtab('inbox')" id="p-subtab-inbox" class="px-4 py-1.5 rounded-lg text-xs ghost-btn cursor-pointer">🔔 回复我的</button>
+          <button onclick="switchProfileSubtab('replies')" id="p-subtab-replies" class="px-4 py-1.5 rounded-lg text-xs ghost-btn cursor-pointer">💬 我的评论</button>
+          <button onclick="switchProfileSubtab('addons')" id="p-subtab-addons" class="px-4 py-1.5 rounded-lg text-xs ghost-btn cursor-pointer">🧩 我的插件</button>
+        </div>
+        <button onclick="loadProfile()" class="px-3 py-1.5 text-xs ghost-btn cursor-pointer">🔄 刷新记录</button>
       </div>
+
+      <!-- 列表内容容器 -->
+      <div id="profile-list-posts" class="space-y-3"></div>
+      <div id="profile-list-inbox" class="hidden space-y-3"></div>
+      <div id="profile-list-replies" class="hidden space-y-3"></div>
+      <div id="profile-list-addons" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4"></div>
     </div>
   </section>
 </main>
 
 <script>
+  // --- 双主题字典（暗金 / 明亮） ---
+  var THEME_NAMES = {
+    gold: '🌙 暗金模式',
+    light: '☀️ 明亮模式'
+  };
+
+  // --- 预览环境兼容：在 blob: / file: 独立预览时提供本地模拟数据，部署后自动走真实后端 ---
+  const IS_STANDALONE_PREVIEW = location.protocol === 'blob:' || location.protocol === 'file:' || location.origin === 'null';
+  (function initPreviewAdapter() {
+    if (!IS_STANDALONE_PREVIEW) return;
+    const demoLootSvg = 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1e1b4b"/><stop offset="50%" stop-color="#3b0764"/><stop offset="100%" stop-color="#451a03"/></linearGradient></defs><rect width="640" height="360" fill="url(#bg)"/><rect x="16" y="16" width="608" height="328" rx="16" fill="none" stroke="#f59e0b" stroke-width="2" stroke-opacity="0.6"/><circle cx="140" cy="180" r="64" fill="#f59e0b" fill-opacity="0.18" stroke="#fbbf24" stroke-width="3"/><text x="140" y="196" text-anchor="middle" font-size="48">🗡️</text><text x="235" y="145" fill="#fb923c" font-family="serif" font-weight="900" font-size="26">【传说掉落】雷霆之怒·逐风者的祝福之剑</text><text x="235" y="182" fill="#fde68a" font-family="sans-serif" font-size="16">物品等级 639 · 拾取后绑定 · 唯一</text><text x="235" y="216" fill="#4ade80" font-family="sans-serif" font-size="15">装备：击中可能以闪电之力吞噬目标，造成自然伤害</text><text x="235" y="255" fill="#94a3b8" font-family="sans-serif" font-size="13">📸 泽风岛宏伟宝库首周低保实拍 · 欧皇时刻</text></svg>`);
+    const mockPosts = [
+      { id: 'post_demo1', category: '攻略心得', title: '【泽风岛开荒】全首领机制拆解与输出循环细节', author: '灰烬使者', content: '1号首领注意分散站位躲避风眼，转阶段优先集火图腾；2号首领留好爆发技能应对易伤阶段。', likes: 42, views: 318, replyCount: 2, createdAt: '2026-11-15 12:30:00', lastReplyAt: '2026-11-15 14:20:00', images: [], replies: [{ id: 'r1', author: '风行者', content: '很实用，昨晚按这个打法一把过了！', createdAt: '2026-11-15 14:10:00', images: [] }, { id: 'r2', author: '灰烬使者', content: '祝各位本周都能顺利全通拿到低保！', createdAt: '2026-11-15 14:20:00', images: [] }] },
+      { id: 'post_demo2', category: '开荒组队', title: '晚间8点泽风岛精英亲友车队来稳定治疗/输出', author: '圣光之愿', content: '气氛和谐不压力，YY沟通，欢迎萌新和回归玩家一起开荒。', likes: 19, views: 145, replyCount: 1, createdAt: '2026-11-15 13:15:00', lastReplyAt: '2026-11-15 14:50:00', images: [], replies: [{ id: 'r3', author: '灰烬使者', content: '算我一个，今晚准时上线！', createdAt: '2026-11-15 14:50:00', images: [] }] },
+      { id: 'post_demo3', category: '欧皇晒图', title: '首周低保直接摸出毕业饰品，这波直接起飞！', author: '逐风者', content: '祝大家本周开箱都能出自己心仪的毕业装！附今日宝库开箱截图：', likes: 31, views: 260, replyCount: 0, createdAt: '2026-11-15 10:05:00', lastReplyAt: '2026-11-15 13:40:00', images: [demoLootSvg], replies: [] }
+    ];
+    const mockNews = [
+      { url: 'https://wow.blizzard.cn/news/preview-1', source: '官网', title: '《魔兽世界：无限》泽风岛版本更新说明与平衡性调整', summary: '全新团队副本区域现已开放，多项职业天赋与地下城掉落机制迎来优化调整。', publishedAt: '2026-11-15', content: '<p>欢迎来到《魔兽世界：无限》最新版本！本次更新开放了泽风岛核心挑战区域，并对各专精输出循环与饰品触发机制进行了平衡性优化。</p>' },
+      { url: 'https://wow.blizzard.cn/news/preview-2', source: '官网', title: '周末双倍声望与地下城额外奖励活动开启', summary: '活动期间完成任意史诗地下城或精英世界任务即可获得额外声望徽章。', publishedAt: '2026-11-14', content: '<p>本周末艾泽拉斯各阵营声望获取速度提升，快与营火小队伙伴一同踏上征程吧！</p>' }
+    ];
+    const mockAddons = [
+      { id: 'addon_demo1', name: 'WeakAuras 无限开荒包', version: '5.20.1', gameVersion: '无限 / 11.0', author: '灰烬使者', description: '内置泽风岛全首领技能预警、职业核心监控与团队减伤排班提示。', downloadUrl: 'https://www.curseforge.com/wow/addons/weakauras-2', likes: 68, downloads: 1240, createdAt: '2026-11-14 18:00:00' },
+      { id: 'addon_demo2', name: 'DBM 首领警报模块', version: '11.0.8', gameVersion: '无限 / 11.0', author: '铁炉堡工匠', description: '精准时间轴倒计时与语音提示，开荒必备辅助插件。', downloadUrl: 'https://www.curseforge.com/wow/addons/deadly-boss-mods', likes: 54, downloads: 980, createdAt: '2026-11-13 20:15:00' }
+    ];
+    const origFetch = window.fetch.bind(window);
+    window.fetch = async (input, init = {}) => {
+      const rawUrl = typeof input === 'string' ? input : (input && input.url) || '';
+      if (!rawUrl.startsWith('/api/')) return origFetch(input, init);
+      const u = new URL(rawUrl, 'https://gamemate.fun');
+      const path = u.pathname;
+      const method = (init && init.method) || 'GET';
+      const jsonResp = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
+      if (path === '/api/news') return jsonResp({ success: true, data: mockNews });
+      if (path === '/api/news/article') {
+        const art = mockNews.find(n => n.url === u.searchParams.get('url')) || mockNews[0];
+        return jsonResp({ success: true, data: art });
+      }
+      if (path === '/api/home') return jsonResp({ success: true, data: { latest: mockPosts, topGuides: mockPosts.filter(p => p.category === '攻略心得'), stats: { posts: mockPosts.length, rooms: 2, categories: ['综合讨论', '开荒组队', '攻略心得', '开荒战报', '欧皇晒图', 'Bug反馈'] } } });
+      if (path === '/api/posts' && method === 'POST') {
+        const body = JSON.parse(init.body || '{}');
+        const newPost = {
+          id: 'post_' + Date.now().toString(36),
+          category: body.category || '综合讨论',
+          title: body.title || '新帖子',
+          author: '灰烬使者',
+          content: body.content || '',
+          likes: 0,
+          views: 1,
+          replyCount: 0,
+          createdAt: new Date().toISOString().replace('T', ' ').substring(0, 19),
+          lastReplyAt: null,
+          images: Array.isArray(body.images) ? body.images : [],
+          replies: []
+        };
+        mockPosts.unshift(newPost);
+        return jsonResp({ success: true, id: newPost.id });
+      }
+      if (path === '/api/posts') {
+        const cat = u.searchParams.get('category');
+        const author = u.searchParams.get('author');
+        let list = mockPosts;
+        if (author) list = list.filter(p => p.author === author);
+        else if (cat) list = list.filter(p => p.category === cat);
+        return jsonResp({ success: true, data: list });
+      }
+      if (path.startsWith('/api/posts/') && path.endsWith('/replies') && method === 'POST') {
+        const id = path.split('/')[3];
+        const post = mockPosts.find(p => p.id === id) || mockPosts[0];
+        const body = JSON.parse(init.body || '{}');
+        const nr = {
+          id: 'r_' + Date.now().toString(36),
+          author: '灰烬使者',
+          content: body.content || '',
+          images: Array.isArray(body.images) ? body.images : [],
+          createdAt: new Date().toISOString().replace('T', ' ').substring(0, 19)
+        };
+        post.replies = post.replies || [];
+        post.replies.push(nr);
+        post.replyCount = post.replies.length;
+        post.lastReplyAt = nr.createdAt;
+        return jsonResp({ success: true, id: nr.id });
+      }
+      if (path.startsWith('/api/posts/')) {
+        const id = path.split('/')[3];
+        const post = mockPosts.find(p => p.id === id) || mockPosts[0];
+        return jsonResp({ success: true, data: post });
+      }
+      if (path === '/api/addons') return jsonResp({ success: true, data: mockAddons });
+      if (path === '/api/auth/me') return jsonResp({ success: true, data: { username: '灰烬使者' } });
+      if (path === '/api/profile') {
+        return jsonResp({
+          success: true,
+          data: {
+            username: '灰烬使者',
+            posts: mockPosts.filter(p => p.author === '灰烬使者'),
+            inbox: [{ id: 'r1', postId: 'post_demo1', postTitle: '【泽风岛开荒】全首领机制拆解与输出循环细节', fromAuthor: '风行者', content: '很实用，昨晚按这个打法一把过了！', createdAt: '2026-11-15 14:10:00', images: [] }],
+            replies: [
+              { id: 'r2', postId: 'post_demo1', postTitle: '【泽风岛开荒】全首领机制拆解与输出循环细节', content: '祝各位本周都能顺利全通拿到低保！', createdAt: '2026-11-15 14:20:00', images: [] },
+              { id: 'r3', postId: 'post_demo2', postTitle: '晚间8点泽风岛精英亲友车队来稳定治疗/输出', content: '算我一个，今晚准时上线！', createdAt: '2026-11-15 14:50:00', images: [] }
+            ],
+            addons: mockAddons.filter(a => a.author === '灰烬使者')
+          }
+        });
+      }
+      return jsonResp({ success: true, data: [] });
+    };
+  })();
+
+  // --- 图片压缩、上传预览与全屏灯箱工具 ---
+  let pendingPublishImages = [];
+  let pendingReplyImages = [];
+
+  function compressImageToDataUrl(file, maxSide = 1280, quality = 0.82) {
+    return new Promise((resolve, reject) => {
+      if (!file || !file.type.startsWith('image/')) {
+        reject(new Error('请选择有效的图片文件'));
+        return;
+      }
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error('图片读取失败'));
+      reader.onload = () => {
+        const img = new Image();
+        img.onerror = () => reject(new Error('图片解码失败'));
+        img.onload = () => {
+          let w = img.width;
+          let h = img.height;
+          if (w > maxSide || h > maxSide) {
+            if (w >= h) {
+              h = Math.round((h * maxSide) / w);
+              w = maxSide;
+            } else {
+              w = Math.round((w * maxSide) / h);
+              h = maxSide;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          let out = canvas.toDataURL('image/webp', quality);
+          if (!out.startsWith('data:image/webp')) {
+            out = canvas.toDataURL('image/jpeg', quality);
+          }
+          resolve(out);
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function renderPublishImagePreviews() {
+    const box = document.getElementById('publish-img-preview');
+    const countEl = document.getElementById('publish-img-count');
+    if (countEl) countEl.textContent = pendingPublishImages.length;
+    if (!box) return;
+    box.innerHTML = pendingPublishImages.map((src, idx) => `
+      <div class="gm-upload-slot group">
+        <img src="${src}" alt="预览图" onclick="openImageLightbox('${src}')" class="w-full h-full object-cover cursor-zoom-in">
+        <button type="button" onclick="removePublishImage(${idx})" class="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/80 text-white text-xs flex items-center justify-center hover:bg-red-600 cursor-pointer" title="移除">✕</button>
+      </div>
+    `).join('');
+  }
+
+  function removePublishImage(idx) {
+    pendingPublishImages.splice(idx, 1);
+    renderPublishImagePreviews();
+  }
+
+  async function handlePublishImageFiles(fileList) {
+    const files = Array.from(fileList || []);
+    if (!files.length) return;
+    for (const f of files) {
+      if (pendingPublishImages.length >= 4) {
+        showToast('每篇帖子最多附带 4 张图片', 'info');
+        break;
+      }
+      try {
+        const dataUrl = await compressImageToDataUrl(f);
+        pendingPublishImages.push(dataUrl);
+      } catch (e) {
+        showToast(e.message || '图片处理失败', 'error');
+      }
+    }
+    const inp = document.getElementById('publish-img-input');
+    if (inp) inp.value = '';
+    renderPublishImagePreviews();
+  }
+
+  function renderReplyImagePreviews() {
+    const box = document.getElementById('reply-img-preview');
+    const countEl = document.getElementById('reply-img-count');
+    if (countEl) countEl.textContent = pendingReplyImages.length;
+    if (!box) return;
+    box.innerHTML = pendingReplyImages.map((src, idx) => `
+      <div class="gm-upload-slot !w-14 !h-14 group">
+        <img src="${src}" alt="回复配图" onclick="openImageLightbox('${src}')" class="w-full h-full object-cover cursor-zoom-in">
+        <button type="button" onclick="removeReplyImage(${idx})" class="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-black/80 text-white text-[10px] flex items-center justify-center hover:bg-red-600 cursor-pointer" title="移除">✕</button>
+      </div>
+    `).join('');
+  }
+
+  function removeReplyImage(idx) {
+    pendingReplyImages.splice(idx, 1);
+    renderReplyImagePreviews();
+  }
+
+  async function handleReplyImageFiles(fileList) {
+    const files = Array.from(fileList || []);
+    if (!files.length) return;
+    for (const f of files) {
+      if (pendingReplyImages.length >= 2) {
+        showToast('每条回帖最多附带 2 张图片', 'info');
+        break;
+      }
+      try {
+        const dataUrl = await compressImageToDataUrl(f);
+        pendingReplyImages.push(dataUrl);
+      } catch (e) {
+        showToast(e.message || '图片处理失败', 'error');
+      }
+    }
+    const inp = document.getElementById('reply-img-input');
+    if (inp) inp.value = '';
+    renderReplyImagePreviews();
+  }
+
+  function openImageLightbox(src) {
+    if (!src) return;
+    const modal = document.getElementById('img-lightbox');
+    const target = document.getElementById('img-lightbox-target');
+    if (!modal || !target) return;
+    target.src = src;
+    modal.classList.remove('hidden');
+  }
+
+  function closeImageLightbox() {
+    const modal = document.getElementById('img-lightbox');
+    if (modal) modal.classList.add('hidden');
+  }
+
   // --- 模块切换 ---
   const GAMES = {
     tower: 'https://solomons-keep-web-chao.scotty6174.chatgpt.site/',
     mota: 'https://muse.ai/s/space-ti5xlxtsx0ed5t/6ZGBxR41OyGp0Qi6ubUO4Vjz_fk9QRvfluwIpPL-01c'
   };
 
+  const ALL_TABS = ['home', 'campfire', 'guide', 'forum', 'addons', 'games', 'profile'];
+
   function switchTab(id) {
-    ['card', 'campfire', 'guide', 'forum', 'games'].forEach(t => {
-      document.getElementById('sec-' + t).classList.toggle('hidden', t !== id);
+    if (!ALL_TABS.includes(id)) return;
+    if (id === 'games') loadGameIframe();
+    ALL_TABS.forEach(t => {
+      const sec = document.getElementById('sec-' + t);
+      if (sec) sec.classList.toggle('hidden', t !== id);
       const btn = document.getElementById('tab-' + t);
-      if (t === id) {
-        btn.classList.add('tab-active');
-        btn.classList.remove('text-gray-400');
-      } else {
-        btn.classList.remove('tab-active');
-        btn.classList.add('text-gray-400');
-      }
+      if (!btn) return;
+      btn.classList.toggle('tab-active', t === id);
     });
     if (id === 'forum') loadPosts();
+    if (id === 'home') loadHome();
+    if (id === 'addons') loadAddons();
+    if (id === 'guide') loadGuides();
+    if (id === 'profile') loadProfile();
+  }
+
+  function loadGameIframe(key) {
+    const iframe = document.getElementById('game-iframe');
+    if (!iframe) return;
+    const url = GAMES[key || 'tower'];
+    if (iframe.getAttribute('src') !== url) iframe.src = url;
   }
 
   function selectGame(key) {
+    if (!(key in GAMES)) return;
     const url = GAMES[key];
-    document.getElementById('game-iframe').src = url;
+    loadGameIframe(key);
     document.getElementById('external-game-link').href = url;
     ['tower', 'mota'].forEach(k => {
       const btn = document.getElementById('btn-game-' + k);
+      if (!btn) return;
       if (k === key) {
         btn.classList.add('game-btn-active');
         btn.classList.remove('text-gray-300');
@@ -373,31 +1713,834 @@
     });
   }
 
-  // --- 论坛逻辑 ---
-  async function loadPosts() {
+  function categoryBadgeClass(cat) {
+    if (cat === '攻略心得') return 'q-epic';
+    if (cat === '欧皇晒图') return 'q-legendary';
+    if (cat === '开荒组队') return 'q-rare';
+    if (cat === '开荒战报') return 'q-uncommon';
+    return 'bg-amber-500/15 border border-amber-500/35 text-amber-300';
+  }
+
+  // --- 本地评论历史缓存 ---
+  function recordLocalReply(postId, postTitle, content, author) {
     try {
-      const res = await fetch('/api/posts');
+      const list = JSON.parse(localStorage.getItem('gm-my-replies') || '[]');
+      list.unshift({
+        postId,
+        postTitle: postTitle || '酒馆帖子',
+        author,
+        content,
+        createdAt: new Date().toISOString().replace('T', ' ').substring(0, 16)
+      });
+      localStorage.setItem('gm-my-replies', JSON.stringify(list.slice(0, 50)));
+    } catch (e) {}
+  }
+
+  // --- 2.4 个人中心逻辑（我的帖子 / 回复我的 / 我的评论 / 我的插件） ---
+  let currentProfileSubtab = 'posts';
+  function switchProfileSubtab(sub) {
+    currentProfileSubtab = sub;
+    ['posts', 'inbox', 'replies', 'addons'].forEach(k => {
+      const box = document.getElementById('profile-list-' + k);
+      const btn = document.getElementById('p-subtab-' + k);
+      if (box) box.classList.toggle('hidden', k !== sub);
+      if (btn) {
+        btn.className = k === sub
+          ? 'px-4 py-1.5 rounded-lg text-xs font-bold gold-btn cursor-pointer'
+          : 'px-4 py-1.5 rounded-lg text-xs ghost-btn cursor-pointer';
+      }
+    });
+  }
+
+  async function loadProfile() {
+    const titleEl = document.getElementById('profile-username-title');
+    const badgeEl = document.getElementById('profile-status-badge');
+    const subEl = document.getElementById('profile-subtitle');
+    const btnsEl = document.getElementById('profile-action-btns');
+    const postsBox = document.getElementById('profile-list-posts');
+    const inboxBox = document.getElementById('profile-list-inbox');
+    const repliesBox = document.getElementById('profile-list-replies');
+    const addonsBox = document.getElementById('profile-list-addons');
+
+    const activeName = currentUser || '';
+    if (!activeName) {
+      titleEl.textContent = '未登录冒险者';
+      badgeEl.textContent = '游客状态';
+      subEl.textContent = '请先登录或注册账号，即可查看你发布的帖子、收到的他人回复、回帖评论与分享插件';
+      btnsEl.innerHTML = `<button onclick="openAuthModal('login')" class="px-4 py-2 text-xs gold-btn cursor-pointer">🔑 立即登录</button><button onclick="openAuthModal('register')" class="px-4 py-2 text-xs ghost-btn cursor-pointer">📝 注册账号</button>`;
+      document.getElementById('profile-count-posts').textContent = '0';
+      document.getElementById('profile-count-inbox').textContent = '0';
+      document.getElementById('profile-count-replies').textContent = '0';
+      document.getElementById('profile-count-addons').textContent = '0';
+      const emptyTip = `<div class="text-center py-12 text-gray-400 text-sm">🔑 请先登录账号以查看你的个人记录</div>`;
+      postsBox.innerHTML = emptyTip;
+      inboxBox.innerHTML = emptyTip;
+      repliesBox.innerHTML = emptyTip;
+      addonsBox.innerHTML = `<div class="md:col-span-2 text-center py-12 text-gray-400 text-sm">🔑 请先登录账号以查看你的个人记录</div>`;
+      return;
+    }
+
+    titleEl.textContent = activeName;
+    badgeEl.textContent = '已认证冒险者';
+    subEl.textContent = `账号「${activeName}」在艾泽拉斯营地的全部发帖、收到的回复、回帖评论与插件贡献`;
+    btnsEl.innerHTML = `<button onclick="openPublishModal()" class="px-3.5 py-2 text-xs gold-btn cursor-pointer">✍️ 发新帖</button><button onclick="openShareAddonModal()" class="px-3.5 py-2 text-xs ghost-btn cursor-pointer">🧩 分享插件</button>`;
+
+    let myPosts = [];
+    let repliesToMe = [];
+    let myReplies = [];
+    let myAddons = [];
+
+    // 优先调用后端新增的 /api/profile 聚合接口（单次 SQL JOIN 查询，且不增加帖子浏览量）
+    let loadedFromProfileApi = false;
+    try {
+      const pres = await fetch('/api/profile', { headers: authHeaders() });
+      if (pres.ok) {
+        const pjson = await pres.json();
+        if (pjson.success && pjson.data) {
+          myPosts = pjson.data.posts || [];
+          repliesToMe = pjson.data.inbox || [];
+          myReplies = pjson.data.replies || [];
+          myAddons = pjson.data.addons || [];
+          loadedFromProfileApi = true;
+        }
+      }
+    } catch (e) {}
+
+    // 兼容兜底：若后端尚未升级 /api/profile，则回退为组合接口查询
+    if (!loadedFromProfileApi) {
+      try {
+        const res = await fetch('/api/posts?author=' + encodeURIComponent(activeName));
+        const json = await res.json();
+        if (json.success && Array.isArray(json.data)) myPosts = json.data;
+      } catch (e) {}
+
+      const seenInboxKeys = new Set();
+      const seenReplyKeys = new Set();
+      try {
+        const allRes = await fetch('/api/posts');
+        const allJson = await allRes.json();
+        const candidatePosts = (allJson.success && Array.isArray(allJson.data))
+          ? allJson.data.filter(p => (p.replyCount || 0) > 0).slice(0, 20)
+          : [];
+        const details = await Promise.all(candidatePosts.map(p => fetch(`/api/posts/${p.id}`).then(r => r.json()).catch(() => null)));
+        details.forEach(d => {
+          if (!d || !d.success || !d.data || !Array.isArray(d.data.replies)) return;
+          const isMyPost = (d.data.author === activeName);
+          d.data.replies.forEach(r => {
+            if (isMyPost && r.author !== activeName) {
+              const ikey = `${d.data.id}_${r.id || r.createdAt}_${r.author}_${r.content}`;
+              if (!seenInboxKeys.has(ikey)) {
+                seenInboxKeys.add(ikey);
+                repliesToMe.push({
+                  postId: d.data.id,
+                  postTitle: d.data.title,
+                  fromAuthor: r.author,
+                  content: r.content,
+                  createdAt: r.createdAt || ''
+                });
+              }
+            }
+            if (r.author === activeName) {
+              const key = `${d.data.id}_${r.id || r.createdAt}_${r.content}`;
+              if (!seenReplyKeys.has(key)) {
+                seenReplyKeys.add(key);
+                myReplies.push({
+                  postId: d.data.id,
+                  postTitle: d.data.title,
+                  content: r.content,
+                  createdAt: r.createdAt || ''
+                });
+              }
+            }
+          });
+        });
+      } catch (e) {}
+
+      try {
+        const ares = await fetch('/api/addons');
+        const ajson = await ares.json();
+        if (ajson.success && Array.isArray(ajson.data)) {
+          myAddons = ajson.data.filter(a => a.author === activeName);
+        }
+      } catch (e) {}
+    }
+
+    // 渲染 1：我发布的帖子
+    document.getElementById('profile-count-posts').textContent = myPosts.length;
+    postsBox.innerHTML = myPosts.length
+      ? myPosts.map(p => `<div onclick="openPostModal('${p.id}')" class="loot-card p-4 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div class="space-y-1 min-w-0">
+            <div class="flex items-center gap-2">
+              <span class="text-[11px] px-2 py-0.5 rounded-full ${categoryBadgeClass(p.category)} font-semibold shrink-0">${escapeHtml(p.category)}</span>
+              <h4 class="font-bold text-amber-100 text-sm truncate">${escapeHtml(p.title)}</h4>
+            </div>
+            <p class="text-xs text-gray-400 truncate">${escapeHtml(p.content)}</p>
+          </div>
+          <div class="text-xs text-gray-400 shrink-0 font-mono">🔥 ${p.likes} · 💬 ${p.replyCount || 0} · ${p.createdAt.substring(5, 16)}</div>
+        </div>`).join('')
+      : `<div class="text-center py-12 text-gray-400 text-sm">📜 你还没有发布过主题帖，去酒馆发第一篇吧！</div>`;
+
+    // 渲染 2：别人回复我的
+    document.getElementById('profile-count-inbox').textContent = repliesToMe.length;
+    inboxBox.innerHTML = repliesToMe.length
+      ? repliesToMe.map(r => `<div onclick="openPostModal('${r.postId}')" class="loot-card p-4 cursor-pointer space-y-1.5">
+          <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-gray-400">
+            <span>🔔 <strong class="text-emerald-500 font-bold">${escapeHtml(r.fromAuthor)}</strong> 回复了你的帖子《<strong class="text-amber-200">${escapeHtml(r.postTitle)}</strong>》</span>
+            <span class="font-mono shrink-0">${escapeHtml((r.createdAt || '').substring(5, 16))}</span>
+          </div>
+          <p class="text-sm text-gray-200 leading-relaxed">${escapeHtml(r.content)}</p>
+        </div>`).join('')
+      : `<div class="text-center py-12 text-gray-400 text-sm">🔔 还没有收到其他冒险者的回复，多去酒馆发帖交流吧！</div>`;
+
+    // 渲染 3：我发表的评论
+    document.getElementById('profile-count-replies').textContent = myReplies.length;
+    repliesBox.innerHTML = myReplies.length
+      ? myReplies.map(r => `<div onclick="openPostModal('${r.postId}')" class="loot-card p-4 cursor-pointer space-y-1.5">
+          <div class="flex items-center justify-between gap-2 text-xs text-gray-400">
+            <span>💬 回复于帖子：<strong class="text-amber-200">${escapeHtml(r.postTitle)}</strong></span>
+            <span class="font-mono shrink-0">${escapeHtml((r.createdAt || '').substring(5, 16))}</span>
+          </div>
+          <p class="text-sm text-gray-200 leading-relaxed">${escapeHtml(r.content)}</p>
+        </div>`).join('')
+      : `<div class="text-center py-12 text-gray-400 text-sm">💬 暂无你的回帖评论记录，去酒馆帖子里互动吧！</div>`;
+
+    // 渲染 4：我分享的插件
+    document.getElementById('profile-count-addons').textContent = myAddons.length;
+    addonsBox.innerHTML = myAddons.length
+      ? myAddons.map(a => `<div class="loot-card p-4 flex flex-col justify-between gap-2">
+          <div>
+            <div class="flex items-center justify-between gap-2">
+              <h4 class="font-bold text-amber-100 text-sm truncate">🧩 ${escapeHtml(a.name)}</h4>
+              <span class="text-xs font-mono text-sky-500">${a.version ? 'v' + escapeHtml(a.version) : ''}</span>
+            </div>
+            <p class="text-xs text-gray-400 mt-1 line-clamp-2">${escapeHtml(a.description || '（无简介）')}</p>
+          </div>
+          <div class="text-xs text-gray-400 pt-2 border-t border-amber-500/15 flex justify-between">
+            <span>⬇️ ${a.downloads || 0} 次下载 · 🔥 ${a.likes}</span>
+            <a href="${escapeHtml(a.downloadUrl)}" target="_blank" rel="noopener" class="text-amber-300 hover:underline">下载链接 ↗</a>
+          </div>
+        </div>`).join('')
+      : `<div class="md:col-span-2 text-center py-12 text-gray-400 text-sm">🧩 你还没有分享过插件，点击右上角「分享插件」贡献你的常用工具吧！</div>`;
+  }
+
+  // --- 论坛逻辑 ---
+  function getLikedPosts() {
+    try { return JSON.parse(localStorage.getItem('gm-liked-posts') || '[]'); } catch (e) { return []; }
+  }
+  function setLikedPost(postId, liked) {
+    let arr = getLikedPosts();
+    if (liked) { if (!arr.includes(postId)) arr.push(postId); }
+    else { arr = arr.filter(x => x !== postId); }
+    try { localStorage.setItem('gm-liked-posts', JSON.stringify(arr)); } catch (e) {}
+  }
+
+  const FORUM_BOARDS = ['综合讨论', '开荒组队', '攻略心得', '开荒战报', '欧皇晒图', 'Bug反馈'];
+  let currentBoard = '';
+  let onlyMine = false;
+
+  function renderBoardNav() {
+    const nav = document.getElementById('forum-board-nav');
+    if (!nav) return;
+    const all = [{ label: '全部悬赏', value: '' }, ...FORUM_BOARDS.map(b => ({ label: b, value: b }))];
+    nav.innerHTML = all.map(b => `<button onclick="setBoard('${b.value}')" class="px-3.5 py-1.5 rounded-full text-xs font-semibold border cursor-pointer transition ${!onlyMine && currentBoard === b.value ? 'bg-amber-500/25 text-amber-200 border-amber-400/70' : 'bg-[#080b12] text-gray-300 border-amber-500/20 hover:border-amber-400/50'}">${escapeHtml(b.label)}</button>`).join('')
+      + (currentUser ? `<button onclick="setMineFilter()" class="px-3.5 py-1.5 rounded-full text-xs font-semibold border cursor-pointer transition ${onlyMine ? 'bg-amber-500/25 text-amber-200 border-amber-400/70' : 'bg-[#080b12] text-gray-300 border-amber-500/20 hover:border-amber-400/50'}">📜 我的帖子</button>` : '');
+  }
+  function setBoard(cat) { onlyMine = false; currentBoard = cat; renderBoardNav(); loadPosts(); }
+  function setMineFilter() {
+    if (!currentUser) { openAuthModal('login'); return; }
+    onlyMine = true; currentBoard = ''; renderBoardNav(); loadPosts();
+  }
+
+  async function submitPost() {
+    if (!currentUser) { closePublishModal(); openAuthModal('login'); return; }
+    const category = document.getElementById('forum-category').value;
+    const title = document.getElementById('forum-title').value.trim();
+    const content = document.getElementById('forum-content').value.trim();
+    if (!category) { showToast('请选择版块', 'error'); return; }
+    if (!title || (!content && pendingPublishImages.length === 0)) { showToast('标题和内容（或配图）不能为空', 'error'); return; }
+    try {
+      const res = await fetch('/api/posts', {
+        method: 'POST', headers: authHeaders(),
+        body: JSON.stringify({ category, title, content, images: pendingPublishImages })
+      });
+      const json = await res.json();
+      if (res.status === 401) { closePublishModal(); openAuthModal('login'); return; }
+      if (!res.ok || !json.success) { showToast(json.detail || '发布失败', 'error'); return; }
+      document.getElementById('forum-title').value = '';
+      document.getElementById('forum-content').value = '';
+      pendingPublishImages = [];
+      renderPublishImagePreviews();
+      closePublishModal();
+      showToast('✅ 帖子发布成功！', 'success');
+      currentBoard = category; onlyMine = false; renderBoardNav(); loadPosts();
+    } catch (e) { showToast('发布失败，请检查网络', 'error'); }
+  }
+
+  async function loadPosts() {
+    renderBoardNav();
+    try {
+      const url = onlyMine
+        ? '/api/posts?author=' + encodeURIComponent(currentUser)
+        : '/api/posts' + (currentBoard ? '?category=' + encodeURIComponent(currentBoard) : '');
+      const res = await fetch(url);
       const json = await res.json();
       const container = document.getElementById('forum-posts-list');
       if (!json.success || json.data.length === 0) {
-        container.innerHTML = `<div class="text-center py-16 text-gray-500 text-sm">🍺 酒馆里空空如也，快来发布第一篇高见吧！</div>`;
+        container.innerHTML = onlyMine
+          ? `<div class="text-center py-16 text-gray-500 text-sm">你还没有发过帖子，去发第一篇吧！</div>`
+          : `<div class="text-center py-16 text-gray-500 text-sm">🍺 酒馆里空空如也，快来发布第一篇高见吧！</div>`;
         return;
       }
-      container.innerHTML = json.data.map(p => `
-          <div class="p-4 bg-[#0b0d13] border border-[#2e3446] rounded-lg space-y-2">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-2">
-                <span class="text-xs px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-300">${escapeHtml(p.category)}</span>
-                <h3 class="font-bold text-amber-100 text-base">${escapeHtml(p.title)}</h3>
+      const liked = getLikedPosts();
+      container.innerHTML = json.data.map(p => {
+        const imgs = Array.isArray(p.images) ? p.images : [];
+        const thumbsHtml = imgs.length
+          ? `<div class="flex items-center gap-2 pt-1">${imgs.slice(0, 3).map(src => `<div data-zoom-src="${escapeHtml(src)}" class="gm-img-thumb w-20 h-14 shrink-0"><img src="${escapeHtml(src)}" alt="帖子配图" class="w-full h-full object-cover" loading="lazy"></div>`).join('')}${imgs.length > 3 ? `<span class="text-xs text-gray-400 font-mono">+${imgs.length - 3} 张</span>` : ''}</div>`
+          : '';
+        return `
+          <div data-post-id="${p.id}" class="post-card loot-card p-4 sm:p-5 space-y-2.5 cursor-pointer flex flex-col justify-between">
+            <div class="space-y-2">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex flex-wrap items-center gap-2 min-w-0">
+                  <span class="text-[11px] px-2.5 py-0.5 rounded-full ${categoryBadgeClass(p.category)} font-semibold shrink-0">${escapeHtml(p.category)}</span>
+                  <h3 class="font-bold text-amber-100 text-base leading-snug">${escapeHtml(p.title)}</h3>
+                  ${imgs.length ? `<span class="text-[11px] px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-400/30">🖼️ ${imgs.length}图</span>` : ''}
+                </div>
+                <span class="text-xs text-gray-500 font-mono shrink-0">${p.createdAt.substring(5, 16)}</span>
               </div>
-              <span class="text-xs text-gray-500 font-mono">${p.createdAt.substring(5, 16)}</span>
+              <p class="text-sm text-gray-300 whitespace-pre-line line-clamp-2 leading-relaxed">${escapeHtml(p.content)}</p>
+              ${thumbsHtml}
             </div>
-            <p class="text-sm text-gray-300 whitespace-pre-line">${escapeHtml(p.content)}</p>
-            <div class="flex items-center justify-between pt-2 border-t border-[#1f2437] text-xs text-gray-400">
-              <span>✍️ 楼主：${escapeHtml(p.author)}</span>
-              <button onclick="likePost('${p.id}')" class="px-3 py-1 rounded bg-[#151924] hover:bg-[#22293a] text-amber-300 border border-[#3a3226] transition cursor-pointer">
-                🔥 点赞 (${p.likes})
+            <div class="flex flex-wrap items-center justify-between gap-2 pt-2.5 border-t border-amber-500/10 text-xs text-gray-400">
+              <div class="flex flex-wrap items-center gap-3">
+                <span class="text-amber-200/85 font-medium">✍️ ${escapeHtml(p.author)}</span>
+                <span class="text-gray-500">👁 ${p.views || 0} · 💬 ${p.replyCount || 0} · 最后回复 ${p.lastReplyAt ? p.lastReplyAt.substring(5, 16) : '—'}</span>
+              </div>
+              <button data-like-id="${p.id}" class="like-btn px-3 py-1 rounded-lg bg-[#0c101a] hover:bg-[#1a2236] text-amber-300 border border-amber-500/30 transition cursor-pointer font-medium">
+                ${liked.includes(p.id) ? '❤️ 已赞' : '🔥 点赞'} (${p.likes})
               </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  document.getElementById('forum-posts-list').addEventListener('click', (e) => {
+    const zoomEl = e.target.closest('[data-zoom-src]');
+    if (zoomEl) { e.stopPropagation(); openImageLightbox(zoomEl.dataset.zoomSrc); return; }
+    const likeBtn = e.target.closest('[data-like-id]');
+    if (likeBtn) { toggleLike(likeBtn.dataset.likeId, likeBtn); return; }
+    const card = e.target.closest('[data-post-id]');
+    if (card) openPostModal(card.dataset.postId);
+  });
+
+  async function toggleLike(postId, btn) {
+    if (!currentUser) { openAuthModal('login'); return; }
+    const liked = getLikedPosts().includes(postId);
+    try {
+      const res = await fetch(`/api/posts/${postId}/${liked ? 'unlike' : 'like'}`, {
+        method: 'POST', headers: authHeaders(),
+        body: JSON.stringify({ voter: myClientId })
+      });
+      const json = await res.json();
+      if (res.status === 401) { openAuthModal('login'); return; }
+      if (!json.success) return;
+      setLikedPost(postId, !liked);
+      if (btn) btn.textContent = `${!liked ? '❤️ 已赞' : '🔥 点赞'} (${json.likes})`;
+      const modalBtn = document.getElementById('post-modal-like');
+      if (modalBtn && modalBtn.dataset.postId === postId) {
+        modalBtn.textContent = `${!liked ? '❤️ 已赞' : '🔥 点赞'} (${json.likes})`;
+      }
+    } catch (e) { console.error(e); }
+  }
+
+  let currentModalPostId = '';
+  let currentModalPostTitle = '';
+  async function openPostModal(postId) {
+    try {
+      const res = await fetch(`/api/posts/${postId}`);
+      const json = await res.json();
+      if (!json.success) { showToast('帖子不存在或已被删除', 'error'); return; }
+      const p = json.data;
+      currentModalPostId = p.id;
+      currentModalPostTitle = p.title;
+      const catEl = document.getElementById('post-modal-category');
+      catEl.textContent = p.category;
+      catEl.className = `inline-block text-xs px-3 py-0.5 rounded-full font-bold ${categoryBadgeClass(p.category)}`;
+      document.getElementById('post-modal-title').textContent = p.title;
+      document.getElementById('post-modal-meta').textContent = `✍️ ${p.author} · ${p.createdAt} · ${p.category} · 👁 ${p.views || 0}`;
+
+      // 填充宽屏头部与一楼楼主铭牌
+      const viewsPill = document.getElementById('post-modal-views-pill');
+      const timePill = document.getElementById('post-modal-time-pill');
+      const authorAvatar = document.getElementById('post-modal-author-avatar');
+      const authorName = document.getElementById('post-modal-author-name');
+      const authorSub = document.getElementById('post-modal-author-sub');
+      if (viewsPill) viewsPill.textContent = `👁 ${p.views || 0} 次阅读 · 🔥 ${p.likes || 0} 赞`;
+      if (timePill) timePill.textContent = `🕒 ${p.createdAt || ''}`;
+      if (authorAvatar) authorAvatar.textContent = (p.author || '匿').substring(0, 1).toUpperCase();
+      if (authorName) authorName.textContent = p.author || '匿名冒险者';
+      if (authorSub) authorSub.textContent = `发布于「${p.category}」议事厅 · ${p.createdAt || ''}`;
+
+      document.getElementById('post-modal-content').textContent = p.content || '';
+      const imgsBox = document.getElementById('post-modal-images');
+      const postImgs = Array.isArray(p.images) ? p.images : [];
+      if (imgsBox) {
+        imgsBox.innerHTML = postImgs.map(src => `
+          <div onclick="openImageLightbox('${escapeHtml(src)}')" class="gm-img-thumb max-h-72">
+            <img src="${escapeHtml(src)}" alt="帖子配图" class="w-full h-full max-h-72 object-cover" loading="lazy">
+          </div>
+        `).join('');
+      }
+
+      const likeBtn = document.getElementById('post-modal-like');
+      likeBtn.dataset.postId = p.id;
+      likeBtn.textContent = `${getLikedPosts().includes(p.id) ? '❤️ 已赞支持' : '🔥 点赞支持'} (${p.likes})`;
+      document.getElementById('post-modal-reply-count').textContent = p.replyCount || (p.replies ? p.replies.length : 0);
+
+      const floorNames = ['沙发', '板凳', '地板'];
+      const repliesBox = document.getElementById('post-modal-replies');
+      repliesBox.innerHTML = (p.replies && p.replies.length)
+        ? p.replies.map((r, idx) => {
+            const avatarChar = (r.author || '友').substring(0, 1).toUpperCase();
+            const isOp = r.author === p.author;
+            const floorTag = idx < 3 ? `#${idx + 2} ${floorNames[idx]}` : `#${idx + 2} 楼`;
+            const rImgs = Array.isArray(r.images) ? r.images : [];
+            const rImgsHtml = rImgs.length
+              ? `<div class="flex flex-wrap gap-2 pl-11 pt-1">${rImgs.map(src => `<div onclick="openImageLightbox('${escapeHtml(src)}')" class="gm-img-thumb w-28 h-20"><img src="${escapeHtml(src)}" alt="回帖配图" class="w-full h-full object-cover" loading="lazy"></div>`).join('')}</div>`
+              : '';
+            return `<div class="loot-card p-3.5 sm:p-4 space-y-2">
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <div class="gm-reply-avatar">${escapeHtml(avatarChar)}</div>
+                  <div class="min-w-0">
+                    <div class="flex items-center gap-1.5">
+                      <span class="text-xs font-bold text-amber-200 truncate">${escapeHtml(r.author)}</span>
+                      ${isOp ? '<span class="text-[10px] px-1.5 py-0.2 rounded bg-amber-500/20 border border-amber-400/40 text-amber-300 font-bold">楼主</span>' : ''}
+                    </div>
+                    <div class="text-[11px] text-gray-400 font-mono">${escapeHtml((r.createdAt || '').substring(5, 16))}</div>
+                  </div>
+                </div>
+                <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-gray-400 shrink-0">${floorTag}</span>
+              </div>
+              ${r.content ? `<div class="text-sm text-gray-200 leading-relaxed pl-11 break-words">${escapeHtml(r.content)}</div>` : ''}
+              ${rImgsHtml}
+            </div>`;
+          }).join('')
+        : `<div class="text-center py-14 text-gray-400 text-xs space-y-1"><div class="text-2xl">🍺</div><div>还没有冒险者回帖，快来抢占一楼沙发吧！</div></div>`;
+
+      const replyAuthorEl = document.getElementById('post-modal-reply-author');
+      replyAuthorEl.value = currentUser || '';
+      replyAuthorEl.disabled = !!currentUser;
+      replyAuthorEl.placeholder = currentUser ? currentUser : '登录后回帖';
+      document.getElementById('post-modal').classList.remove('hidden');
+    } catch (e) { showToast('帖子加载失败，请检查网络', 'error'); }
+  }
+  function closePostModal() {
+    document.getElementById('post-modal').classList.add('hidden');
+    currentModalPostId = '';
+    pendingReplyImages = [];
+    renderReplyImagePreviews();
+  }
+
+  async function openNewsModal(i) {
+    const n = cachedNews[i];
+    if (!n) return;
+    document.getElementById('news-modal-title').textContent = n.title;
+    document.getElementById('news-modal-meta').textContent = `${n.publishedAt || ''} · 来源：${n.source || ''}`;
+    document.getElementById('news-modal-origin').href = n.url;
+    document.getElementById('news-modal-body').innerHTML = '<div class="text-gray-400 text-sm py-4">正在解析战报卷轴…</div>';
+    document.getElementById('news-modal').classList.remove('hidden');
+    try {
+      const res = await fetch('/api/news/article?url=' + encodeURIComponent(n.url));
+      const json = await res.json();
+      if (!res.ok || !json.success) throw new Error('load failed');
+      document.getElementById('news-modal-body').innerHTML = json.data.content;
+    } catch (e) {
+      document.getElementById('news-modal-body').innerHTML = '<div class="text-gray-300 text-sm py-4">正文加载失败，可以点下方“查看暴雪官网原文”。</div>';
+    }
+  }
+  function closeNewsModal() {
+    document.getElementById('news-modal').classList.add('hidden');
+  }
+  function openPublishModal() {
+    if (!currentUser) { pendingPublishAfterLogin = true; openAuthModal('login'); return; }
+    const authorEl = document.getElementById('forum-author');
+    authorEl.value = currentUser;
+    authorEl.disabled = true;
+    authorEl.title = '发帖署名即登录账号';
+    document.getElementById('publish-modal').classList.remove('hidden');
+  }
+  function closePublishModal() {
+    document.getElementById('publish-modal').classList.add('hidden');
+  }
+  function openShareAddonModal() {
+    if (!currentUser) { pendingAddonAfterLogin = true; openAuthModal('login'); return; }
+    const authorEl = document.getElementById('addon-author');
+    authorEl.value = currentUser;
+    authorEl.disabled = true;
+    authorEl.title = '分享者即登录账号';
+    document.getElementById('share-addon-modal').classList.remove('hidden');
+  }
+  function closeShareAddonModal() {
+    document.getElementById('share-addon-modal').classList.add('hidden');
+  }
+
+  // --- 账号登录 ---
+  let currentUser = '';
+  let authMode = 'login';
+  let pendingPublishAfterLogin = false;
+  let pendingAddonAfterLogin = false;
+  function authToken() {
+    try { return localStorage.getItem('gm-auth-token') || ''; } catch (e) { return ''; }
+  }
+  function authHeaders() {
+    const t = authToken();
+    const h = { 'Content-Type': 'application/json' };
+    if (t) h['Authorization'] = 'Bearer ' + t;
+    return h;
+  }
+  function renderAuthArea() {
+    const box = document.getElementById('auth-area');
+    if (!box) return;
+    if (currentUser) {
+      box.innerHTML = `<button onclick="switchTab('profile')" class="flex-1 text-left text-xs px-3 py-1.5 rounded-lg bg-amber-500/15 border border-amber-400/35 text-amber-200 font-semibold truncate cursor-pointer" title="点击进入个人中心">🛡️ ${escapeHtml(currentUser)}</button><button onclick="logout()" class="px-2.5 py-1.5 text-xs ghost-btn cursor-pointer shrink-0">退出</button>`;
+    } else {
+      box.innerHTML = `<button onclick="openAuthModal('login')" class="flex-1 py-1.5 text-xs gold-btn cursor-pointer">登录</button><button onclick="openAuthModal('register')" class="flex-1 py-1.5 text-xs ghost-btn cursor-pointer">注册</button>`;
+    }
+  }
+  async function refreshMe() {
+    const t = authToken();
+    if (!t && !IS_STANDALONE_PREVIEW) { currentUser = ''; renderAuthArea(); return; }
+    try {
+      const res = await fetch('/api/auth/me', { headers: t ? { 'Authorization': 'Bearer ' + t } : {} });
+      const json = await res.json();
+      currentUser = (res.ok && json.success) ? json.data.username : '';
+      if (!currentUser) try { localStorage.removeItem('gm-auth-token'); } catch (e) {}
+    } catch (e) { currentUser = ''; }
+    renderAuthArea();
+  }
+  function openAuthModal(mode) {
+    authMode = mode || 'login';
+    document.getElementById('auth-modal-title').textContent = authMode === 'register' ? '📝 铸造通行证' : '🔑 通行证登录';
+    document.getElementById('auth-submit-btn').textContent = authMode === 'register' ? '注册并登录' : '登录';
+    document.getElementById('auth-toggle-text').textContent = authMode === 'register' ? '已有通行证？' : '尚未加入营地？';
+    document.getElementById('auth-toggle-btn').textContent = authMode === 'register' ? '前往登录' : '立即注册';
+    document.getElementById('auth-error').classList.add('hidden');
+    document.getElementById('auth-modal').classList.remove('hidden');
+  }
+  function closeAuthModal() {
+    document.getElementById('auth-modal').classList.add('hidden');
+    pendingPublishAfterLogin = false;
+    pendingAddonAfterLogin = false;
+  }
+  function toggleAuthMode() { openAuthModal(authMode === 'register' ? 'login' : 'register'); }
+  async function submitAuth() {
+    const username = document.getElementById('auth-username').value.trim();
+    const password = document.getElementById('auth-password').value;
+    const errEl = document.getElementById('auth-error');
+    if (!username || !password) { errEl.textContent = '用户名和密码不能为空'; errEl.classList.remove('hidden'); return; }
+    try {
+      const res = await fetch(`/api/auth/${authMode}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) { errEl.textContent = json.detail || '操作失败'; errEl.classList.remove('hidden'); return; }
+      try { localStorage.setItem('gm-auth-token', json.data.token); } catch (e) {}
+      currentUser = json.data.username;
+      closeAuthModal();
+      renderAuthArea(); renderBoardNav();
+      if (!document.getElementById('sec-profile').classList.contains('hidden')) loadProfile();
+      if (pendingPublishAfterLogin) { pendingPublishAfterLogin = false; openPublishModal(); }
+      else if (pendingAddonAfterLogin) { pendingAddonAfterLogin = false; openShareAddonModal(); }
+    } catch (e) { errEl.textContent = '请求失败，请检查网络'; errEl.classList.remove('hidden'); }
+  }
+  async function logout() {
+    try { await fetch('/api/auth/logout', { method: 'POST', headers: authHeaders() }); } catch (e) {}
+    try { localStorage.removeItem('gm-auth-token'); } catch (e) {}
+    currentUser = ''; onlyMine = false;
+    renderAuthArea(); renderBoardNav(); loadPosts();
+    if (!document.getElementById('sec-profile').classList.contains('hidden')) loadProfile();
+  }
+  async function submitReply() {
+    if (!currentUser) { closePostModal(); openAuthModal('login'); return; }
+    const contentEl = document.getElementById('post-modal-reply-content');
+    const content = contentEl.value.trim();
+    if (!currentModalPostId) return;
+    if (!content && pendingReplyImages.length === 0) { showToast('回帖内容或配图不能为空', 'error'); return; }
+    try {
+      const res = await fetch(`/api/posts/${currentModalPostId}/replies`, {
+        method: 'POST', headers: authHeaders(),
+        body: JSON.stringify({ content, images: pendingReplyImages })
+      });
+      const json = await res.json();
+      if (res.status === 401) { closePostModal(); openAuthModal('login'); return; }
+      if (!res.ok || !json.success) { showToast(json.detail || '回帖失败', 'error'); return; }
+      recordLocalReply(currentModalPostId, currentModalPostTitle, content || '[图片回复]', currentUser);
+      contentEl.value = '';
+      pendingReplyImages = [];
+      renderReplyImagePreviews();
+      openPostModal(currentModalPostId);
+      loadPosts();
+      if (!document.getElementById('sec-profile').classList.contains('hidden')) loadProfile();
+    } catch (e) { showToast('回帖失败，请检查网络', 'error'); }
+  }
+
+  // 支持在发帖内容框和回帖输入框直接 Ctrl+V 粘贴剪贴板截图
+  document.getElementById('forum-content').addEventListener('paste', (e) => {
+    const items = (e.clipboardData && e.clipboardData.items) || [];
+    const files = [];
+    for (const it of items) {
+      if (it.type && it.type.startsWith('image/')) {
+        const f = it.getAsFile();
+        if (f) files.push(f);
+      }
+    }
+    if (files.length) handlePublishImageFiles(files);
+  });
+  document.getElementById('post-modal-reply-content').addEventListener('paste', (e) => {
+    const items = (e.clipboardData && e.clipboardData.items) || [];
+    const files = [];
+    for (const it of items) {
+      if (it.type && it.type.startsWith('image/')) {
+        const f = it.getAsFile();
+        if (f) files.push(f);
+      }
+    }
+    if (files.length) handleReplyImageFiles(files);
+  });
+
+  document.getElementById('post-modal').addEventListener('click', (e) => { if (e.target.id === 'post-modal') closePostModal(); });
+  document.getElementById('publish-modal').addEventListener('click', (e) => { if (e.target.id === 'publish-modal') closePublishModal(); });
+  document.getElementById('share-addon-modal').addEventListener('click', (e) => { if (e.target.id === 'share-addon-modal') closeShareAddonModal(); });
+  document.getElementById('auth-modal').addEventListener('click', (e) => { if (e.target.id === 'auth-modal') closeAuthModal(); });
+  document.getElementById('news-modal').addEventListener('click', (e) => { if (e.target.id === 'news-modal') closeNewsModal(); });
+  document.getElementById('post-modal-like').addEventListener('click', (e) => { if (currentModalPostId) toggleLike(currentModalPostId, e.currentTarget); });
+  document.getElementById('post-modal-reply-submit').addEventListener('click', submitReply);
+  document.getElementById('post-modal-reply-content').addEventListener('keydown', (e) => { if (e.key === 'Enter') submitReply(); });
+  document.getElementById('auth-password').addEventListener('keydown', (e) => { if (e.key === 'Enter') submitAuth(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { closeImageLightbox(); closePostModal(); closePublishModal(); closeShareAddonModal(); closeAuthModal(); closeNewsModal(); closePwdModal(); closeConfirmModal(false); }
+  });
+
+  function renderMemberSlots(count, max) {
+    const total = max || 5;
+    let html = '<span class="inline-flex items-center gap-1 ml-1.5">';
+    for (let i = 0; i < total; i++) {
+      html += i < count
+        ? '<span class="w-2 h-2 rounded-sm bg-amber-400"></span>'
+        : '<span class="w-2 h-2 rounded-sm bg-gray-500/25 border border-gray-500/40"></span>';
+    }
+    return html + '</span>';
+  }
+
+  // --- 首页聚合 ---
+  function renderHomeRooms(rooms) {
+    const box = document.getElementById('home-rooms-list');
+    if (!box) return;
+    const heroRooms = document.getElementById('hero-stat-rooms');
+    if (heroRooms) heroRooms.textContent = rooms ? rooms.length : 0;
+    if (!rooms || rooms.length === 0) {
+      box.innerHTML = `<div class="text-gray-500 text-sm py-8 text-center">🪵 暂无公开招募的营火</div>`;
+      return;
+    }
+    box.innerHTML = rooms.slice(0, 4).map(r => `<div class="chronicle-row flex items-center justify-between gap-3 py-2.5 px-3">
+      <div class="min-w-0 flex items-center gap-2.5">
+        <span class="w-2.5 h-2.5 rounded-full shrink-0 ${r.faction === 'horde' ? 'bg-red-500' : 'bg-blue-500'}"></span>
+        <div class="min-w-0">
+          <div class="text-sm font-bold text-amber-100 truncate">${escapeHtml(r.title)}</div>
+          <div class="text-xs text-gray-400 mt-0.5 flex items-center flex-wrap gap-1">
+            <span>队长 ${escapeHtml(r.leader)}</span>
+            <span>·</span>
+            <span class="font-mono">${r.memberCount}/${r.maxMembers}</span>
+            ${renderMemberSlots(r.memberCount, r.maxMembers)}
+            ${r.isLocked ? '<span class="ml-1">🔒</span>' : ''}
+          </div>
+        </div>
+      </div>
+      <button onclick="switchTab('campfire')" class="px-3 py-1 text-xs gold-btn shrink-0 cursor-pointer">加入</button>
+    </div>`).join('');
+  }
+
+  async function loadGuides() {
+    try {
+      const res = await fetch('/api/posts?category=' + encodeURIComponent('攻略心得'));
+      const json = await res.json();
+      const box = document.getElementById('guide-posts-list');
+      if (!box) return;
+      if (!json.success || !json.data.length) {
+        box.innerHTML = `<div class="text-gray-500 text-xs py-8 text-center">攻略心得版块还没有帖子，去发一篇吧！</div>`;
+        return;
+      }
+      box.innerHTML = json.data.slice(0, 6).map(p => `<div onclick="openPostModal('${p.id}')" class="loot-card p-3.5 cursor-pointer">
+        <div class="flex items-center justify-between gap-2">
+          <div class="text-sm text-amber-100 font-bold truncate">${escapeHtml(p.title)}</div>
+          <span class="text-[10px] px-2 py-0.5 rounded q-epic shrink-0">秘典</span>
+        </div>
+        <div class="text-xs text-gray-400 mt-1.5 flex items-center gap-2"><span>✍️ ${escapeHtml(p.author)}</span><span>·</span><span class="text-amber-300/90">🔥 ${p.likes}</span><span>·</span><span>💬 ${p.replyCount || 0}</span></div>
+      </div>`).join('');
+    } catch (e) { console.error(e); }
+  }
+
+  const HOME_MOD_BODY = { news: 'home-mod-news-body', posts: 'home-mod-posts-body', rooms: 'home-mod-rooms-body', guides: 'home-mod-guides-body', addons: 'home-mod-addons-body' };
+  function getHomeModState() {
+    try { return JSON.parse(localStorage.getItem('gm-home-collapsed') || '{}'); } catch (e) { return {}; }
+  }
+  function toggleHomeMod(key) {
+    const body = document.getElementById(HOME_MOD_BODY[key]);
+    const btn = document.getElementById('home-mod-' + key + '-toggle');
+    if (!body) return;
+    const collapsed = body.classList.toggle('hidden');
+    if (btn) btn.textContent = collapsed ? '▸' : '▾';
+    const st = getHomeModState();
+    if (collapsed) st[key] = true; else delete st[key];
+    try { localStorage.setItem('gm-home-collapsed', JSON.stringify(st)); } catch (e) {}
+  }
+
+  let cachedNews = [];
+  let newsExpanded = false;
+  function renderHomeNews() {
+    const box = document.getElementById('home-news-list');
+    const more = document.getElementById('home-news-more');
+    if (!box) return;
+    if (!cachedNews.length) {
+      box.innerHTML = `<div class="text-gray-500 text-sm py-6 text-center">暂无资讯，稍后再来看看</div>`;
+      if (more) more.classList.add('hidden');
+      return;
+    }
+    const shown = newsExpanded ? cachedNews.slice(0, 8) : cachedNews.slice(0, 3);
+    box.innerHTML = shown.map((n, i) => `<div onclick="openNewsModal(${i})" class="news-item chronicle-row block py-2.5 px-3 cursor-pointer">
+      <div class="flex items-start justify-between gap-2">
+        <div class="text-sm text-amber-100 font-bold leading-snug truncate">◈ ${escapeHtml(n.title)}</div>
+        <span class="text-[11px] text-gray-400 font-mono shrink-0">${escapeHtml(n.publishedAt || '')}</span>
+      </div>
+      <div class="text-xs text-gray-400 mt-1 line-clamp-1">${escapeHtml(n.summary || '')}</div>
+    </div>`).join('');
+    if (more) {
+      if (cachedNews.length > 3) {
+        more.classList.remove('hidden');
+        more.textContent = newsExpanded ? '收起快讯 ▲' : `展开更多快讯（${Math.min(cachedNews.length, 8)} 条）▼`;
+      } else more.classList.add('hidden');
+    }
+  }
+  function toggleNewsExpand() { newsExpanded = !newsExpanded; renderHomeNews(); }
+  function viewMoreGuides() { currentBoard = '攻略心得'; switchTab('forum'); }
+  async function loadHomeNews() {
+    const badge = document.getElementById('home-news-badge');
+    if (badge) badge.classList.add('hidden');
+    try {
+      const res = await fetch('/api/news');
+      const json = await res.json();
+      cachedNews = (json.success && json.data) ? json.data : [];
+      renderHomeNews();
+    } catch (e) { console.error(e); }
+  }
+
+  function homePostRow(p) {
+    return `<div onclick="openPostModal('${p.id}')" class="chronicle-row py-2.5 px-3 cursor-pointer">
+      <div class="flex items-center justify-between gap-2">
+        <div class="text-sm text-amber-100 font-semibold truncate">${escapeHtml(p.title)}</div>
+        <span class="text-[10px] px-2 py-0.5 rounded-full ${categoryBadgeClass(p.category)} font-semibold shrink-0">${escapeHtml(p.category)}</span>
+      </div>
+      <div class="text-xs text-gray-400 mt-1 flex items-center gap-2">
+        <span>✍️ ${escapeHtml(p.author)}</span>
+        <span>·</span>
+        <span>🔥 ${p.likes}</span>
+        <span>·</span>
+        <span>💬 ${p.replyCount || 0}</span>
+      </div>
+    </div>`;
+  }
+
+  async function loadHome() {
+    loadHomeNews();
+    renderHomeRooms(lastLobbyRooms);
+    try {
+      const res = await fetch('/api/home');
+      const json = await res.json();
+      if (!json.success) return;
+      const d = json.data;
+      const postsBox = document.getElementById('home-posts-list');
+      postsBox.innerHTML = d.latest.length
+        ? d.latest.slice(0, 4).map(homePostRow).join('')
+        : `<div class="text-gray-500 text-sm py-8 text-center">酒馆里空空如也</div>`;
+      const gBox = document.getElementById('home-guides-list');
+      gBox.innerHTML = d.topGuides.length
+        ? d.topGuides.slice(0, 4).map(homePostRow).join('')
+        : `<div class="text-gray-500 text-sm py-8 text-center">暂无攻略心得</div>`;
+      document.getElementById('home-stats').textContent = `⚔️ 营地实时数据：共 ${d.stats.posts} 篇酒馆帖子 · ${d.stats.rooms} 个公开营火 · ${d.stats.categories.length} 个议事版块`;
+      const heroPosts = document.getElementById('hero-stat-posts');
+      const heroRooms = document.getElementById('hero-stat-rooms');
+      if (heroPosts) heroPosts.textContent = d.stats.posts;
+      if (heroRooms) heroRooms.textContent = d.stats.rooms;
+    } catch (e) { console.error(e); }
+    try {
+      const ares = await fetch('/api/addons');
+      const ajson = await ares.json();
+      const aBox = document.getElementById('home-addons-list');
+      const heroAddons = document.getElementById('hero-stat-addons');
+      if (heroAddons && ajson.success) heroAddons.textContent = ajson.data.length;
+      if (aBox) {
+        aBox.innerHTML = (ajson.success && ajson.data.length)
+          ? ajson.data.slice(0, 4).map(a => `<div onclick="switchTab('addons')" class="chronicle-row py-2.5 px-3 cursor-pointer">
+              <div class="flex items-center justify-between gap-2">
+                <div class="text-sm text-amber-100 font-semibold truncate">🧩 ${escapeHtml(a.name)}</div>
+                ${a.gameVersion ? `<span class="text-[10px] px-2 py-0.5 rounded-full q-uncommon font-semibold shrink-0">${escapeHtml(a.gameVersion)}</span>` : ''}
+              </div>
+              <div class="text-xs text-gray-400 mt-1">⬇️ ${a.downloads || 0} 次下载 · 🔥 ${a.likes}</div>
+            </div>`).join('')
+          : `<div class="text-gray-500 text-sm py-8 text-center">暂无插件分享</div>`;
+      }
+    } catch (e) { console.error(e); }
+  }
+
+  // --- 插件分享 ---
+  function getLikedAddons() {
+    try { return JSON.parse(localStorage.getItem('gm-liked-addons') || '[]'); } catch (e) { return []; }
+  }
+  function setLikedAddon(addonId, liked) {
+    let arr = getLikedAddons();
+    if (liked) { if (!arr.includes(addonId)) arr.push(addonId); }
+    else { arr = arr.filter(x => x !== addonId); }
+    try { localStorage.setItem('gm-liked-addons', JSON.stringify(arr)); } catch (e) {}
+  }
+
+  async function loadAddons() {
+    try {
+      const res = await fetch('/api/addons');
+      const json = await res.json();
+      const container = document.getElementById('addons-list');
+      if (!json.success || json.data.length === 0) {
+        container.innerHTML = `<div class="md:col-span-2 text-center py-16 text-gray-500 text-sm">🧩 仓库还是空的，来分享第一个插件吧！</div>`;
+        return;
+      }
+      const liked = getLikedAddons();
+      container.innerHTML = json.data.map(a => `
+          <div class="loot-card p-5 flex flex-col justify-between gap-3.5">
+            <div class="space-y-2.5">
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex flex-wrap items-center gap-2 min-w-0">
+                  <div class="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-400/35 flex items-center justify-center text-base shrink-0">🧩</div>
+                  <h3 class="font-bold text-amber-100 text-base truncate">${escapeHtml(a.name)}</h3>
+                  ${a.version ? `<span class="text-[11px] px-2 py-0.5 rounded-md q-rare font-mono shrink-0">v${escapeHtml(a.version)}</span>` : ''}
+                  ${a.gameVersion ? `<span class="text-[11px] px-2 py-0.5 rounded-md q-uncommon shrink-0">${escapeHtml(a.gameVersion)}</span>` : ''}
+                </div>
+                <span class="text-xs text-gray-500 font-mono shrink-0">${a.createdAt.substring(5, 16)}</span>
+              </div>
+              <p class="text-sm text-gray-300 whitespace-pre-line leading-relaxed">${escapeHtml(a.description || '（无简介）')}</p>
+            </div>
+            <div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-amber-500/15 text-xs text-gray-400">
+              <span>🧑‍💻 ${escapeHtml(a.author)} · ⬇️ ${a.downloads || 0} 次下载</span>
+              <span class="flex items-center gap-2">
+                <a href="${escapeHtml(a.downloadUrl)}" target="_blank" rel="noopener" onclick="trackAddonDownload('${a.id}')" class="px-3.5 py-1.5 gold-btn text-xs">⬇️ 获取插件</a>
+                <button data-addon-like-id="${a.id}" class="addon-like-btn px-3 py-1.5 rounded-lg bg-[#0c101a] hover:bg-[#1a2236] text-amber-300 border border-amber-500/30 transition cursor-pointer font-medium">
+                  ${liked.includes(a.id) ? '❤️ 已赞' : '🔥 点赞'} (${a.likes})
+                </button>
+              </span>
             </div>
           </div>
         `).join('');
@@ -406,217 +2549,253 @@
     }
   }
 
-  async function submitPost() {
-    const category = document.getElementById('forum-category').value;
-    const title = document.getElementById('forum-title').value.trim();
-    const author = document.getElementById('forum-author').value.trim() || '无名冒险者';
-    const content = document.getElementById('forum-content').value.trim();
-    if (!title || !content) {
-      alert('标题和内容不能为空！');
-      return;
-    }
+  document.getElementById('addons-list').addEventListener('click', (e) => {
+    const likeBtn = e.target.closest('[data-addon-like-id]');
+    if (likeBtn) toggleAddonLike(likeBtn.dataset.addonLikeId, likeBtn);
+  });
+
+  async function toggleAddonLike(addonId, btn) {
+    if (!currentUser) { openAuthModal('login'); return; }
+    const liked = getLikedAddons().includes(addonId);
     try {
-      const res = await fetch('/api/posts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ category, title, author, content })
+      const res = await fetch(`/api/addons/${addonId}/${liked ? 'unlike' : 'like'}`, {
+        method: 'POST', headers: authHeaders(),
+        body: JSON.stringify({ voter: myClientId })
       });
       const json = await res.json();
-      if (json.success) {
-        document.getElementById('forum-title').value = '';
-        document.getElementById('forum-content').value = '';
-        loadPosts();
-      }
-    } catch (e) {
-      alert('发布失败');
-    }
+      if (res.status === 401) { openAuthModal('login'); return; }
+      if (!json.success) return;
+      setLikedAddon(addonId, !liked);
+      if (btn) btn.textContent = `${!liked ? '❤️ 已赞' : '🔥 点赞'} (${json.likes})`;
+    } catch (e) { console.error(e); }
   }
 
-  async function likePost(postId) {
-    await fetch(`/api/posts/${postId}/like`, { method: 'POST' });
-    loadPosts();
+  async function trackAddonDownload(addonId) {
+    try { await fetch(`/api/addons/${addonId}/download`, { method: 'POST' }); } catch (e) {}
   }
 
-  // --- 属性模拟器简易逻辑 ---
+  async function submitAddon() {
+    if (!currentUser) { closeShareAddonModal(); openAuthModal('login'); return; }
+    const name = document.getElementById('addon-name').value.trim();
+    const version = document.getElementById('addon-version').value.trim();
+    const gameVersion = document.getElementById('addon-game-version').value.trim();
+    const description = document.getElementById('addon-desc').value.trim();
+    const downloadUrl = document.getElementById('addon-url').value.trim();
+    if (!name) { showToast('请填写插件名称', 'error'); return; }
+    if (!/^https?:\/\//.test(downloadUrl)) { showToast('下载链接请以 http:// 或 https:// 开头', 'error'); return; }
+    try {
+      const res = await fetch('/api/addons', {
+        method: 'POST', headers: authHeaders(),
+        body: JSON.stringify({ name, version, game_version: gameVersion, description, download_url: downloadUrl })
+      });
+      const json = await res.json();
+      if (res.status === 401) { closeShareAddonModal(); openAuthModal('login'); return; }
+      if (!res.ok || !json.success) { showToast(json.detail || '分享失败', 'error'); return; }
+      ['addon-name', 'addon-version', 'addon-game-version', 'addon-desc', 'addon-url'].forEach(id => { document.getElementById(id).value = ''; });
+      closeShareAddonModal();
+      showToast('✅ 插件分享成功！', 'success');
+      loadAddons();
+    } catch (e) { showToast('分享失败，请检查网络', 'error'); }
+  }
+
+  // --- 属性模拟器逻辑 ---
   function runSimulation() {
-    const main = parseFloat(document.getElementById('sim-main-stat').value) || 0;
-    const crit = parseFloat(document.getElementById('sim-crit').value) || 0;
-    const haste = parseFloat(document.getElementById('sim-haste').value) || 0;
-    const mastery = parseFloat(document.getElementById('sim-mastery').value) || 0;
+    const main = Math.max(0, parseFloat(document.getElementById('sim-main-stat').value) || 0);
+    const crit = Math.max(0, parseFloat(document.getElementById('sim-crit').value) || 0);
+    const haste = Math.max(0, parseFloat(document.getElementById('sim-haste').value) || 0);
+    const mastery = Math.max(0, parseFloat(document.getElementById('sim-mastery').value) || 0);
 
     const dps = Math.round(main * 3.5 * (1 + crit / 100) * (1 + haste / 120) * (1 + mastery / 150));
     document.getElementById('sim-result-dps').textContent = dps.toLocaleString() + ' DPS';
+
+    const sum = crit + haste + mastery || 1;
+    const cPct = Math.round((crit / sum) * 100);
+    const hPct = Math.round((haste / sum) * 100);
+    const mPct = Math.max(0, 100 - cPct - hPct);
+    const bCrit = document.getElementById('bar-crit');
+    const bHaste = document.getElementById('bar-haste');
+    const bMast = document.getElementById('bar-mastery');
+    const summary = document.getElementById('sim-stat-summary');
+    if (bCrit) bCrit.style.width = cPct + '%';
+    if (bHaste) bHaste.style.width = hPct + '%';
+    if (bMast) bMast.style.width = mPct + '%';
+    if (summary) summary.textContent = `暴击 ${crit}% · 急速 ${haste}% · 精通 ${mastery}%`;
   }
 
-  // --- Socket.io 营火大厅与语音逻辑 ---
-  const socket = io();
-  let currentRoomId = '';
-  let localStream = null;
-  let isMuted = false;
-  const peerConnections = {};
-  const rtcConfig = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+  function showConnBanner(text) {
+    const b = document.getElementById('conn-banner');
+    if (!b) return;
+    if (!text) { b.classList.add('hidden'); b.textContent = ''; return; }
+    b.textContent = text;
+    b.classList.remove('hidden');
+  }
 
-  socket.on('lobby:list', (rooms) => {
+  let myClientId = '';
+  try {
+    myClientId = localStorage.getItem('gm-client-id') || '';
+    if (!myClientId) {
+      myClientId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : ('c-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10));
+      localStorage.setItem('gm-client-id', myClientId);
+    }
+  } catch (e) {
+    myClientId = 'c-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+  }
+  let lastJoin = null;
+  let lastUsedPassword = '';
+  let currentRoomLocked = false;
+  let lastRoomDetail = null;
+
+  // --- Socket.io 营火大厅实时逻辑 ---
+  let socket;
+  if (IS_STANDALONE_PREVIEW) {
+    socket = { id: 'preview', connected: true, on() {}, emit() {} };
+  } else if (typeof io === 'undefined') {
+    showConnBanner('实时服务加载失败，正在尝试备用线路…');
+    const fb = document.createElement('script');
+    fb.src = 'https://unpkg.com/socket.io-client@4.7.5/dist/socket.io.min.js';
+    fb.onload = () => location.reload();
+    fb.onerror = () => showConnBanner('实时服务加载失败（socket.io 未加载），请检查网络后刷新页面');
+    document.head.appendChild(fb);
+    socket = { id: '', connected: false, on() {}, emit() {} };
+  } else {
+    socket = io();
+  }
+  let lastLobbyRooms = IS_STANDALONE_PREVIEW ? [
+    { id: 'zf8821', title: '泽风岛精英任务亲友车队', faction: 'horde', leader: '灰烬使者', maxMembers: 5, memberCount: 3, isLocked: false },
+    { id: 'al2049', title: '史诗地下城低保冲层队（缺奶）', faction: 'alliance', leader: '圣光之愿', maxMembers: 5, memberCount: 4, isLocked: true }
+  ] : [];
+  let currentRoomId = '';
+
+  function renderLobbyList(rooms) {
     document.getElementById('cf-room-count').textContent = `${rooms.length} 个公开房间`;
     const container = document.getElementById('cf-room-list');
+    if (!container) return;
     if (rooms.length === 0) {
-      container.innerHTML = `<div class="text-center py-16 text-gray-500 text-sm">🪵 暂无公开招募的营火，快在左侧点燃你的车队吧！</div>`;
+      container.innerHTML = `<div class="text-center py-20 text-gray-500 text-sm">🪵 暂无公开招募的营火，快在左侧点燃你的远征队吧！</div>`;
       return;
     }
     container.innerHTML = rooms.map(r => `
-        <div class="p-4 bg-[#0b0d13] border border-[#2e3446] hover:border-[#8c6f3e] rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition">
-          <div class="space-y-1">
-            <div class="flex items-center space-x-2">
-              <span class="text-xs px-2 py-0.5 rounded font-bold ${r.faction === 'horde' ? 'bg-red-900/40 text-red-300' : 'bg-blue-900/40 text-blue-300'}">${r.faction === 'horde' ? '部落' : '联盟'}</span>
-              <span class="text-xs px-2 py-0.5 rounded ${r.isLocked ? 'bg-amber-500/20 text-amber-300' : 'bg-emerald-900/30 text-emerald-300'}">${r.isLocked ? '🔒 加锁' : '🔓 公开'}</span>
-              <h3 class="font-bold text-amber-100 text-base">${escapeHtml(r.title)}</h3>
+        <div class="loot-card ${r.faction === 'horde' ? 'faction-horde' : 'faction-alliance'} p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="space-y-2 min-w-0">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="text-[11px] px-2.5 py-0.5 rounded-md font-bold ${r.faction === 'horde' ? 'bg-red-500/15 text-red-500 border border-red-500/35' : 'bg-blue-500/15 text-blue-500 border border-blue-500/35'}">${r.faction === 'horde' ? '🔴 部落' : '🔵 联盟'}</span>
+              <span class="text-[11px] px-2.5 py-0.5 rounded-md font-semibold ${r.isLocked ? 'q-legendary' : 'q-uncommon'}">${r.isLocked ? '🔒 暗号锁' : '🔓 公开招募'}</span>
+              <h3 class="font-bold text-amber-100 text-base truncate">${escapeHtml(r.title)}</h3>
             </div>
-            <p class="text-xs text-gray-400">房间号：<span class="font-mono text-amber-300">${r.id}</span> · 队长：${escapeHtml(r.leader)} · 人数：${r.memberCount}/${r.maxMembers}</p>
+            <div class="text-xs text-gray-400 flex flex-wrap items-center gap-2">
+              <span>房间号：<span class="font-mono text-amber-300 font-bold">${r.id}</span></span>
+              <span>·</span>
+              <span>团长：<span class="text-gray-200">${escapeHtml(r.leader)}</span></span>
+              <span>·</span>
+              <span>人数：<span class="text-amber-200 font-bold">${r.memberCount}/${r.maxMembers}</span>${renderMemberSlots(r.memberCount, r.maxMembers)}</span>
+            </div>
           </div>
-          <button onclick="joinRoom('${r.id}', ${r.isLocked})" class="px-4 py-2 rounded text-xs font-bold gold-btn shrink-0 cursor-pointer">${r.isLocked ? '🔑 输入密码' : '✋ 加入'}</button>
+          <button onclick="joinRoom('${r.id}', ${r.isLocked})" class="px-4 py-2 text-xs gold-btn shrink-0 cursor-pointer">${r.isLocked ? '🔑 输入暗号' : '✋ 申请入队'}</button>
         </div>
       `).join('');
+  }
+
+  socket.on('connect', () => {
+    showConnBanner('');
+    if (lastJoin) {
+      socket.emit('room:join', { roomId: lastJoin.roomId, nickname: lastJoin.nickname, role: lastJoin.role, password: lastJoin.password, clientId: myClientId });
+    }
+  });
+  socket.on('news:new', () => {
+    const badge = document.getElementById('home-news-badge');
+    if (badge) badge.classList.remove('hidden');
+    const homeSec = document.getElementById('sec-home');
+    if (homeSec && !homeSec.classList.contains('hidden')) loadHomeNews();
+  });
+  socket.on('disconnect', () => { showConnBanner('连接已断开，正在重连…'); });
+  socket.on('connect_error', () => { showConnBanner('实时服务连接失败，请检查网络后刷新页面'); });
+
+  socket.on('lobby:list', (rooms) => {
+    lastLobbyRooms = rooms;
+    renderHomeRooms(rooms);
+    renderLobbyList(rooms);
   });
 
   socket.on('room:joined', (room) => {
     currentRoomId = room.id;
+    lastRoomDetail = room;
+    currentRoomLocked = !!room.isLocked;
+    lastJoin = { roomId: room.id, nickname: document.getElementById('cf-nickname').value || '热心队友', role: document.getElementById('cf-role').value || '⚔️ 输出', password: lastUsedPassword };
     document.getElementById('campfire-lobby').classList.add('hidden');
     document.getElementById('campfire-room').classList.remove('hidden');
     document.getElementById('room-chat-box').innerHTML = '';
     renderRoomDetail(room);
   });
 
-  socket.on('room:updated', (room) => { renderRoomDetail(room); });
-  socket.on('room:left', () => { stopVoice(); currentRoomId = ''; document.getElementById('campfire-room').classList.add('hidden'); document.getElementById('campfire-lobby').classList.remove('hidden'); });
-  socket.on('room:kicked', (msg) => { stopVoice(); currentRoomId = ''; alert(msg); document.getElementById('campfire-room').classList.add('hidden'); document.getElementById('campfire-lobby').classList.remove('hidden'); });
-  socket.on('room:error', (msg) => { alert(msg); });
+  socket.on('room:updated', (room) => { lastRoomDetail = room; renderRoomDetail(room); });
+  socket.on('room:left', () => { currentRoomId = ''; lastJoin = null; document.getElementById('campfire-room').classList.add('hidden'); document.getElementById('campfire-lobby').classList.remove('hidden'); });
+  socket.on('room:kicked', (msg) => { currentRoomId = ''; lastJoin = null; showToast(msg, 'error'); document.getElementById('campfire-room').classList.add('hidden'); document.getElementById('campfire-lobby').classList.remove('hidden'); });
+  socket.on('room:error', (msg) => { showToast(msg, 'error'); });
 
   socket.on('room:chat', (msg) => {
     const box = document.getElementById('room-chat-box');
     const div = document.createElement('div');
     if (msg.isSystem) {
-      div.className = 'text-xs text-amber-400/90 italic';
+      div.className = 'text-xs text-amber-300/90 italic px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20';
       div.textContent = msg.text;
     } else {
-      div.className = 'text-sm text-gray-200';
-      div.innerHTML = `<span class="font-bold text-amber-300">${escapeHtml(msg.sender)}:</span> ${escapeHtml(msg.text)}`;
+      div.className = 'text-sm text-gray-200 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/[0.04]';
+      div.innerHTML = `<span class="font-bold text-amber-300">[${escapeHtml(msg.sender)}]:</span> ${escapeHtml(msg.text)}`;
     }
     box.appendChild(div);
     box.scrollTop = box.scrollHeight;
   });
 
-  // WebRTC 语音信令
-  socket.on('voice:peer-joined', async ({ peerId }) => {
-    if (!localStream || peerId === socket.id) return;
-    const pc = createPeerConnection(peerId);
-    const offer = await pc.createOffer();
-    await pc.setLocalDescription(offer);
-    socket.emit('voice:signal', { toPeerId: peerId, signal: { type: 'offer', sdp: offer } });
-  });
-
-  socket.on('voice:signal', async ({ fromPeerId, signal }) => {
-    if (!localStream) return;
-    let pc = peerConnections[fromPeerId] || createPeerConnection(fromPeerId);
-    if (signal.type === 'offer') {
-      await pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
-      const answer = await pc.createAnswer();
-      await pc.setLocalDescription(answer);
-      socket.emit('voice:signal', { toPeerId: fromPeerId, signal: { type: 'answer', sdp: answer } });
-    } else if (signal.type === 'answer') {
-      await pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
-    } else if (signal.type === 'candidate' && signal.candidate) {
-      try { await pc.addIceCandidate(new RTCIceCandidate(signal.candidate)); } catch (e) {}
-    }
-  });
-
-  socket.on('voice:peer-left', ({ peerId }) => { closePeerConnection(peerId); });
-
-  function createPeerConnection(peerId) {
-    if (peerConnections[peerId]) closePeerConnection(peerId);
-    const pc = new RTCPeerConnection(rtcConfig);
-    peerConnections[peerId] = pc;
-    localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-    pc.onicecandidate = (e) => { if (e.candidate) socket.emit('voice:signal', { toPeerId: peerId, signal: { type: 'candidate', candidate: e.candidate } }); };
-    pc.ontrack = (e) => {
-      let audio = document.getElementById('audio-' + peerId) || document.createElement('audio');
-      audio.id = 'audio-' + peerId; audio.autoplay = true;
-      document.getElementById('remote-audios').appendChild(audio);
-      audio.srcObject = e.streams[0];
-    };
-    return pc;
-  }
-
-  function closePeerConnection(peerId) {
-    if (peerConnections[peerId]) { peerConnections[peerId].close(); delete peerConnections[peerId]; }
-    const audio = document.getElementById('audio-' + peerId);
-    if (audio) audio.remove();
-  }
-
-  async function toggleVoice() {
-    if (localStream) { stopVoice(); socket.emit('voice:leave'); return; }
-    try {
-      localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-      isMuted = false;
-      document.getElementById('btn-voice-toggle').textContent = '☎️ 断开语音';
-      document.getElementById('btn-voice-toggle').className = 'px-3 py-2 rounded text-xs font-bold bg-red-800/40 text-red-200 border border-red-500/50 cursor-pointer';
-      document.getElementById('btn-mic-mute').classList.remove('hidden');
-      document.getElementById('voice-status-hint').textContent = '🎙️ 语音中';
-      document.getElementById('voice-status-hint').className = 'text-[11px] text-emerald-400 font-bold';
-      socket.emit('voice:join');
-    } catch (err) { alert('无法访问麦克风：' + err.message); }
-  }
-
-  function toggleMute() {
-    if (!localStream) return;
-    isMuted = !isMuted;
-    localStream.getAudioTracks().forEach(t => t.enabled = !isMuted);
-    document.getElementById('btn-mic-mute').textContent = isMuted ? '🔇 已静音' : '🔊 麦克风已开';
-  }
-
-  function stopVoice() {
-    if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
-    Object.keys(peerConnections).forEach(closePeerConnection);
-    document.getElementById('btn-voice-toggle').textContent = '🎙️ 加入语音';
-    document.getElementById('btn-voice-toggle').className = 'px-3 py-2 rounded text-xs font-bold bg-emerald-700/40 text-emerald-200 border border-emerald-500/50 cursor-pointer';
-    document.getElementById('btn-mic-mute').classList.add('hidden');
-    document.getElementById('voice-status-hint').textContent = '未连接语音';
-    document.getElementById('voice-status-hint').className = 'text-[11px] text-gray-400';
-  }
-
   function createRoom() {
+    const password = document.getElementById('cf-password').value;
+    lastUsedPassword = password;
     socket.emit('room:create', {
       nickname: document.getElementById('cf-nickname').value,
       faction: document.getElementById('cf-faction').value,
       role: document.getElementById('cf-role').value,
       title: document.getElementById('cf-title').value,
-      password: document.getElementById('cf-password').value,
-      isHidden: document.getElementById('cf-hidden').checked
+      password,
+      isHidden: document.getElementById('cf-hidden').checked,
+      clientId: myClientId
     });
   }
 
   function joinRoom(roomId, isLocked) {
-    let password = isLocked ? prompt('🔒 输入房间暗号：') : '';
-    if (isLocked && password === null) return;
-    socket.emit('room:join', { roomId, nickname: document.getElementById('cf-nickname').value || '热心队友', role: document.getElementById('cf-role').value, password });
+    if (isLocked) { openPwdModal(roomId); return; }
+    lastUsedPassword = '';
+    socket.emit('room:join', { roomId, nickname: document.getElementById('cf-nickname').value || '热心队友', role: document.getElementById('cf-role').value, password: '', clientId: myClientId });
   }
 
   function joinDirectRoom() {
-    socket.emit('room:join', {
-      roomId: document.getElementById('direct-room-id').value.trim(),
-      nickname: document.getElementById('cf-nickname').value || '神秘队友',
-      role: document.getElementById('cf-role').value,
-      password: document.getElementById('direct-room-pwd').value.trim()
-    });
+    const roomId = document.getElementById('direct-room-id').value.trim();
+    if (!roomId) { showToast('请输入6位房间号！', 'error'); return; }
+    const password = document.getElementById('direct-room-pwd').value.trim();
+    lastUsedPassword = password;
+    lastJoin = { roomId, nickname: document.getElementById('cf-nickname').value || '神秘队友', role: document.getElementById('cf-role').value || '⚔️ 输出', password };
+    socket.emit('room:join', { roomId, nickname: lastJoin.nickname, role: lastJoin.role, password, clientId: myClientId });
   }
 
   function kickMember(targetId, targetName) {
-    if (confirm(`确定要将「${targetName}」移出小队吗？`)) socket.emit('room:kick', { targetId });
+    openConfirmModal(`确定要将「${targetName}」移出小队吗？`, () => socket.emit('room:kick', { targetId }));
   }
 
   function copyInviteLink() {
     if (!currentRoomId) return;
-    const url = `${window.location.origin}/?room=${currentRoomId}`;
-    navigator.clipboard.writeText(`🔥 营火小队邀请：${currentRoomId}，直达链接：${url}`).then(() => alert('✅ 已复制邀请链接！'));
+    const url = currentRoomLocked && lastUsedPassword
+      ? `${window.location.origin}/?room=${currentRoomId}&pwd=${encodeURIComponent(lastUsedPassword)}`
+      : `${window.location.origin}/?room=${currentRoomId}`;
+    const inviteText = `🔥 营火小队邀请：${currentRoomId}，直达链接：${url}`;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(inviteText).then(() => showToast('✅ 已复制召唤链接！', 'success')).catch(() => {
+        const ta = document.createElement('textarea'); ta.value = inviteText; document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); showToast('✅ 已复制召唤链接！', 'success'); } catch (e) {}
+        ta.remove();
+      });
+    } else {
+      const ta = document.createElement('textarea'); ta.value = inviteText; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); showToast('✅ 已复制召唤链接！', 'success'); } catch (e) {}
+      ta.remove();
+    }
   }
 
   function leaveRoom() { socket.emit('room:leave'); }
@@ -625,74 +2804,134 @@
     if (input.value.trim()) { socket.emit('room:chat', { text: input.value.trim() }); input.value = ''; }
   }
 
+  document.getElementById('room-member-list').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-kick-id]');
+    if (!btn) return;
+    kickMember(btn.dataset.kickId, btn.dataset.kickName);
+  });
+
   function renderRoomDetail(room) {
-    const isMeLeader = (room.leaderId === socket.id);
+    const isMeLeader = (room.leaderId === myClientId);
     document.getElementById('room-lock-badge').textContent = room.isHidden ? '👻' : (room.isLocked ? '🔒' : '🔓');
     document.getElementById('room-title-display').textContent = room.title;
     document.getElementById('room-id-badge').textContent = `房间号: ${room.id}`;
-    document.getElementById('room-meta-display').textContent = `${room.isHidden ? '隐身' : (room.isLocked ? '加锁' : '公开')} · 队长：${room.leader}`;
+    document.getElementById('room-meta-display').textContent = `${room.isHidden ? '暗影隐身' : (room.isLocked ? '暗号加锁' : '公开招募')} · 团长：${room.leader}`;
     document.getElementById('room-member-count').textContent = room.members.length;
     document.getElementById('room-member-list').innerHTML = room.members.map(m => `
-        <div class="p-3 bg-[#0b0d13] border border-[#2e3446] rounded flex items-center justify-between gap-2">
-          <div class="flex items-center space-x-2">
-            <span class="font-bold text-amber-100 text-sm">${m.id === room.leaderId ? '👑 ' : ''}${escapeHtml(m.name)}</span>
-            ${m.inVoice ? '<span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/40 text-emerald-300">🎙️ 语音中</span>' : ''}
+        <div class="p-3 bg-[#080b12] border border-amber-500/20 rounded-xl flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2 min-w-0">
+            <span class="font-bold text-amber-100 text-sm truncate">${m.id === room.leaderId ? '👑 ' : '🛡️ '}${escapeHtml(m.name)}</span>
           </div>
-          <div class="flex items-center space-x-2">
-            <span class="text-xs px-2 py-0.5 rounded bg-[#1f2437] text-amber-300">${escapeHtml(m.role)}</span>
-            ${isMeLeader && m.id !== socket.id ? `<button onclick="kickMember('${m.id}', '${escapeHtml(m.name)}')" class="text-xs px-2 py-0.5 rounded bg-red-900/30 text-red-300 cursor-pointer">踢出</button>` : ''}
+          <div class="flex items-center gap-2 shrink-0">
+            <span class="text-xs px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-400/30 text-amber-200 font-medium">${escapeHtml(m.role)}</span>
+            ${isMeLeader && m.id !== myClientId ? `<button data-kick-id="${m.id}" data-kick-name="${escapeHtml(m.name)}" class="text-xs px-2.5 py-0.5 rounded-lg bg-red-950/60 border border-red-500/40 text-red-300 hover:bg-red-900/70 cursor-pointer transition">移出</button>` : ''}
           </div>
         </div>
       `).join('');
-  }
-
-  // 英雄名片绘制
-  function renderCard() {
-    const canvas = document.getElementById('heroCanvas');
-    const ctx = canvas.getContext('2d');
-    const name = document.getElementById('inp-name').value || '无名英雄';
-    const realm = document.getElementById('inp-realm').value || '服务器';
-    const faction = document.getElementById('inp-faction').value;
-    const race = document.getElementById('inp-race').value;
-    const [className, classColor] = document.getElementById('inp-class').value.split('|');
-    const motto = document.getElementById('inp-motto').value;
-
-    const bgGrad = ctx.createLinearGradient(0, 0, 800, 450);
-    bgGrad.addColorStop(0, faction === 'horde' ? '#2a0f12' : '#0f1d33');
-    bgGrad.addColorStop(1, '#0b0d13');
-    ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, 800, 450);
-
-    ctx.strokeStyle = '#9c7a44'; ctx.lineWidth = 4; ctx.strokeRect(18, 18, 764, 414);
-    ctx.fillStyle = '#a39274'; ctx.font = 'bold 15px sans-serif'; ctx.fillText('WORLD OF WARCRAFT : FOREVER · gamemate.fun', 48, 62);
-    ctx.fillStyle = classColor; ctx.font = 'bold 46px serif'; ctx.fillText(name, 48, 135);
-    ctx.fillStyle = '#fbbf24'; ctx.font = 'bold 18px sans-serif'; ctx.fillText(`Lv.60 | ${realm} | ${race} ${className}`, 48, 175);
-    ctx.fillStyle = 'rgba(0,0,0,0.45)'; ctx.fillRect(48, 220, 704, 70);
-    ctx.strokeStyle = '#3d3322'; ctx.strokeRect(48, 220, 704, 70);
-    ctx.fillStyle = '#d6c7b2'; ctx.font = 'italic 16px sans-serif'; ctx.fillText(`“ ${motto} ”`, 68, 262);
-    ctx.fillStyle = '#756650'; ctx.font = '13px sans-serif'; ctx.textAlign = 'right';
-    ctx.fillText('🔗 访问 gamemate.fun 获得专属名片', 752, 402);
-    ctx.textAlign = 'left';
-  }
-
-  function downloadCard() {
-    const link = document.createElement('a');
-    link.download = 'wow_forever_card.png';
-    link.href = document.getElementById('heroCanvas').toDataURL('image/png');
-    link.click();
   }
 
   function escapeHtml(str) {
     return String(str).replace(/[&<>"']/g, s => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[s]));
   }
 
-  window.onload = () => {
-    renderCard();
+  // --- 2.3 暗金 / 明亮 双主题切换（默认为明亮模式 light） ---
+  function setUiTheme(theme, silent = false) {
+    if (!THEME_NAMES[theme]) theme = 'light';
+    document.documentElement.setAttribute('data-theme', theme);
+    try { localStorage.setItem('gm-ui-theme', theme); } catch (e) {}
+    ['gold', 'light'].forEach(t => {
+      const btn = document.getElementById('theme-btn-' + t);
+      if (btn) btn.classList.toggle('active', t === theme);
+    });
+    if (!silent) showToast(`已切换为：${THEME_NAMES[theme]}`, 'info');
+  }
+
+  try {
+    const savedTheme = localStorage.getItem('gm-ui-theme');
+    setUiTheme((savedTheme && THEME_NAMES[savedTheme]) ? savedTheme : 'light', true);
+  } catch (e) {
+    setUiTheme('light', true);
+  }
+
+  function showToast(msg, type = 'info') {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+    const el = document.createElement('div');
+    const colors = type === 'error'
+      ? 'bg-red-950/95 border-red-500/60 text-red-100'
+      : type === 'success'
+        ? 'bg-emerald-950/95 border-emerald-500/60 text-emerald-100'
+        : 'bg-[#161e31]/95 border-amber-400/55 text-amber-100';
+    el.className = `pointer-events-auto px-4 py-3 rounded-xl border text-xs sm:text-sm font-medium backdrop-blur-md shadow-xl transition-all duration-200 ${colors}`;
+    el.textContent = msg;
+    container.appendChild(el);
+    setTimeout(() => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(-6px)';
+      setTimeout(() => el.remove(), 220);
+    }, 3000);
+  }
+
+  let pendingPwdRoomId = '';
+  function openPwdModal(roomId) {
+    pendingPwdRoomId = roomId;
+    const inp = document.getElementById('pwd-modal-input');
+    inp.value = '';
+    document.getElementById('pwd-modal').classList.remove('hidden');
+    setTimeout(() => inp.focus(), 50);
+  }
+  function closePwdModal() {
+    document.getElementById('pwd-modal').classList.add('hidden');
+    pendingPwdRoomId = '';
+  }
+  function submitPwdModal() {
+    const password = document.getElementById('pwd-modal-input').value;
+    const roomId = pendingPwdRoomId;
+    closePwdModal();
+    if (!roomId) return;
+    lastUsedPassword = password || '';
+    socket.emit('room:join', {
+      roomId,
+      nickname: document.getElementById('cf-nickname').value || '热心队友',
+      role: document.getElementById('cf-role').value,
+      password: lastUsedPassword,
+      clientId: myClientId
+    });
+  }
+  document.getElementById('pwd-modal').addEventListener('click', (e) => { if (e.target.id === 'pwd-modal') closePwdModal(); });
+  document.getElementById('pwd-modal-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') submitPwdModal(); });
+
+  let pendingConfirmCb = null;
+  function openConfirmModal(text, cb) {
+    pendingConfirmCb = cb;
+    document.getElementById('confirm-modal-text').textContent = text;
+    document.getElementById('confirm-modal').classList.remove('hidden');
+  }
+  function closeConfirmModal(ok) {
+    document.getElementById('confirm-modal').classList.add('hidden');
+    const cb = pendingConfirmCb;
+    pendingConfirmCb = null;
+    if (ok && cb) cb();
+  }
+  document.getElementById('confirm-modal').addEventListener('click', (e) => { if (e.target.id === 'confirm-modal') closeConfirmModal(false); });
+
+  window.onload = async () => {
     runSimulation();
+    await refreshMe();
+    if (IS_STANDALONE_PREVIEW) {
+      renderHomeRooms(lastLobbyRooms);
+      renderLobbyList(lastLobbyRooms);
+    }
     const params = new URLSearchParams(window.location.search);
     const roomParam = params.get('room');
+    const pwdParam = params.get('pwd');
     if (roomParam) {
       switchTab('campfire');
       document.getElementById('direct-room-id').value = roomParam.trim();
+      if (pwdParam) document.getElementById('direct-room-pwd').value = pwdParam;
+      joinDirectRoom();
+    } else {
+      switchTab('home');
     }
   };
 </script>
