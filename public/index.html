@@ -545,6 +545,30 @@
   <img id="img-lightbox-target" src="" alt="大图预览" onclick="event.stopPropagation()" class="max-w-[94vw] max-h-[90vh] object-contain rounded-2xl border border-amber-500/40 shadow-2xl cursor-default">
 </div>
 
+<!-- 装备 / 宠物宝宝 / 幻化 高清外观与属性检视弹窗 -->
+<div id="codex-inspect-modal" onclick="if(event.target.id==='codex-inspect-modal') closeCodexInspectModal()" class="hidden fixed inset-0 z-[88] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 gm-modal-backdrop">
+  <div class="gm-modal-panel max-w-xl w-full p-6 space-y-4 max-h-[88vh] overflow-y-auto">
+    <div class="flex items-start justify-between gap-3 border-b border-amber-500/20 pb-3">
+      <div class="space-y-1">
+        <div class="flex items-center gap-2">
+          <span id="codex-modal-badge" class="text-xs px-2.5 py-0.5 rounded-full q-legendary font-bold">传说神兵</span>
+          <span id="codex-modal-sub" class="text-xs font-mono text-gray-400">物品等级 639</span>
+        </div>
+        <h3 id="codex-modal-title" class="wow-serif text-xl font-black text-amber-100">装备/宠物名称</h3>
+      </div>
+      <button onclick="closeCodexInspectModal()" class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-amber-200 hover:bg-white/5 transition text-lg leading-none shrink-0 cursor-pointer">✕</button>
+    </div>
+    <!-- 高清 SVG 外观立绘展示框 -->
+    <div id="codex-modal-visual" class="w-full h-56 rounded-2xl bg-[#080b12] border border-amber-500/30 flex items-center justify-center overflow-hidden shadow-inner"></div>
+    <!-- 属性与技能面板 -->
+    <div id="codex-modal-stats" class="bg-[#080b12] border border-amber-500/20 rounded-xl p-4 space-y-2.5 text-sm"></div>
+    <div class="flex items-center justify-between pt-2 border-t border-amber-500/20">
+      <span id="codex-modal-source" class="text-xs text-gray-400">📍 获取来源：泽风岛团本</span>
+      <button onclick="closeCodexInspectModal()" class="px-5 py-2 gold-btn text-xs font-bold cursor-pointer">关闭图鉴</button>
+    </div>
+  </div>
+</div>
+
 <!-- 房间密码输入弹窗 -->
 <div id="pwd-modal" class="hidden fixed inset-0 z-[80] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 gm-modal-backdrop">
   <div class="gm-modal-panel max-w-sm w-full p-6 space-y-4">
@@ -932,8 +956,8 @@
       <button onclick="switchTab('guide')" id="tab-guide" class="gm-nav-btn">
         <span class="nav-icon-box">📜</span>
         <span class="min-w-0">
-          <span class="block nav-label">秘典与模拟</span>
-          <span class="block nav-sub">DPS推演与开荒指南</span>
+          <span class="block nav-label">秘典·装备·宠物</span>
+          <span class="block nav-sub">模拟配装·神兵与宝宝库</span>
         </span>
       </button>
 
@@ -1003,7 +1027,9 @@
           </p>
           <div class="flex flex-wrap items-center gap-2.5 pt-1">
             <button onclick="switchTab('campfire')" class="px-4 py-2 text-xs sm:text-sm gold-btn cursor-pointer">🔥 点燃 / 加入营火</button>
-            <button onclick="switchTab('guide')" class="px-3.5 py-2 text-xs sm:text-sm ghost-btn cursor-pointer">⚡ DPS 模拟</button>
+            <button onclick="switchTab('guide'); switchGuideSubView('sim')" class="px-3.5 py-2 text-xs sm:text-sm ghost-btn cursor-pointer">⚡ DPS配装与幻化</button>
+            <button onclick="switchTab('guide'); switchGuideSubView('armory')" class="px-3.5 py-2 text-xs sm:text-sm ghost-btn cursor-pointer">🗡️ 神兵装备库</button>
+            <button onclick="switchTab('guide'); switchGuideSubView('pets')" class="px-3.5 py-2 text-xs sm:text-sm ghost-btn cursor-pointer">🐉 宠物与宝宝库</button>
             <button onclick="switchTab('forum')" class="px-3.5 py-2 text-xs sm:text-sm ghost-btn cursor-pointer">🍺 逛酒馆</button>
           </div>
         </div>
@@ -1165,28 +1191,28 @@
               </label>
             </div>
           </div>
-          <button onclick="createRoom()" class="w-full py-3 text-sm gold-btn cursor-pointer mt-1">🔥 点燃营火并建队</button>
+          <button onclick="createRoom()" class="w-full py-2.5 text-sm gold-btn cursor-pointer mt-1">🔥 创建营火房间</button>
         </div>
 
         <div class="epic-panel p-5 space-y-3">
-          <h3 class="wow-serif text-base text-amber-300 font-bold">🔑 召唤石定向传送</h3>
+          <h3 class="wow-serif text-base text-amber-300 font-bold">🔑 房间号定向加入</h3>
           <div class="grid grid-cols-2 gap-2.5 text-sm">
-            <input type="text" id="direct-room-id" placeholder="6位房间号" maxlength="10" class="px-3 py-2 font-mono uppercase">
-            <input type="password" id="direct-room-pwd" placeholder="密码（选填）" maxlength="16" class="px-3 py-2">
+            <input type="text" id="direct-room-id" placeholder="6位房间号" maxlength="10" class="px-3.5 py-2 font-mono">
+            <input type="password" id="direct-room-pwd" placeholder="暗号（选填）" maxlength="16" class="px-3.5 py-2">
           </div>
-          <button onclick="joinDirectRoom()" class="w-full py-2.5 text-xs ghost-btn cursor-pointer">🚀 接受召唤进组</button>
+          <button onclick="joinDirectRoom()" class="w-full py-2 text-xs font-bold ghost-btn cursor-pointer">🚀 定向传送进组</button>
         </div>
       </div>
 
-      <div class="lg:col-span-8 xl:col-span-9 epic-panel p-5 sm:p-6 min-h-[580px] flex flex-col">
+      <div class="lg:col-span-8 xl:col-span-9 epic-panel p-5 sm:p-6 min-h-[520px] flex flex-col">
         <div class="flex items-center justify-between border-b border-amber-500/20 pb-3.5 mb-4">
           <div>
-            <h2 class="wow-serif text-xl text-amber-300 font-bold">⚔️ 艾泽拉斯集合石大厅</h2>
-            <p class="text-xs text-gray-400 mt-1">实时同步当前正在招募的公开小队</p>
+            <h2 class="wow-serif text-xl text-amber-300 font-bold">集合石 · 实时公开营火大厅</h2>
+            <p class="text-xs text-gray-400 mt-1">与全服冒险者组队开荒泽风岛精英任务与地下城</p>
           </div>
-          <span id="cf-room-count" class="text-xs px-3 py-1 rounded-full q-legendary font-bold">0 个公开房间</span>
+          <span id="cf-room-count" class="text-xs px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/35 text-amber-300 font-medium">0 个公开房间</span>
         </div>
-        <div id="cf-room-list" class="grid grid-cols-1 2xl:grid-cols-2 gap-3.5 content-start flex-1"></div>
+        <div id="cf-room-list" class="space-y-3 flex-1"></div>
       </div>
     </div>
 
@@ -1194,298 +1220,369 @@
     <div id="campfire-room" class="hidden epic-panel p-5 sm:p-6 space-y-6 flex-1 flex flex-col">
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-amber-500/20 pb-4">
         <div class="flex items-center gap-3.5">
-          <div class="w-12 h-12 rounded-xl bg-[#080b12] border border-amber-500/35 flex items-center justify-center text-2xl shrink-0" id="room-lock-badge">🔒</div>
+          <div class="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-400/40 flex items-center justify-center text-2xl shrink-0" id="room-lock-badge">🔒</div>
           <div>
             <div class="flex flex-wrap items-center gap-2">
-              <h2 id="room-title-display" class="wow-serif text-xl text-amber-200 font-bold">房间标题</h2>
-              <span id="room-id-badge" class="text-xs font-mono px-2.5 py-0.5 rounded-md bg-[#080b12] border border-amber-400/50 text-amber-300 font-bold">ID: ------</span>
+              <h2 id="room-title-display" class="wow-serif text-xl text-amber-300 font-bold">房间标题</h2>
+              <span id="room-id-badge" class="text-xs font-mono px-2.5 py-0.5 rounded-md bg-[#080b12] border border-amber-500/30 text-amber-300">ID: ------</span>
             </div>
             <p id="room-meta-display" class="text-xs text-gray-400 mt-1">房间状态信息</p>
           </div>
         </div>
-        <div class="flex flex-wrap items-center gap-2.5">
-          <button onclick="copyInviteLink()" class="px-4 py-2 text-xs gold-btn cursor-pointer">📋 复制召唤链接</button>
-          <button onclick="leaveRoom()" class="px-4 py-2 rounded-xl border border-red-500/45 bg-red-500/15 text-red-300 hover:bg-red-500/25 text-xs font-bold transition cursor-pointer">🚪 离开小队</button>
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="copyInviteLink()" class="px-3.5 py-2 text-xs gold-btn cursor-pointer">📋 复制召唤链接</button>
+          <button onclick="leaveRoom()" class="px-3.5 py-2 rounded-xl border border-red-500/45 bg-red-500/10 text-red-300 hover:bg-red-500/20 text-xs font-bold transition cursor-pointer">🚪 离开营火</button>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div class="lg:col-span-5 space-y-3">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1">
+        <div class="lg:col-span-5 space-y-3 flex flex-col">
           <div class="flex items-center justify-between">
-            <h3 class="text-sm font-bold text-amber-300">👥 远征小队成员 (<span id="room-member-count">1</span>/5)</h3>
-            <span class="inline-flex items-center gap-1.5 text-[11px] text-emerald-500"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>营火燃烧中</span>
+            <h3 class="text-sm font-bold text-amber-300">👥 小队集结成员 (<span id="room-member-count">1</span>/5)</h3>
+            <span class="inline-flex items-center gap-1.5 text-[11px] text-emerald-400"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>房间连线正常</span>
           </div>
-          <div id="room-member-list" class="space-y-2.5"></div>
+          <div id="room-member-list" class="space-y-2.5 flex-1"></div>
         </div>
 
-        <div class="lg:col-span-7 flex flex-col bg-[#080b12] border border-amber-500/25 rounded-xl p-4 h-[370px] shadow-inner">
-          <div class="text-xs text-amber-200/80 pb-2.5 mb-2.5 border-b border-amber-500/15 flex items-center justify-between">
-            <span class="font-semibold">💬 [小队频道] 战术沟通</span>
-            <span class="text-[11px] text-gray-500">Enter 发送</span>
+        <div class="lg:col-span-7 flex flex-col bg-[#080b12] border border-amber-500/20 rounded-2xl p-4 h-[380px] lg:h-full">
+          <div class="text-xs text-gray-400 pb-2 mb-2 border-b border-amber-500/15 flex items-center justify-between">
+            <span>💬 小队加密频道</span>
+            <span class="text-[11px] text-gray-500">按 Enter 发送</span>
           </div>
           <div id="room-chat-box" class="flex-1 overflow-y-auto space-y-2 text-sm pr-1"></div>
           <div class="mt-3 flex gap-2">
-            <input type="text" id="room-chat-input" placeholder="向小队发送消息..." onkeydown="if(event.key==='Enter') sendRoomChat()" class="flex-1 px-3.5 py-2 text-sm">
-            <button onclick="sendRoomChat()" class="px-4 py-2 text-sm gold-btn cursor-pointer">发送</button>
+            <input type="text" id="room-chat-input" placeholder="输入作战密语..." onkeydown="if(event.key==='Enter') sendRoomChat()" class="flex-1 px-3.5 py-2 text-sm">
+            <button onclick="sendRoomChat()" class="px-5 py-2 text-sm gold-btn cursor-pointer">发送</button>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 3. 英雄秘典与数据模拟模块（全功能实战级工作台） -->
+  <!-- 3. 英雄秘典与收藏库模块（DPS模拟器 + 毕业配装与幻化 + 神兵装备库 + 宠物宝宝库） -->
   <section id="sec-guide" class="hidden flex-1 flex flex-col">
     <div class="epic-panel p-5 sm:p-6 space-y-6 flex-1 flex flex-col">
-      <!-- 顶部标题与毕业预设一键导入栏 -->
+      <!-- 顶部标题与三大核心子模块切换栏 -->
       <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4 border-b border-amber-500/20 pb-4">
         <div>
           <div class="flex items-center gap-2.5">
-            <h2 class="wow-serif text-xl text-amber-300 font-bold">📜 泽风岛英雄秘典与战术模拟器</h2>
-            <span class="text-[11px] wow-en px-2.5 py-0.5 rounded-full q-rare font-bold">SIMCRAFT ENGINE v3.2</span>
+            <h2 class="wow-serif text-xl text-amber-300 font-bold">📜 泽风岛英雄秘典与图鉴收藏库</h2>
+            <span class="text-[11px] wow-en px-2.5 py-0.5 rounded-full q-rare font-bold">CODEX & ARMORY v4.0</span>
           </div>
-          <p class="text-xs text-gray-400 mt-1">支持 13 大主流专精属性收益模型、边际递减(DR)推演、Pawn 权重生成、首领机制手册与云端配装分享</p>
+          <p class="text-xs text-gray-400 mt-1">集专精 DPS 模拟、毕业装备搭配与幻化推荐、神兵外观装备库、猎人宝宝与战宠坐骑图鉴为一体的战术宝典</p>
         </div>
-        <div class="flex flex-wrap items-center gap-2">
-          <span class="text-xs text-gray-400">快速套用模板：</span>
-          <button onclick="applyPresetTier('fresh')" class="px-3 py-1.5 rounded-lg text-xs ghost-btn cursor-pointer">🛡️ 开荒起步 (615装等)</button>
-          <button onclick="applyPresetTier('heroic')" class="px-3 py-1.5 rounded-lg text-xs ghost-btn cursor-pointer">⚔️ 英雄进阶 (626装等)</button>
-          <button onclick="applyPresetTier('mythic')" class="px-3 py-1.5 rounded-lg text-xs gold-btn cursor-pointer">👑 史诗毕业 (639装等)</button>
+
+        <!-- 三大子视图切换按钮组 -->
+        <div class="flex flex-wrap items-center gap-2 bg-[#080b12] p-1.5 rounded-xl border border-amber-500/30">
+          <button onclick="switchGuideSubView('sim')" id="guide-tab-sim" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-bold gold-btn cursor-pointer transition">⚡ DPS模拟·配装·幻化</button>
+          <button onclick="switchGuideSubView('armory')" id="guide-tab-armory" class="px-4 py-2 rounded-lg text-xs sm:text-sm ghost-btn cursor-pointer transition">🗡️ 神兵装备库 (外观)</button>
+          <button onclick="switchGuideSubView('pets')" id="guide-tab-pets" class="px-4 py-2 rounded-lg text-xs sm:text-sm ghost-btn cursor-pointer transition">🐉 宠物与宝宝库 (属性)</button>
         </div>
       </div>
 
-      <!-- 主体双栏工作区：左侧 7 列深度模拟器 + 右侧 5 列首领秘典与云端配装库 -->
-      <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start flex-1">
+      <!-- ==================== 子视图 1：DPS模拟器 + 专精毕业配装 + 外观幻化推荐 ==================== -->
+      <div id="guide-view-sim" class="space-y-6 flex-1 flex flex-col">
+        <div class="flex flex-wrap items-center justify-between gap-2 bg-[#080b12] px-4 py-2.5 rounded-xl border border-amber-500/20">
+          <span class="text-xs text-gray-300 font-medium">🎯 快速套用全身装等属性模板：</span>
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="applyPresetTier('fresh')" class="px-3 py-1 rounded-lg text-xs ghost-btn cursor-pointer">🛡️ 开荒起步 (615装等)</button>
+            <button onclick="applyPresetTier('heroic')" class="px-3 py-1 rounded-lg text-xs ghost-btn cursor-pointer">⚔️ 英雄进阶 (626装等)</button>
+            <button onclick="applyPresetTier('mythic')" class="px-3 py-1 rounded-lg text-xs gold-btn cursor-pointer">👑 史诗毕业 (639装等)</button>
+          </div>
+        </div>
 
-        <!-- 左侧 7 列：专精属性模拟与边际收益分析台 -->
-        <div class="xl:col-span-7 space-y-5">
+        <!-- 主体双栏工作区：左侧 7 列深度模拟器 + 右侧 5 列首领秘典与云端配装库 -->
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
 
-          <!-- 1. 专精选择、装等与战斗环境配置 -->
-          <div class="bg-[#080b12] p-5 rounded-xl border border-amber-500/25 space-y-4">
+          <!-- 左侧 7 列：专精属性模拟与边际收益分析台 -->
+          <div class="xl:col-span-7 space-y-5">
+
+            <!-- 1. 专精选择、装等与战斗环境配置 -->
+            <div class="bg-[#080b12] p-5 rounded-xl border border-amber-500/25 space-y-4">
+              <div class="flex flex-wrap items-center justify-between gap-2 border-b border-amber-500/15 pb-3">
+                <h3 class="text-sm font-bold text-amber-300 flex items-center gap-2">
+                  <span>🎯 第一步：选择职业专精与战斗环境</span>
+                </h3>
+                <span id="sim-spec-recommend" class="text-xs px-2.5 py-0.5 rounded-full q-epic font-semibold">推荐属性：暴击 > 精通 > 急速</span>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 text-sm">
+                <div>
+                  <label class="block text-gray-400 text-xs mb-1.5">职业与专精模型</label>
+                  <select id="sim-spec" onchange="onSpecChange()" class="w-full px-3 py-2 font-semibold">
+                    <option value="ret_paladin">⚔️ 惩戒圣骑士 (力量)</option>
+                    <option value="fury_warrior">🪓 狂暴战士 (力量)</option>
+                    <option value="frost_dk">❄️ 冰霜死亡骑士 (力量)</option>
+                    <option value="fire_mage">🔥 火焰法师 (智力)</option>
+                    <option value="arcane_mage">🔮 奥术法师 (智力)</option>
+                    <option value="destro_warlock">☄️ 毁灭术士 (智力)</option>
+                    <option value="shadow_priest">🌑 暗影牧师 (智力)</option>
+                    <option value="ele_shaman">⚡ 元素萨满 (智力)</option>
+                    <option value="balance_druid">🌙 平衡德鲁伊 (智力)</option>
+                    <option value="bm_hunter">🏹 野兽控制猎人 (敏捷)</option>
+                    <option value="mm_hunter">🎯 射击猎人 (敏捷)</option>
+                    <option value="havoc_dh">🦅 浩劫恶魔猎手 (敏捷)</option>
+                    <option value="assa_rogue">🗡️ 奇袭潜行者 (敏捷)</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-gray-400 text-xs mb-1.5">平均物品等级 (iLvl)</label>
+                  <input type="number" id="sim-ilvl" value="626" min="550" max="700" oninput="onIlvlChange()" class="w-full px-3 py-2 font-mono font-bold text-amber-200">
+                </div>
+                <div>
+                  <label class="block text-gray-400 text-xs mb-1.5">战斗目标场景</label>
+                  <select id="sim-fight-type" onchange="runSimulation()" class="w-full px-3 py-2">
+                    <option value="single">🎯 团本纯单体木桩 (1目标)</option>
+                    <option value="cleave">⚔️ 双目标顺劈战 (2目标)</option>
+                    <option value="mythic_aoe">🔥 大秘境 AOE 波次 (5目标)</option>
+                    <option value="heavy_move">🏃 高频跑位机制战 (移动损益)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- 团队增益与药水开关 -->
+              <div class="pt-1">
+                <div class="text-xs text-gray-400 mb-2">🧪 团队 Buff 与爆发覆盖设置：</div>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+                  <label class="loot-card px-3 py-2 flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" id="sim-buff-lust" checked onchange="runSimulation()" class="accent-amber-500">
+                    <span>🩸 嗜血/英勇 (+30%急速)</span>
+                  </label>
+                  <label class="loot-card px-3 py-2 flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" id="sim-buff-flask" checked onchange="runSimulation()" class="accent-amber-500">
+                    <span>🧪 淬火合剂与大餐</span>
+                  </label>
+                  <label class="loot-card px-3 py-2 flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" id="sim-buff-raid" checked onchange="runSimulation()" class="accent-amber-500">
+                    <span>🛡️ 满团增益 (攻强/智力/全能)</span>
+                  </label>
+                  <label class="loot-card px-3 py-2 flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" id="sim-buff-tier4" checked onchange="runSimulation()" class="accent-amber-500">
+                    <span>✨ 泽风岛 4件套激活</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. 角色详细面板输入 -->
+            <div class="bg-[#080b12] p-5 rounded-xl border border-amber-500/25 space-y-4">
+              <div class="flex items-center justify-between border-b border-amber-500/15 pb-3">
+                <h3 class="text-sm font-bold text-amber-300">⚡ 第二步：调校角色属性面板</h3>
+                <span id="sim-dr-warning" class="text-[11px] text-emerald-500 font-semibold">● 绿字未触发严重递减</span>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-5 gap-3 text-sm">
+                <div class="bg-[#101624] p-3 rounded-xl border border-amber-500/25">
+                  <div class="flex justify-between text-xs mb-1">
+                    <span class="text-amber-200 font-semibold">主属性</span>
+                    <span class="text-amber-500 font-mono text-[10px]">MAIN</span>
+                  </div>
+                  <input type="number" id="sim-main-stat" value="1420" min="100" max="9999" oninput="runSimulation()" class="w-full px-2.5 py-1.5 font-mono font-bold text-amber-100">
+                  <input type="range" min="600" max="2600" step="10" value="1420" oninput="document.getElementById('sim-main-stat').value=this.value;runSimulation()" id="slider-main" class="w-full mt-2 accent-amber-500 h-1.5 cursor-pointer">
+                </div>
+
+                <div class="bg-[#101624] p-3 rounded-xl border border-rose-500/25">
+                  <div class="flex justify-between text-xs mb-1">
+                    <span class="text-rose-500 font-semibold">暴击 (%)</span>
+                    <span class="text-rose-500 font-mono text-[10px]">CRIT</span>
+                  </div>
+                  <input type="number" id="sim-crit" value="35" min="5" max="85" step="0.5" oninput="runSimulation()" class="w-full px-2.5 py-1.5 font-mono font-bold">
+                  <input type="range" min="5" max="70" step="0.5" value="35" oninput="document.getElementById('sim-crit').value=this.value;runSimulation()" id="slider-crit" class="w-full mt-2 accent-rose-500 h-1.5 cursor-pointer">
+                </div>
+
+                <div class="bg-[#101624] p-3 rounded-xl border border-sky-500/25">
+                  <div class="flex justify-between text-xs mb-1">
+                    <span class="text-sky-500 font-semibold">急速 (%)</span>
+                    <span class="text-sky-500 font-mono text-[10px]">HASTE</span>
+                  </div>
+                  <input type="number" id="sim-haste" value="22" min="0" max="85" step="0.5" oninput="runSimulation()" class="w-full px-2.5 py-1.5 font-mono font-bold">
+                  <input type="range" min="0" max="65" step="0.5" value="22" oninput="document.getElementById('sim-haste').value=this.value;runSimulation()" id="slider-haste" class="w-full mt-2 accent-sky-500 h-1.5 cursor-pointer">
+                </div>
+
+                <div class="bg-[#101624] p-3 rounded-xl border border-purple-500/25">
+                  <div class="flex justify-between text-xs mb-1">
+                    <span class="text-purple-500 font-semibold">精通 (%)</span>
+                    <span class="text-purple-500 font-mono text-[10px]">MAST</span>
+                  </div>
+                  <input type="number" id="sim-mastery" value="34" min="5" max="100" step="0.5" oninput="runSimulation()" class="w-full px-2.5 py-1.5 font-mono font-bold">
+                  <input type="range" min="5" max="80" step="0.5" value="34" oninput="document.getElementById('sim-mastery').value=this.value;runSimulation()" id="slider-mastery" class="w-full mt-2 accent-purple-500 h-1.5 cursor-pointer">
+                </div>
+
+                <div class="bg-[#101624] p-3 rounded-xl border border-emerald-500/25">
+                  <div class="flex justify-between text-xs mb-1">
+                    <span class="text-emerald-500 font-semibold">全能 (%)</span>
+                    <span class="text-emerald-500 font-mono text-[10px]">VERS</span>
+                  </div>
+                  <input type="number" id="sim-vers" value="10" min="0" max="60" step="0.5" oninput="runSimulation()" class="w-full px-2.5 py-1.5 font-mono font-bold">
+                  <input type="range" min="0" max="45" step="0.5" value="10" oninput="document.getElementById('sim-vers').value=this.value;runSimulation()" id="slider-vers" class="w-full mt-2 accent-emerald-500 h-1.5 cursor-pointer">
+                </div>
+              </div>
+
+              <!-- 绿字能量占比条 -->
+              <div class="space-y-1.5">
+                <div class="flex justify-between text-[11px] text-gray-400">
+                  <span>当前绿字池分配比例</span>
+                  <span id="sim-stat-summary" class="font-mono text-amber-300/90">暴击 35% · 急速 22% · 精通 34% · 全能 10%</span>
+                </div>
+                <div class="h-2.5 w-full rounded-full bg-black/20 overflow-hidden flex p-0.5 gap-0.5 border border-amber-500/20">
+                  <div id="bar-crit" class="h-full bg-gradient-to-r from-rose-600 to-rose-400 rounded-l-full transition-all duration-300" style="width: 35%"></div>
+                  <div id="bar-haste" class="h-full bg-gradient-to-r from-sky-600 to-sky-400 transition-all duration-300" style="width: 22%"></div>
+                  <div id="bar-mastery" class="h-full bg-gradient-to-r from-purple-600 to-purple-400 transition-all duration-300" style="width: 33%"></div>
+                  <div id="bar-vers" class="h-full bg-gradient-to-r from-emerald-600 to-emerald-400 rounded-r-full transition-all duration-300" style="width: 10%"></div>
+                </div>
+              </div>
+
+              <!-- 核心模拟结果仪表盘 -->
+              <div class="p-4 sm:p-5 rounded-xl bg-gradient-to-r from-amber-500/15 via-transparent to-amber-500/10 border border-amber-400/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="space-y-1">
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs text-amber-200 font-bold">⚔️ 模拟战斗循环秒伤 (Simulated DPS)</span>
+                    <span id="sim-gcd-pill" class="text-[11px] font-mono px-2 py-0.5 rounded bg-sky-500/15 border border-sky-400/30 text-sky-400">GCD: 1.23s</span>
+                  </div>
+                  <p id="sim-diagnosis-text" class="text-xs text-gray-300">当前属性结构均衡，继续提升精通或暴击可获得最高边际收益。</p>
+                </div>
+                <div class="text-left sm:text-right shrink-0">
+                  <div id="sim-result-dps" class="wow-en text-2xl sm:text-3xl font-black text-amber-300">42,680 DPS</div>
+                  <div id="sim-burst-dps" class="text-[11px] font-mono text-amber-300/80 mt-0.5">🔥 起手嗜血峰值：68,290 DPS</div>
+                </div>
+              </div>
+
+              <!-- 3. 边际收益权重 (Pawn) + 技能伤害占比构成 -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+                <div class="loot-card p-4 space-y-2.5">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-amber-300">⚖️ 单点属性边际收益 (每 +1% 提升)</span>
+                    <button onclick="copyPawnString()" class="text-[11px] px-2 py-0.5 rounded ghost-btn cursor-pointer" title="复制 Pawn 插件导入字符串">📋 复制 Pawn</button>
+                  </div>
+                  <div id="sim-weights-box" class="space-y-2 text-xs"></div>
+                </div>
+
+                <div class="loot-card p-4 space-y-2.5">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-amber-300">📊 模拟技能伤害占比 Breakdown</span>
+                    <span class="text-[11px] text-gray-400 font-mono">Top 4 技能</span>
+                  </div>
+                  <div id="sim-breakdown-box" class="space-y-2 text-xs"></div>
+                </div>
+              </div>
+
+              <!-- 4. 保存当前配装方案到云端 -->
+              <div class="pt-2 border-t border-amber-500/15 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+                <input type="text" id="sim-build-title" placeholder="给这套配装起个名字（如：泽风岛4件套大秘境暴击流）..." maxlength="36" class="flex-1 px-3.5 py-2 text-xs">
+                <button onclick="saveCurrentSimBuild()" class="px-4 py-2 text-xs gold-btn cursor-pointer shrink-0">💾 保存配装到云端榜</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 右侧 5 列：泽风岛首领秘典手册 + 云端配装榜 + 社区攻略帖 -->
+          <div class="xl:col-span-5 space-y-5 flex flex-col">
+
+            <!-- A. 泽风岛团本首领机制速查卡 -->
+            <div class="bg-[#080b12] p-5 rounded-xl border border-amber-500/25 space-y-3.5">
+              <div class="flex items-center justify-between border-b border-amber-500/15 pb-3">
+                <div>
+                  <h3 class="text-sm font-bold text-amber-300">🐉 泽风岛团本 · 首领战术速查手册</h3>
+                  <p class="text-[11px] text-gray-400 mt-0.5">开荒前 30 秒速看坦克/治疗/输出核心要点</p>
+                </div>
+                <span class="text-[11px] px-2 py-0.5 rounded-full q-legendary font-bold">战术卡</span>
+              </div>
+
+              <div id="boss-nav-tabs" class="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                <button onclick="selectBossGuide(0)" data-boss-idx="0" class="px-2.5 py-1.5 rounded-lg text-xs font-bold gold-btn cursor-pointer truncate">1号·风暴领主</button>
+                <button onclick="selectBossGuide(1)" data-boss-idx="1" class="px-2.5 py-1.5 rounded-lg text-xs ghost-btn cursor-pointer truncate">2号·熔核巨像</button>
+                <button onclick="selectBossGuide(2)" data-boss-idx="2" class="px-2.5 py-1.5 rounded-lg text-xs ghost-btn cursor-pointer truncate">3号·潮汐女祭司</button>
+                <button onclick="selectBossGuide(3)" data-boss-idx="3" class="px-2.5 py-1.5 rounded-lg text-xs ghost-btn cursor-pointer truncate">4号·虚空大君</button>
+              </div>
+
+              <div id="boss-guide-card" class="loot-card p-4 space-y-3 text-xs"></div>
+            </div>
+
+            <!-- B. 云端高玩配装方案榜 -->
+            <div class="bg-[#080b12] p-5 rounded-xl border border-amber-500/25 space-y-3">
+              <div class="flex items-center justify-between border-b border-amber-500/15 pb-2.5">
+                <div>
+                  <h3 class="text-sm font-bold text-amber-300">🏆 营地云端配装档案库</h3>
+                  <p class="text-[11px] text-gray-400 mt-0.5">点击任意方案可一键载入到左侧模拟器对比</p>
+                </div>
+                <button onclick="loadSimBuilds()" class="text-xs text-amber-300 hover:underline cursor-pointer">刷新 ↻</button>
+              </div>
+              <div id="sim-builds-list" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
+            </div>
+
+            <!-- C. 酒馆攻略心得精选 -->
+            <div class="bg-[#080b12] p-5 rounded-xl border border-amber-500/25 space-y-3 text-sm flex-1 flex flex-col">
+              <div class="flex items-center justify-between border-b border-amber-500/15 pb-2.5">
+                <h3 class="text-sm font-bold text-amber-300">🗺️ 社区详细攻略帖</h3>
+                <button onclick="switchTab('forum')" class="text-xs text-amber-300 hover:underline cursor-pointer font-medium">去发攻略 →</button>
+              </div>
+              <div id="guide-posts-list" class="space-y-2 flex-1"></div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 第三步（新增核心功能 1）：当前专精毕业装备搭配推荐 (BiS) & 主题外观幻化推荐 -->
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 pt-2">
+          <!-- 左 7 列：当前专精毕业装备搭配推荐 (BiS Gear) -->
+          <div class="xl:col-span-7 bg-[#080b12] p-5 rounded-xl border border-amber-500/25 space-y-4">
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-amber-500/15 pb-3">
-              <h3 class="text-sm font-bold text-amber-300 flex items-center gap-2">
-                <span>🎯 第一步：选择职业专精与战斗环境</span>
-              </h3>
-              <span id="sim-spec-recommend" class="text-xs px-2.5 py-0.5 rounded-full q-epic font-semibold">推荐属性：暴击 > 精通 > 急速</span>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 text-sm">
               <div>
-                <label class="block text-gray-400 text-xs mb-1.5">职业与专精模型</label>
-                <select id="sim-spec" onchange="onSpecChange()" class="w-full px-3 py-2 font-semibold">
-                  <option value="ret_paladin">⚔️ 惩戒圣骑士 (力量)</option>
-                  <option value="fury_warrior">🪓 狂暴战士 (力量)</option>
-                  <option value="frost_dk">❄️ 冰霜死亡骑士 (力量)</option>
-                  <option value="fire_mage">🔥 火焰法师 (智力)</option>
-                  <option value="arcane_mage">🔮 奥术法师 (智力)</option>
-                  <option value="destro_warlock">☄️ 毁灭术士 (智力)</option>
-                  <option value="shadow_priest">🌑 暗影牧师 (智力)</option>
-                  <option value="ele_shaman">⚡ 元素萨满 (智力)</option>
-                  <option value="balance_druid">🌙 平衡德鲁伊 (智力)</option>
-                  <option value="bm_hunter">🏹 野兽控制猎人 (敏捷)</option>
-                  <option value="mm_hunter">🎯 射击猎人 (敏捷)</option>
-                  <option value="havoc_dh">🦅 浩劫恶魔猎手 (敏捷)</option>
-                  <option value="assa_rogue">🗡️ 奇袭潜行者 (敏捷)</option>
-                </select>
+                <h3 class="text-sm font-bold text-amber-300 flex items-center gap-2">
+                  <span>🛡️ 第三步：当前专精毕业装备搭配推荐 (BiS Gear)</span>
+                  <span id="bis-spec-badge" class="text-[11px] px-2.5 py-0.5 rounded-full q-legendary font-bold">⚔️ 惩戒圣骑士</span>
+                </h3>
+                <p class="text-xs text-gray-400 mt-0.5">切换上方专精自动更新 6 大核心部位毕业装、制造业美化与附魔宝石建议（点击装备可检视外观）</p>
               </div>
-              <div>
-                <label class="block text-gray-400 text-xs mb-1.5">平均物品等级 (iLvl)</label>
-                <input type="number" id="sim-ilvl" value="626" min="550" max="700" oninput="onIlvlChange()" class="w-full px-3 py-2 font-mono font-bold text-amber-200">
-              </div>
-              <div>
-                <label class="block text-gray-400 text-xs mb-1.5">战斗目标场景</label>
-                <select id="sim-fight-type" onchange="runSimulation()" class="w-full px-3 py-2">
-                  <option value="single">🎯 团本纯单体木桩 (1目标)</option>
-                  <option value="cleave">⚔️ 双目标顺劈战 (2目标)</option>
-                  <option value="mythic_aoe">🔥 大秘境 AOE 波次 (5目标)</option>
-                  <option value="heavy_move">🏃 高频跑位机制战 (移动损益)</option>
-                </select>
-              </div>
+              <button onclick="switchGuideSubView('armory')" class="text-xs text-amber-300 hover:underline cursor-pointer">前往神兵装备库 →</button>
             </div>
-
-            <!-- 团队增益与药水开关 -->
-            <div class="pt-1">
-              <div class="text-xs text-gray-400 mb-2">🧪 团队 Buff 与爆发覆盖设置：</div>
-              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
-                <label class="loot-card px-3 py-2 flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" id="sim-buff-lust" checked onchange="runSimulation()" class="accent-amber-500">
-                  <span>🩸 嗜血/英勇 (+30%急速)</span>
-                </label>
-                <label class="loot-card px-3 py-2 flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" id="sim-buff-flask" checked onchange="runSimulation()" class="accent-amber-500">
-                  <span>🧪 淬火合剂与大餐</span>
-                </label>
-                <label class="loot-card px-3 py-2 flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" id="sim-buff-raid" checked onchange="runSimulation()" class="accent-amber-500">
-                  <span>🛡️ 满团增益 (攻强/智力/全能)</span>
-                </label>
-                <label class="loot-card px-3 py-2 flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" id="sim-buff-tier4" checked onchange="runSimulation()" class="accent-amber-500">
-                  <span>✨ 泽风岛 4件套激活</span>
-                </label>
-              </div>
-            </div>
+            <div id="spec-bis-gear-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+            <div id="spec-enchant-gem-bar" class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-400/30 text-xs text-gray-200 flex flex-wrap items-center justify-between gap-2"></div>
           </div>
 
-          <!-- 2. 角色详细面板输入（支持滑块微调 + 数字输入） -->
-          <div class="bg-[#080b12] p-5 rounded-xl border border-amber-500/25 space-y-4">
-            <div class="flex items-center justify-between border-b border-amber-500/15 pb-3">
-              <h3 class="text-sm font-bold text-amber-300">⚡ 第二步：调校角色属性面板</h3>
-              <span id="sim-dr-warning" class="text-[11px] text-emerald-500 font-semibold">● 绿字未触发严重递减</span>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-5 gap-3 text-sm">
-              <div class="bg-[#101624] p-3 rounded-xl border border-amber-500/25">
-                <div class="flex justify-between text-xs mb-1">
-                  <span class="text-amber-200 font-semibold">主属性</span>
-                  <span class="text-amber-500 font-mono text-[10px]">MAIN</span>
-                </div>
-                <input type="number" id="sim-main-stat" value="1420" min="100" max="9999" oninput="runSimulation()" class="w-full px-2.5 py-1.5 font-mono font-bold text-amber-100">
-                <input type="range" min="600" max="2600" step="10" value="1420" oninput="document.getElementById('sim-main-stat').value=this.value;runSimulation()" id="slider-main" class="w-full mt-2 accent-amber-500 h-1.5 cursor-pointer">
-              </div>
-
-              <div class="bg-[#101624] p-3 rounded-xl border border-rose-500/25">
-                <div class="flex justify-between text-xs mb-1">
-                  <span class="text-rose-500 font-semibold">暴击 (%)</span>
-                  <span class="text-rose-500 font-mono text-[10px]">CRIT</span>
-                </div>
-                <input type="number" id="sim-crit" value="35" min="5" max="85" step="0.5" oninput="runSimulation()" class="w-full px-2.5 py-1.5 font-mono font-bold">
-                <input type="range" min="5" max="70" step="0.5" value="35" oninput="document.getElementById('sim-crit').value=this.value;runSimulation()" id="slider-crit" class="w-full mt-2 accent-rose-500 h-1.5 cursor-pointer">
-              </div>
-
-              <div class="bg-[#101624] p-3 rounded-xl border border-sky-500/25">
-                <div class="flex justify-between text-xs mb-1">
-                  <span class="text-sky-500 font-semibold">急速 (%)</span>
-                  <span class="text-sky-500 font-mono text-[10px]">HASTE</span>
-                </div>
-                <input type="number" id="sim-haste" value="22" min="0" max="85" step="0.5" oninput="runSimulation()" class="w-full px-2.5 py-1.5 font-mono font-bold">
-                <input type="range" min="0" max="65" step="0.5" value="22" oninput="document.getElementById('sim-haste').value=this.value;runSimulation()" id="slider-haste" class="w-full mt-2 accent-sky-500 h-1.5 cursor-pointer">
-              </div>
-
-              <div class="bg-[#101624] p-3 rounded-xl border border-purple-500/25">
-                <div class="flex justify-between text-xs mb-1">
-                  <span class="text-purple-500 font-semibold">精通 (%)</span>
-                  <span class="text-purple-500 font-mono text-[10px]">MAST</span>
-                </div>
-                <input type="number" id="sim-mastery" value="34" min="5" max="100" step="0.5" oninput="runSimulation()" class="w-full px-2.5 py-1.5 font-mono font-bold">
-                <input type="range" min="5" max="80" step="0.5" value="34" oninput="document.getElementById('sim-mastery').value=this.value;runSimulation()" id="slider-mastery" class="w-full mt-2 accent-purple-500 h-1.5 cursor-pointer">
-              </div>
-
-              <div class="bg-[#101624] p-3 rounded-xl border border-emerald-500/25">
-                <div class="flex justify-between text-xs mb-1">
-                  <span class="text-emerald-500 font-semibold">全能 (%)</span>
-                  <span class="text-emerald-500 font-mono text-[10px]">VERS</span>
-                </div>
-                <input type="number" id="sim-vers" value="10" min="0" max="60" step="0.5" oninput="runSimulation()" class="w-full px-2.5 py-1.5 font-mono font-bold">
-                <input type="range" min="0" max="45" step="0.5" value="10" oninput="document.getElementById('sim-vers').value=this.value;runSimulation()" id="slider-vers" class="w-full mt-2 accent-emerald-500 h-1.5 cursor-pointer">
-              </div>
-            </div>
-
-            <!-- 绿字能量占比条 -->
-            <div class="space-y-1.5">
-              <div class="flex justify-between text-[11px] text-gray-400">
-                <span>当前绿字池分配比例</span>
-                <span id="sim-stat-summary" class="font-mono text-amber-300/90">暴击 35% · 急速 22% · 精通 34% · 全能 10%</span>
-              </div>
-              <div class="h-2.5 w-full rounded-full bg-black/20 overflow-hidden flex p-0.5 gap-0.5 border border-amber-500/20">
-                <div id="bar-crit" class="h-full bg-gradient-to-r from-rose-600 to-rose-400 rounded-l-full transition-all duration-300" style="width: 35%"></div>
-                <div id="bar-haste" class="h-full bg-gradient-to-r from-sky-600 to-sky-400 transition-all duration-300" style="width: 22%"></div>
-                <div id="bar-mastery" class="h-full bg-gradient-to-r from-purple-600 to-purple-400 transition-all duration-300" style="width: 33%"></div>
-                <div id="bar-vers" class="h-full bg-gradient-to-r from-emerald-600 to-emerald-400 rounded-r-full transition-all duration-300" style="width: 10%"></div>
-              </div>
-            </div>
-
-            <!-- 核心模拟结果仪表盘 -->
-            <div class="p-4 sm:p-5 rounded-xl bg-gradient-to-r from-amber-500/15 via-transparent to-amber-500/10 border border-amber-400/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div class="space-y-1">
-                <div class="flex items-center gap-2">
-                  <span class="text-xs text-amber-200 font-bold">⚔️ 模拟战斗循环秒伤 (Simulated DPS)</span>
-                  <span id="sim-gcd-pill" class="text-[11px] font-mono px-2 py-0.5 rounded bg-sky-500/15 border border-sky-400/30 text-sky-400">GCD: 1.23s</span>
-                </div>
-                <p id="sim-diagnosis-text" class="text-xs text-gray-300">当前属性结构均衡，继续提升精通或暴击可获得最高边际收益。</p>
-              </div>
-              <div class="text-left sm:text-right shrink-0">
-                <div id="sim-result-dps" class="wow-en text-2xl sm:text-3xl font-black text-amber-300">42,680 DPS</div>
-                <div id="sim-burst-dps" class="text-[11px] font-mono text-amber-300/80 mt-0.5">🔥 起手嗜血峰值：68,290 DPS</div>
-              </div>
-            </div>
-
-            <!-- 3. 边际收益权重 (Pawn) + 技能伤害占比构成 -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
-              <!-- 左：边际收益权重 -->
-              <div class="loot-card p-4 space-y-2.5">
-                <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-amber-300">⚖️ 单点属性边际收益 (每 +1% 提升)</span>
-                  <button onclick="copyPawnString()" class="text-[11px] px-2 py-0.5 rounded ghost-btn cursor-pointer" title="复制 Pawn 插件导入字符串">📋 复制 Pawn</button>
-                </div>
-                <div id="sim-weights-box" class="space-y-2 text-xs"></div>
-              </div>
-
-              <!-- 右：核心技能伤害构成 -->
-              <div class="loot-card p-4 space-y-2.5">
-                <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-amber-300">📊 模拟技能伤害占比 Breakdown</span>
-                  <span class="text-[11px] text-gray-400 font-mono">Top 4 技能</span>
-                </div>
-                <div id="sim-breakdown-box" class="space-y-2 text-xs"></div>
-              </div>
-            </div>
-
-            <!-- 4. 保存当前配装方案到云端 -->
-            <div class="pt-2 border-t border-amber-500/15 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
-              <input type="text" id="sim-build-title" placeholder="给这套配装起个名字（如：泽风岛4件套大秘境暴击流）..." maxlength="36" class="flex-1 px-3.5 py-2 text-xs">
-              <button onclick="saveCurrentSimBuild()" class="px-4 py-2 text-xs gold-btn cursor-pointer shrink-0">💾 保存配装到云端榜</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 右侧 5 列：泽风岛首领秘典手册 + 云端配装榜 + 社区攻略帖 -->
-        <div class="xl:col-span-5 space-y-5 flex flex-col">
-
-          <!-- A. 泽风岛团本首领机制速查卡 -->
-          <div class="bg-[#080b12] p-5 rounded-xl border border-amber-500/25 space-y-3.5">
+          <!-- 右 5 列：当前专精高人气外观幻化推荐 (Transmog Sets) -->
+          <div class="xl:col-span-5 bg-[#080b12] p-5 rounded-xl border border-amber-500/25 space-y-4">
             <div class="flex items-center justify-between border-b border-amber-500/15 pb-3">
               <div>
-                <h3 class="text-sm font-bold text-amber-300">🐉 泽风岛团本 · 首领战术速查手册</h3>
-                <p class="text-[11px] text-gray-400 mt-0.5">开荒前 30 秒速看坦克/治疗/输出核心要点</p>
+                <h3 class="text-sm font-bold text-amber-300">✨ 专精典藏外观幻化推荐 (Transmog)</h3>
+                <p class="text-xs text-gray-400 mt-0.5">包含经典T套复刻、神兵光效配色与调料包部位清单</p>
               </div>
-              <span class="text-[11px] px-2 py-0.5 rounded-full q-legendary font-bold">战术卡</span>
+              <span class="text-[11px] px-2.5 py-0.5 rounded-full q-epic font-bold">幻化调料包</span>
             </div>
-
-            <!-- 首领切换按钮 -->
-            <div id="boss-nav-tabs" class="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
-              <button onclick="selectBossGuide(0)" data-boss-idx="0" class="px-2.5 py-1.5 rounded-lg text-xs font-bold gold-btn cursor-pointer truncate">1号·风暴领主</button>
-              <button onclick="selectBossGuide(1)" data-boss-idx="1" class="px-2.5 py-1.5 rounded-lg text-xs ghost-btn cursor-pointer truncate">2号·熔核巨像</button>
-              <button onclick="selectBossGuide(2)" data-boss-idx="2" class="px-2.5 py-1.5 rounded-lg text-xs ghost-btn cursor-pointer truncate">3号·潮汐女祭司</button>
-              <button onclick="selectBossGuide(3)" data-boss-idx="3" class="px-2.5 py-1.5 rounded-lg text-xs ghost-btn cursor-pointer truncate">4号·虚空大君</button>
-            </div>
-
-            <!-- 首领战术详情容器 -->
-            <div id="boss-guide-card" class="loot-card p-4 space-y-3 text-xs"></div>
+            <div id="spec-transmog-list" class="space-y-3"></div>
           </div>
-
-          <!-- B. 云端高玩配装方案榜（点击一键载入到左侧模拟器） -->
-          <div class="bg-[#080b12] p-5 rounded-xl border border-amber-500/25 space-y-3">
-            <div class="flex items-center justify-between border-b border-amber-500/15 pb-2.5">
-              <div>
-                <h3 class="text-sm font-bold text-amber-300">🏆 营地云端配装档案库</h3>
-                <p class="text-[11px] text-gray-400 mt-0.5">点击任意方案可一键载入到左侧模拟器对比</p>
-              </div>
-              <button onclick="loadSimBuilds()" class="text-xs text-amber-300 hover:underline cursor-pointer">刷新 ↻</button>
-            </div>
-            <div id="sim-builds-list" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
-          </div>
-
-          <!-- C. 酒馆攻略心得精选 -->
-          <div class="bg-[#080b12] p-5 rounded-xl border border-amber-500/25 space-y-3 text-sm flex-1 flex flex-col">
-            <div class="flex items-center justify-between border-b border-amber-500/15 pb-2.5">
-              <h3 class="text-sm font-bold text-amber-300">🗺️ 社区详细攻略帖</h3>
-              <button onclick="switchTab('forum')" class="text-xs text-amber-300 hover:underline cursor-pointer font-medium">去发攻略 →</button>
-            </div>
-            <div id="guide-posts-list" class="space-y-2 flex-1"></div>
-          </div>
-
         </div>
       </div>
+
+      <!-- ==================== 子视图 2：🗡️ 神兵装备库（含高清武器/护甲立绘与属性检视） ==================== -->
+      <div id="guide-view-armory" class="hidden space-y-5 flex-1 flex flex-col">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#080b12] p-4 rounded-xl border border-amber-500/25">
+          <div class="flex flex-wrap items-center gap-2" id="armory-filter-tabs">
+            <button onclick="filterArmory('all')" data-armory-cat="all" class="px-3.5 py-1.5 rounded-lg text-xs font-bold gold-btn cursor-pointer">⚔️ 全部神兵装备</button>
+            <button onclick="filterArmory('weapon')" data-armory-cat="weapon" class="px-3.5 py-1.5 rounded-lg text-xs ghost-btn cursor-pointer">🗡️ 传世神兵武器</button>
+            <button onclick="filterArmory('trinket')" data-armory-cat="trinket" class="px-3.5 py-1.5 rounded-lg text-xs ghost-btn cursor-pointer">🔮 团本毕业饰品</button>
+            <button onclick="filterArmory('armor')" data-armory-cat="armor" class="px-3.5 py-1.5 rounded-lg text-xs ghost-btn cursor-pointer">🛡️ 史诗套装与幻化</button>
+          </div>
+          <span class="text-xs text-gray-400">💡 点击任意装备卡片可打开高清立绘与完整属性面板</span>
+        </div>
+
+        <div id="armory-items-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 flex-1 content-start"></div>
+      </div>
+
+      <!-- ==================== 子视图 3：🐉 宠物库·猎人宝宝库·传奇坐骑库（外观 + 满级属性 + 抓捕坐标） ==================== -->
+      <div id="guide-view-pets" class="hidden space-y-5 flex-1 flex flex-col">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#080b12] p-4 rounded-xl border border-amber-500/25">
+          <div class="flex flex-wrap items-center gap-2" id="pets-filter-tabs">
+            <button onclick="filterCompanions('all')" data-pet-cat="all" class="px-3.5 py-1.5 rounded-lg text-xs font-bold gold-btn cursor-pointer">🌟 全部图鉴</button>
+            <button onclick="filterCompanions('hunter_pet')" data-pet-cat="hunter_pet" class="px-3.5 py-1.5 rounded-lg text-xs ghost-btn cursor-pointer">🐺 猎人稀有灵魂兽宝宝</button>
+            <button onclick="filterCompanions('battle_pet')" data-pet-cat="battle_pet" class="px-3.5 py-1.5 rounded-lg text-xs ghost-btn cursor-pointer">🐾 满级对战宠物宝宝</button>
+            <button onclick="filterCompanions('mount')" data-pet-cat="mount" class="px-3.5 py-1.5 rounded-lg text-xs ghost-btn cursor-pointer">🐉 史诗掉落坐骑</button>
+          </div>
+          <span class="text-xs text-gray-400">💡 展示外观插画、满级三维成长值、核心技能组合与刷新坐标</span>
+        </div>
+
+        <div id="companions-items-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 flex-1 content-start"></div>
+      </div>
+
     </div>
   </section>
 
@@ -2036,8 +2133,28 @@
     if (id === 'forum') loadPosts();
     if (id === 'home') loadHome();
     if (id === 'addons') loadAddons();
-    if (id === 'guide') loadGuides();
+    if (id === 'guide') {
+      loadGuides();
+      renderArmoryGrid();
+      renderCompanionsGrid();
+    }
     if (id === 'profile') loadProfile();
+  }
+
+  // --- 秘典三大子模块切换（DPS模拟 / 神兵装备库 / 宠物宝宝库） ---
+  function switchGuideSubView(view) {
+    ['sim', 'armory', 'pets'].forEach(v => {
+      const box = document.getElementById('guide-view-' + v);
+      const btn = document.getElementById('guide-tab-' + v);
+      if (box) box.classList.toggle('hidden', v !== view);
+      if (btn) {
+        btn.className = v === view
+          ? 'px-4 py-2 rounded-lg text-xs sm:text-sm font-bold gold-btn cursor-pointer transition'
+          : 'px-4 py-2 rounded-lg text-xs sm:text-sm ghost-btn cursor-pointer transition';
+      }
+    });
+    if (view === 'armory') renderArmoryGrid();
+    if (view === 'pets') renderCompanionsGrid();
   }
 
   function loadGameIframe(key) {
@@ -2681,7 +2798,7 @@
   document.getElementById('post-modal-reply-content').addEventListener('keydown', (e) => { if (e.key === 'Enter') submitReply(); });
   document.getElementById('auth-password').addEventListener('keydown', (e) => { if (e.key === 'Enter') submitAuth(); });
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') { closeImageLightbox(); closePostModal(); closePublishModal(); closeShareAddonModal(); closeAuthModal(); closeNewsModal(); closePwdModal(); closeConfirmModal(false); }
+    if (e.key === 'Escape') { closeImageLightbox(); closeCodexInspectModal(); closePostModal(); closePublishModal(); closeShareAddonModal(); closeAuthModal(); closeNewsModal(); closePwdModal(); closeConfirmModal(false); }
   });
 
   function renderMemberSlots(count, max) {
@@ -3412,6 +3529,11 @@
         </div>`;
       }).join('');
     }
+
+    // 同步刷新当前专精的毕业装备搭配与外观幻化推荐
+    if (typeof renderSpecGearAndTransmog === 'function') {
+      renderSpecGearAndTransmog(specKey);
+    }
   }
 
   function copyPawnString() {
@@ -3535,6 +3657,453 @@
       showToast('🏆 配装方案已保存到云端档案库！', 'success');
       loadSimBuilds();
     } catch (e) { showToast('保存失败，请检查网络', 'error'); }
+  }
+
+  // =========================================================================
+  // 🗡️ 神兵装备库、专精毕业配装与幻化、🐉 宠物与猎人宝宝库 图鉴系统
+  // =========================================================================
+
+  // 矢量高清立绘生成器：为每把传说武器、饰品、护甲、灵魂兽宝宝和坐骑生成专属精致 SVG 外观
+  function buildVisualSvg(key) {
+    const visuals = {
+      ashbringer: `<svg viewBox="0 0 260 150" class="w-full h-full"><defs><radialGradient id="g1" cx="50%" cy="50%" r="55%"><stop offset="0%" stop-color="#f59e0b" stop-opacity="0.45"/><stop offset="100%" stop-color="#080b12" stop-opacity="0"/></radialGradient><linearGradient id="bladeGold" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fffbeb"/><stop offset="45%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#b45309"/></linearGradient></defs><rect width="260" height="150" fill="#070a12"/><circle cx="130" cy="75" r="70" fill="url(#g1)"/><g transform="translate(130,75) rotate(-32)"><rect x="-78" y="-3.5" width="32" height="7" rx="2" fill="#78350f" stroke="#fbbf24" stroke-width="1.2"/><circle cx="-82" cy="0" r="6" fill="url(#bladeGold)"/><path d="M-46,-18 L-34,-6 L-34,6 L-46,18 Z" fill="url(#bladeGold)" stroke="#fef3c7" stroke-width="1.2"/><path d="M-34,-11 L52,-8 L78,0 L52,8 L-34,11 Z" fill="url(#bladeGold)" stroke="#fffbeb" stroke-width="1.4"/><circle cx="8" cy="0" r="9" fill="#fef08a" stroke="#dc2626" stroke-width="2"/><path d="M4,-4 L12,4 M12,-4 L4,4" stroke="#b91c1c" stroke-width="1.8"/></g><text x="14" y="136" fill="#fde68a" font-size="11" font-family="serif" font-weight="bold">✨ 灰烬使者 · 圣光大领主神兵外观</text></svg>`,
+      thunderfury: `<svg viewBox="0 0 260 150" class="w-full h-full"><defs><radialGradient id="g2" cx="50%" cy="50%" r="55%"><stop offset="0%" stop-color="#38bdf8" stop-opacity="0.5"/><stop offset="100%" stop-color="#080b12" stop-opacity="0"/></radialGradient><linearGradient id="bladeArc" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#e0f2fe"/><stop offset="50%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0284c7"/></linearGradient></defs><rect width="260" height="150" fill="#070a12"/><circle cx="130" cy="75" r="72" fill="url(#g2)"/><g transform="translate(130,75) rotate(-28)"><rect x="-75" y="-3" width="28" height="6" rx="2" fill="#475569" stroke="#93c5fd"/><path d="M-47,-15 L-32,-4 L-32,4 L-47,15 Z" fill="#f59e0b"/><path d="M-32,-9 L35,-14 L18,-3 L68,-6 L85,0 L65,7 L18,4 L35,14 L-32,9 Z" fill="url(#bladeArc)" stroke="#ffffff" stroke-width="1.2"/><circle cx="2" cy="0" r="6" fill="#bae6fd"/><path d="M-15,-18 L10,-5 L5,8 L38,-12 L62,3" fill="none" stroke="#fef08a" stroke-width="1.6" stroke-dasharray="3 2"/></g><text x="14" y="136" fill="#7dd3fc" font-size="11" font-family="serif" font-weight="bold">⚡ 雷霆之怒 · 逐风者的祝福之剑</text></svg>`,
+      frostmourne: `<svg viewBox="0 0 260 150" class="w-full h-full"><defs><radialGradient id="g3" cx="50%" cy="50%" r="55%"><stop offset="0%" stop-color="#60a5fa" stop-opacity="0.48"/><stop offset="100%" stop-color="#080b12" stop-opacity="0"/></radialGradient></defs><rect width="260" height="150" fill="#060913"/><circle cx="130" cy="75" r="70" fill="url(#g3)"/><g transform="translate(130,75) rotate(-30)"><rect x="-76" y="-3" width="30" height="6" fill="#1e293b" stroke="#94a3b8"/><path d="M-46,-22 L-30,-6 L-30,6 L-46,22 L-38,0 Z" fill="#cbd5e1" stroke="#38bdf8"/><circle cx="-37" cy="0" r="5.5" fill="#0ea5e9"/><path d="M-30,-8 L58,-5 L82,0 L58,5 L-30,8 Z" fill="#e2e8f0" stroke="#38bdf8" stroke-width="1.5"/><text x="-12" y="3" fill="#0284c7" font-size="8" font-weight="900">ᚷᛖᚠᚢ</text></g><text x="14" y="136" fill="#93c5fd" font-size="11" font-family="serif" font-weight="bold">❄️ 霜之哀伤回响 · 冰冠符文巨剑</text></svg>`,
+      aluneth: `<svg viewBox="0 0 260 150" class="w-full h-full"><defs><radialGradient id="g4" cx="50%" cy="50%" r="55%"><stop offset="0%" stop-color="#c084fc" stop-opacity="0.52"/><stop offset="100%" stop-color="#080b12" stop-opacity="0"/></radialGradient></defs><rect width="260" height="150" fill="#090714"/><circle cx="130" cy="75" r="72" fill="url(#g4)"/><g transform="translate(130,75) rotate(-25)"><rect x="-80" y="-2.5" width="130" height="5" rx="2.5" fill="#a855f7" stroke="#fde68a" stroke-width="1"/><path d="M46,-22 C68,-20 82,-8 82,0 C82,8 68,20 46,22 L54,8 L54,-8 Z" fill="#f59e0b" stroke="#fef08a" stroke-width="1.2"/><polygon points="66,-10 76,0 66,10 56,0" fill="#e879f9" stroke="#ffffff" stroke-width="1.2"/></g><text x="14" y="136" fill="#e9d5ff" font-size="11" font-family="serif" font-weight="bold">🔮 艾露尼斯 · 守护者之杖</text></svg>`,
+      warglaive: `<svg viewBox="0 0 260 150" class="w-full h-full"><defs><radialGradient id="g5" cx="50%" cy="50%" r="55%"><stop offset="0%" stop-color="#22c55e" stop-opacity="0.5"/><stop offset="100%" stop-color="#080b12" stop-opacity="0"/></radialGradient></defs><rect width="260" height="150" fill="#050d08"/><circle cx="130" cy="75" r="72" fill="url(#g5)"/><g transform="translate(130,72)"><path d="M-75,18 C-45,-28 45,-28 75,18 C45,-8 -45,-8 -75,18 Z" fill="#22c55e" stroke="#bbf7d0" stroke-width="1.5"/><rect x="-18" y="-10" width="36" height="14" rx="4" fill="#ca8a04" stroke="#fef08a"/><circle cx="0" cy="-3" r="4.5" fill="#4ade80"/></g><text x="14" y="136" fill="#86efac" font-size="11" font-family="serif" font-weight="bold">🦅 埃辛诺斯战刃 · 邪能双刃外观</text></svg>`,
+      thalas_bow: `<svg viewBox="0 0 260 150" class="w-full h-full"><defs><radialGradient id="g6" cx="50%" cy="50%" r="55%"><stop offset="0%" stop-color="#facc15" stop-opacity="0.45"/><stop offset="100%" stop-color="#080b12" stop-opacity="0"/></radialGradient></defs><rect width="260" height="150" fill="#080b12"/><circle cx="130" cy="75" r="70" fill="url(#g6)"/><g transform="translate(130,75)"><path d="M-25,-48 C28,-30 28,30 -25,48" fill="none" stroke="#f59e0b" stroke-width="6" stroke-linecap="round"/><line x1="-25" y1="-48" x2="-25" y2="48" stroke="#bae6fd" stroke-width="1.5"/><line x1="-35" y1="0" x2="32" y2="0" stroke="#38bdf8" stroke-width="2.5"/><polygon points="36,0 24,-5 24,5" fill="#7dd3fc"/></g><text x="14" y="136" fill="#fde68a" font-size="11" font-family="serif" font-weight="bold">🏹 索利达尔 · 群星之怒长弓</text></svg>`,
+      trinket_crystal: `<svg viewBox="0 0 260 150" class="w-full h-full"><defs><radialGradient id="g7" cx="50%" cy="50%" r="55%"><stop offset="0%" stop-color="#ec4899" stop-opacity="0.48"/><stop offset="100%" stop-color="#080b12" stop-opacity="0"/></radialGradient></defs><rect width="260" height="150" fill="#0a0612"/><circle cx="130" cy="75" r="68" fill="url(#g7)"/><g transform="translate(130,72)"><polygon points="0,-42 32,-12 20,36 -20,36 -32,-12" fill="#86198f" stroke="#f472b6" stroke-width="2"/><polygon points="0,-32 18,-8 10,24 -10,24 -18,-8" fill="#d946ef" opacity="0.7"/><circle cx="0" cy="-2" r="9" fill="#fdf4ff"/></g><text x="14" y="136" fill="#f5d0fe" font-size="11" font-family="serif" font-weight="bold">🔮 泽风之心 · 共鸣奥术水晶饰品</text></svg>`,
+      armor_judgement: `<svg viewBox="0 0 260 150" class="w-full h-full"><defs><radialGradient id="g8" cx="50%" cy="50%" r="55%"><stop offset="0%" stop-color="#ef4444" stop-opacity="0.45"/><stop offset="100%" stop-color="#080b12" stop-opacity="0"/></radialGradient></defs><rect width="260" height="150" fill="#110707"/><circle cx="130" cy="75" r="68" fill="url(#g8)"/><g transform="translate(130,74)"><path d="M-38,-25 L-18,-38 L18,-38 L38,-25 L30,32 L0,42 L-30,32 Z" fill="#991b1b" stroke="#fbbf24" stroke-width="2.5"/><path d="M-16,-14 L16,-14 L12,24 L0,32 L-12,24 Z" fill="#1e1b4b" stroke="#fde047" stroke-width="1.5"/><circle cx="-8" cy="-2" r="3.5" fill="#fef08a"/><circle cx="8" cy="-2" r="3.5" fill="#fef08a"/></g><text x="14" y="136" fill="#fca5a5" font-size="11" font-family="serif" font-weight="bold">🛡️ 永恒审判战甲 · 高清重制典藏套</text></svg>`,
+      pet_loque: `<svg viewBox="0 0 260 150" class="w-full h-full"><defs><radialGradient id="p1" cx="50%" cy="50%" r="55%"><stop offset="0%" stop-color="#38bdf8" stop-opacity="0.52"/><stop offset="100%" stop-color="#080b12" stop-opacity="0"/></radialGradient></defs><rect width="260" height="150" fill="#060d18"/><circle cx="130" cy="75" r="70" fill="url(#p1)"/><g transform="translate(130,72)"><polygon points="-28,-30 -16,-10 -34,-6" fill="#0284c7" stroke="#bae6fd"/><polygon points="28,-30 16,-10 34,-6" fill="#0284c7" stroke="#bae6fd"/><path d="M-32,-8 L0,-24 L32,-8 L26,24 L0,36 L-26,24 Z" fill="#0f172a" stroke="#38bdf8" stroke-width="2"/><circle cx="-11" cy="-2" r="4.5" fill="#7dd3fc"/><circle cx="11" cy="-2" r="4.5" fill="#7dd3fc"/><polygon points="-6,12 6,12 0,20" fill="#38bdf8"/><path d="M-38,8 C-50,4 -54,18 -40,22 M38,8 C50,4 54,18 40,22" stroke="#7dd3fc" stroke-width="2.5" fill="none"/></g><text x="14" y="136" fill="#7dd3fc" font-size="11" font-family="serif" font-weight="bold">🐺 洛卡纳哈 · 索拉查盆地稀有灵魂兽</text></svg>`,
+      pet_skoll: `<svg viewBox="0 0 260 150" class="w-full h-full"><defs><radialGradient id="p2" cx="50%" cy="50%" r="55%"><stop offset="0%" stop-color="#60a5fa" stop-opacity="0.55"/><stop offset="100%" stop-color="#080b12" stop-opacity="0"/></radialGradient></defs><rect width="260" height="150" fill="#050b16"/><circle cx="130" cy="75" r="70" fill="url(#p2)"/><g transform="translate(130,72)"><polygon points="-24,-36 -10,-12 -30,-10" fill="#1d4ed8" stroke="#93c5fd"/><polygon points="24,-36 10,-12 30,-10" fill="#1d4ed8" stroke="#93c5fd"/><path d="M-28,-12 L0,-22 L28,-12 L20,26 L0,38 L-20,26 Z" fill="#1e3a8a" stroke="#60a5fa" stroke-width="2"/><circle cx="-10" cy="0" r="4" fill="#fef08a"/><circle cx="10" cy="0" r="4" fill="#fef08a"/><path d="M-45,-18 L-22,-2 L-35,12 M45,-18 L22,-2 L35,12" stroke="#fde047" stroke-width="2" fill="none"/></g><text x="14" y="136" fill="#93c5fd" font-size="11" font-family="serif" font-weight="bold">⚡ 逐日 (Skoll) · 风暴峭壁雷电战狼灵魂兽</text></svg>`,
+      pet_lilrag: `<svg viewBox="0 0 260 150" class="w-full h-full"><defs><radialGradient id="p3" cx="50%" cy="50%" r="55%"><stop offset="0%" stop-color="#f97316" stop-opacity="0.55"/><stop offset="100%" stop-color="#080b12" stop-opacity="0"/></radialGradient></defs><rect width="260" height="150" fill="#140704"/><circle cx="130" cy="75" r="70" fill="url(#p3)"/><g transform="translate(130,74)"><path d="M-28,28 C-34,0 -18,-34 0,-38 C18,-34 34,0 28,28 Z" fill="#ea580c" stroke="#fde047" stroke-width="2"/><circle cx="-9" cy="-6" r="4" fill="#fef08a"/><circle cx="9" cy="-6" r="4" fill="#fef08a"/><rect x="24" y="-26" width="18" height="11" rx="2" fill="#b45309" stroke="#fde047"/><line x1="33" y1="-15" x2="33" y2="24" stroke="#78350f" stroke-width="3.5"/></g><text x="14" y="136" fill="#fdba74" font-size="11" font-family="serif" font-weight="bold">🔥 小拉格 · 萨弗拉斯之焰元素战宠</text></svg>`,
+      pet_frostwhelpling: `<svg viewBox="0 0 260 150" class="w-full h-full"><defs><radialGradient id="p4" cx="50%" cy="50%" r="55%"><stop offset="0%" stop-color="#22d3ee" stop-opacity="0.48"/><stop offset="100%" stop-color="#080b12" stop-opacity="0"/></radialGradient></defs><rect width="260" height="150" fill="#041016"/><circle cx="130" cy="75" r="70" fill="url(#p4)"/><g transform="translate(130,74)"><path d="M-58,-12 L-16,-4 L-36,24 Z M58,-12 L16,-4 L36,24 Z" fill="#0891b2" stroke="#a5f3fc" stroke-width="1.5"/><circle cx="0" cy="-6" r="18" fill="#0f172a" stroke="#67e8f9" stroke-width="2"/><circle cx="-6" cy="-8" r="3.5" fill="#22d3ee"/><circle cx="6" cy="-8" r="3.5" fill="#22d3ee"/></g><text x="14" y="136" fill="#67e8f9" font-size="11" font-family="serif" font-weight="bold">❄️ 冰冠骨龙幼崽 · 亡灵高爆发战宠</text></svg>`,
+      mount_ashes: `<svg viewBox="0 0 260 150" class="w-full h-full"><defs><radialGradient id="m1" cx="50%" cy="50%" r="60%"><stop offset="0%" stop-color="#f59e0b" stop-opacity="0.6"/><stop offset="50%" stop-color="#ec4899" stop-opacity="0.28"/><stop offset="100%" stop-color="#080b12" stop-opacity="0"/></radialGradient></defs><rect width="260" height="150" fill="#120610"/><circle cx="130" cy="75" r="76" fill="url(#m1)"/><g transform="translate(130,74)"><path d="M-72,-18 C-42,-38 -18,-10 0,-6 C18,-10 42,-38 72,-18 C48,10 24,14 0,8 C-24,14 -48,10 -72,-18 Z" fill="#f97316" stroke="#fef08a" stroke-width="2"/><polygon points="0,-28 8,-8 0,26 -8,-8" fill="#fde047"/><path d="M-12,24 L0,42 L12,24" fill="none" stroke="#f472b6" stroke-width="2.5"/></g><text x="14" y="136" fill="#fde68a" font-size="11" font-family="serif" font-weight="bold">🦅 奥的灰烬 · 风暴要塞凤凰神级坐骑</text></svg>`,
+      mount_invincible: `<svg viewBox="0 0 260 150" class="w-full h-full"><defs><radialGradient id="m2" cx="50%" cy="50%" r="55%"><stop offset="0%" stop-color="#6366f1" stop-opacity="0.48"/><stop offset="100%" stop-color="#080b12" stop-opacity="0"/></radialGradient></defs><rect width="260" height="150" fill="#070814"/><circle cx="130" cy="75" r="70" fill="url(#m2)"/><g transform="translate(130,74)"><path d="M-64,-16 C-34,-34 -12,-12 0,-4 C12,-12 34,-34 64,-16 C40,12 18,16 0,10 C-18,16 -40,12 -64,-16 Z" fill="#312e81" stroke="#818cf8" stroke-width="2"/><circle cx="0" cy="-12" r="14" fill="#1e1b4b" stroke="#c7d2fe" stroke-width="1.8"/><circle cx="-5" cy="-14" r="3" fill="#38bdf8"/><circle cx="5" cy="-14" r="3" fill="#38bdf8"/></g><text x="14" y="136" fill="#c7d2fe" font-size="11" font-family="serif" font-weight="bold">🐎 无敌的缰绳 · 冰冠堡垒巫妖王坐骑</text></svg>`
+    };
+    return visuals[key] || visuals.ashbringer;
+  }
+
+  // 神兵装备库数据
+  const ARMORY_ITEMS = [
+    {
+      id: 'item_ashbringer', category: 'weapon', name: '灰烬使者 · 圣光大领主之剑',
+      quality: 'legendary', qualityLabel: '传说神兵', slot: '双手巨剑 · 武器', ilvl: 639,
+      stats: '+1,840 力量 / +2,760 耐力 · +680 精通 / +540 暴击',
+      effect: '装备特效：你的审判与裁决有几率唤醒灰烬圣光，使接下来 8 秒内的神圣伤害提高 18%，并对亡灵与恶魔额外造成神圣灼烧。',
+      source: '泽风岛团本 · 4号守关首领「虚空大君」极低几率掉落 / 神兵锻造任务线',
+      visualKey: 'ashbringer'
+    },
+    {
+      id: 'item_thunderfury', category: 'weapon', name: '雷霆之怒 · 逐风者的祝福之剑',
+      quality: 'legendary', qualityLabel: '传说神兵', slot: '单手剑 · 主手/副手', ilvl: 639,
+      stats: '+1,120 敏捷或力量 / +1,980 耐力 · +520 急速 / +460 暴击',
+      effect: '装备特效：击中目标时可能以闪电之力吞噬敌人，造成高额自然伤害并跳跃攻击附近最多 5 个目标，同时使自身急速提高 12%。',
+      source: '泽风岛元素领主「奥拉基尔之影」左右脸风吻之刃合成',
+      visualKey: 'thunderfury'
+    },
+    {
+      id: 'item_frostmourne', category: 'weapon', name: '霜之哀伤回响 · 凛冬符文剑',
+      quality: 'legendary', qualityLabel: '传说神兵', slot: '双手符文剑 · 武器', ilvl: 639,
+      stats: '+1,840 力量 / +2,760 耐力 · +710 暴击 / +510 精通',
+      effect: '装备特效：消耗符文能量时累积「收割灵魂」，叠满 10 层后自动释放凛冬风暴，使冰霜与暗影伤害提高 20%，持续 10 秒。',
+      source: '泽风岛英雄/史诗难度隐藏冰冠裂隙首领掉落',
+      visualKey: 'frostmourne'
+    },
+    {
+      id: 'item_aluneth', category: 'weapon', name: '艾露尼斯 · 提瑞斯法守护者之杖',
+      quality: 'legendary', qualityLabel: '传说神兵', slot: '双手法杖 · 法系毕业', ilvl: 639,
+      stats: '+1,840 智力 / +2,760 耐力 · +690 精通 / +530 急速',
+      effect: '装备特效：施放法术时吸收周围的奥术洪流，每 30 秒触发一次「艾格文的回响」，使法术暴击伤害提高 25%。',
+      source: '泽风岛团本 · 3号首领「潮汐女祭司艾萨莉」史诗难度掉落',
+      visualKey: 'aluneth'
+    },
+    {
+      id: 'item_warglaive', category: 'weapon', name: '埃辛诺斯战刃 · 无限重铸版',
+      quality: 'legendary', qualityLabel: '传说神兵', slot: '战刃 / 单手剑 · 双持套装', ilvl: 639,
+      stats: '+1,120 敏捷 / +1,980 耐力 · +560 暴击 / +420 精通',
+      effect: '双刀套装特效：双持攻击时触发「伊利达雷之怒」，攻击速度提高 30%，混乱与物理伤害额外附加邪能溅射。',
+      source: '时空漫游：黑暗神殿伊利丹·怒风 / 泽风岛军团突袭事件',
+      visualKey: 'warglaive'
+    },
+    {
+      id: 'item_thalas_bow', category: 'weapon', name: '索利达尔 · 群星之怒长弓',
+      quality: 'legendary', qualityLabel: '传说神兵', slot: '远程弓 · 猎人专属', ilvl: 639,
+      stats: '+1,840 敏捷 / +2,760 耐力 · +720 暴击 / +500 精通',
+      effect: '装备特效：自动发射纯粹的星界能量箭矢，每次瞄准射击或杀戮命令都会召唤群星坠落轰击目标区域。',
+      source: '泽风岛团本守关首领「虚空大君」掉落',
+      visualKey: 'thalas_bow'
+    },
+    {
+      id: 'item_trinket_heart', category: 'trinket', name: '泽风之心 · 共鸣奥术核心',
+      quality: 'epic', qualityLabel: '史诗毕业饰品', slot: '饰品 · 全DPS专精', ilvl: 639,
+      stats: '+980 主属性（力量 / 敏捷 / 智力自适应切换）',
+      effect: '使用：引导泽风岛的狂暴能量，使你最高的一项绿字属性提高 3,280 点，持续 20 秒（冷却时间 2 分钟，完美契合爆发轴）。',
+      source: '泽风岛团本 4 号首领 / 宏伟宝库低保周常箱',
+      visualKey: 'trinket_crystal'
+    },
+    {
+      id: 'item_armor_judgement', category: 'armor', name: '永恒审判战甲 · 高清重制典藏套',
+      quality: 'epic', qualityLabel: '典藏套装外观', slot: '全身 8 件套 · 套装与幻化', ilvl: 639,
+      stats: '2件套：核心消耗技能伤害 +10% · 4件套：触发天锤/灰烬觉醒时绿字全面提升 12%',
+      effect: '典藏高清粒子光效：肩部双翼圣契悬浮展开，施放爆发技能时背后浮现金色炽天使光翼。',
+      source: '泽风岛团本套装兑换物 / 化生台转化解锁全套幻化',
+      visualKey: 'armor_judgement'
+    }
+  ];
+
+  // 宠物库 · 猎人稀有灵魂兽宝宝 · 史诗坐骑数据
+  const COMPANIONS_DATA = [
+    {
+      id: 'comp_loque', kind: 'hunter_pet', kindLabel: '🐺 猎人灵魂兽宝宝',
+      name: '洛卡纳哈 (Loque\'nahak)', family: '灵魂兽 · 坚韧/狂暴双修', quality: 'legendary',
+      hp: 42800, power: 1680, speed: 340, breed: '满级猎人尊享 · 唯一奥术豹外观',
+      skills: '✨【灵魂治愈】（每30秒回血25%） · 🐾【灵魂行者】（潜行+首击增伤20%） · 🛡️【优胜劣汰】（减伤20%）',
+      source: '📍 诺森德·索拉查盆地 7 个固定刷新点（推荐坐标：36,31 / 58,22 / 71,71，刷新周期 6-12 小时）',
+      visualKey: 'pet_loque'
+    },
+    {
+      id: 'comp_skoll', kind: 'hunter_pet', kindLabel: '🐺 猎人灵魂兽宝宝',
+      name: '逐日 (Skoll · 雷电战狼)', family: '灵魂兽 · 雷霆特效宝宝', quality: 'legendary',
+      hp: 42800, power: 1720, speed: 350, breed: '满级兽王猎人可驯服 · 全身常驻闪电链',
+      skills: '⚡【雷霆爪击】（普攻带蓝色电弧） · ✨【灵魂治愈】 · 🩸【原始暴怒】（提供全团30%嗜血/英勇）',
+      source: '📍 诺森德·风暴峭壁 布伦希尔达村与奥杜尔山脚（坐标：27,50 / 30,64 / 46,65）',
+      visualKey: 'pet_skoll'
+    },
+    {
+      id: 'comp_lilrag', kind: 'battle_pet', kindLabel: '🐾 满级对战宠物',
+      name: '小拉格 (Lil\' Ragnaros)', family: '元素系 · 高攻满级属性 (P/P型)', quality: 'epic',
+      hp: 1480, power: 357, speed: 260, breed: 'Lv.25 满级纯攻型 (P/P) · 还能当烹饪火源！',
+      skills: '🔥【萨弗拉斯重击】 · 🌋【熔岩陷阱】（延迟高伤+眩晕） · ☄️【烈焰喷发】（全体灼烧天气技）',
+      source: '📍 火焰之地拉格纳罗斯典藏掉落 / 游戏内商栈月度精选兑换',
+      visualKey: 'pet_lilrag'
+    },
+    {
+      id: 'comp_whelpling', kind: 'battle_pet', kindLabel: '🐾 满级对战宠物',
+      name: '冰冠骨龙幼崽 (Frostbrood Whelp)', family: '亡灵系 · 训宠师克星 (P/S型)', quality: 'epic',
+      hp: 1520, power: 341, speed: 289, breed: 'Lv.25 满级亡灵被动（死亡后复活再战一轮）',
+      skills: '❄️【凛风冲击】 · 💀【严寒召唤】（冰冻天气增伤） · 🐉【骨龙俯冲】（双回合高额爆发）',
+      source: '📍 冰冠冰川辛达苟萨之陨刷怪稀有掉落 / 拍卖行笼装交易',
+      visualKey: 'pet_frostwhelpling'
+    },
+    {
+      id: 'comp_ashes', kind: 'mount', kindLabel: '🐉 传世神级坐骑',
+      name: '奥的灰烬 (Ashes of Al\'ar)', family: '飞行坐骑 · 310% 极速光轨', quality: 'legendary',
+      hp: 99999, power: 999, speed: 310, breed: '艾泽拉斯最具辨识度凤凰 · 飞行拖尾七彩星火',
+      skills: '🦅【御空术/稳定飞行双模式】 · ✨【烈焰星轨拖尾】 · ☀️【不死鸟重生出场特效】',
+      source: '📍 外域·虚空风暴「风暴要塞」凯尔萨斯·逐日者掉落（现支持全战团角色共享）',
+      visualKey: 'mount_ashes'
+    },
+    {
+      id: 'comp_invincible', kind: 'mount', kindLabel: '🐉 传世神级坐骑',
+      name: '无敌的缰绳 (Invincible\'s Reins)', family: '飞天亡灵战马 · 陆空两栖', quality: 'legendary',
+      hp: 99999, power: 999, speed: 310, breed: '阿尔萨斯皇家爱驹 · 紧凑体型过门不卡头',
+      skills: '🐎【寒冰骨翼展开】 · ❄️【冰冠霜雾蹄印】 · 👑【巫妖王史诗成就象征】',
+      source: '📍 诺森德·冰冠堡垒 25人英雄难度「巫妖王」掉落',
+      visualKey: 'mount_invincible'
+    }
+  ];
+
+  // 根据专精动态生成：毕业装备推荐 (BiS) + 外观幻化推荐 (Transmog)
+  const SPEC_BIS_PROFILES = {
+    plate_str: {
+      enchantGem: '💎 宝石与附魔推荐：主槽镶嵌【至尊主属性钻石】+ 其余插槽全插【精湛精通/暴击宝石】；武器附魔【圣光威权之誓】，戒指附魔【绚灿精通】。',
+      gear: [
+        { slot: '主手武器', name: '灰烬使者 · 圣光大领主巨剑', ilvl: 639, stat: '暴击 + 精通', src: '泽风岛4号守关 / 神兵任务', inspectId: 'item_ashbringer' },
+        { slot: '毕业饰品 1', name: '泽风之心 · 共鸣奥术核心', ilvl: 639, stat: '主动2分钟爆发主属性+绿字', src: '泽风岛团本 4号首领', inspectId: 'item_trinket_heart' },
+        { slot: '毕业饰品 2', name: '熔核巨像的狂怒铁砧', ilvl: 639, stat: '常驻力量 + 叠层暴击', src: '泽风岛团本 2号首领', inspectId: 'item_trinket_heart' },
+        { slot: '套装4件套', name: '永恒审判胸甲/肩铠/头盔/腿甲', ilvl: 639, stat: '激活4件套 12% 全绿字增幅', src: '团本掉落 / 化生台转化', inspectId: 'item_armor_judgement' },
+        { slot: '制造业美化 1', name: '圣火纹章锻造腰带 (双美化)', ilvl: 636, stat: '自选公函：暴击 + 精通', src: '锻造订单 + 暗影烈焰纹章', inspectId: 'item_armor_judgement' },
+        { slot: '制造业美化 2', name: '圣火纹章护腕 (暗月升华)', ilvl: 636, stat: '自选公函：急速 + 精通', src: '锻造订单 + 暗月美化', inspectId: 'item_armor_judgement' }
+      ],
+      transmogs: [
+        {
+          title: '👑 套装一：高清重制 T2 永恒审判黄金圣骑',
+          style: '红金黑经典宗教审判风 · 炽天使粒子光翼',
+          colors: ['#991b1b', '#f59e0b', '#1e1b4b', '#fef08a'],
+          parts: '头：审判皇冠 · 肩：审判圣契肩铠 · 胸：审判战袍 · 武器：灰烬使者（炽焰外观）',
+          inspectId: 'item_armor_judgement'
+        },
+        {
+          title: '❄️ 套装二：冰冠堡垒天灾领主暗蓝板甲',
+          style: '诺森德寒冰符文风 · 幽蓝冷光粒子特效',
+          colors: ['#0f172a', '#0284c7', '#38bdf8', '#e2e8f0'],
+          parts: '头：巫妖统帅面甲 · 肩：霜语骨刺肩甲 · 披风：寒冬皇室斗篷 · 武器：霜之哀伤回响',
+          inspectId: 'item_frostmourne'
+        }
+      ]
+    },
+    cloth_int: {
+      enchantGem: '💎 宝石与附魔推荐：主槽镶嵌【洞察智力钻石】+ 其余插槽优先【迅捷急速/暴击宝石】；武器附魔【奥术洪流之威】，护腿使用【拂晓魔线】。',
+      gear: [
+        { slot: '主手武器', name: '艾露尼斯 · 守护者之杖', ilvl: 639, stat: '高额智力 + 精通急速', src: '泽风岛团本 3号首领', inspectId: 'item_aluneth' },
+        { slot: '毕业饰品 1', name: '泽风之心 · 共鸣奥术核心', ilvl: 639, stat: '主动2分钟爆发绿字', src: '泽风岛团本 4号首领', inspectId: 'item_trinket_heart' },
+        { slot: '毕业饰品 2', name: '潮汐女祭司的低语海螺', ilvl: 639, stat: '施法叠层急速 + 奥术箭', src: '泽风岛团本 3号首领', inspectId: 'item_trinket_heart' },
+        { slot: '套装4件套', name: '肯瑞托大法师丝绸4件套', ilvl: 639, stat: '激活4件套爆发回能与增伤', src: '团本掉落 / 化生台转化', inspectId: 'item_aluneth' },
+        { slot: '制造业美化 1', name: '织造曙光丝绸便鞋 (双美化)', ilvl: 636, stat: '自选公函：急速 + 暴击', src: '裁缝订单 + 纹章美化', inspectId: 'item_aluneth' },
+        { slot: '制造业美化 2', name: '织造曙光丝绸护腕 (内衬美化)', ilvl: 636, stat: '自选公函：急速 + 精通', src: '裁缝订单 + 蓝缎内衬', inspectId: 'item_aluneth' }
+      ],
+      transmogs: [
+        {
+          title: '🔮 套装一：达拉然六人议会紫金星界法师',
+          style: '奥术紫与鎏金浮空符文 · 施法星辰轨迹',
+          colors: ['#581c87', '#a855f7', '#f59e0b', '#f3e8ff'],
+          parts: '头：星界学者光环 · 肩：浮空奥术宝珠肩 · 胸：提瑞斯法长袍 · 武器：艾露尼斯（奥术之怒）',
+          inspectId: 'item_aluneth'
+        },
+        {
+          title: '🔥 套装二：辛多雷血精灵凤凰烈焰贵族',
+          style: '银月城绯红配灿金 · 凯尔萨斯浮空翠绿宝珠',
+          colors: ['#7f1d1d', '#ef4444', '#facc15', '#22c55e'],
+          parts: '头：烈日王冠 · 肩：凤凰羽翼肩垫 · 背部：翠绿魔导师浮球 · 武器：奎尔萨拉斯金杖',
+          inspectId: 'item_aluneth'
+        }
+      ]
+    },
+    agi_mail_leather: {
+      enchantGem: '💎 宝石与附魔推荐：主槽镶嵌【敏锐敏捷钻石】+ 其余插槽优先【致命暴击/精通宝石】；武器附魔【风暴猎手之印】，胸甲附魔【觉醒属性】。',
+      gear: [
+        { slot: '主手/远程武器', name: '索利达尔群星长弓 / 埃辛诺斯战刃', ilvl: 639, stat: '满额敏捷 + 暴击精通', src: '泽风岛4号守关掉落', inspectId: 'item_thalas_bow' },
+        { slot: '毕业饰品 1', name: '泽风之心 · 共鸣奥术核心', ilvl: 639, stat: '主动爆发绿字饰品', src: '泽风岛团本 4号首领', inspectId: 'item_trinket_heart' },
+        { slot: '毕业饰品 2', name: '风暴领主的雷霆羽翎', ilvl: 639, stat: '攻击触发连锁闪电顺劈', src: '泽风岛团本 1号首领', inspectId: 'item_thunderfury' },
+        { slot: '套装4件套', name: '追风游侠 / 伊利达雷猎手4件套', ilvl: 639, stat: '激活4件套核心技能必暴', src: '团本掉落 / 化生台转化', inspectId: 'item_warglaive' },
+        { slot: '制造业美化 1', name: '龙鳞/狂野皮甲腰带 (毒液美化)', ilvl: 636, stat: '自选公函：暴击 + 精通', src: '制皮订单 + 纹章美化', inspectId: 'item_warglaive' },
+        { slot: '制造业美化 2', name: '元素焦镜项链 (珠宝双孔美化)', ilvl: 636, stat: '三宝石插槽高绿字', src: '珠宝加工订单', inspectId: 'item_trinket_heart' }
+      ],
+      transmogs: [
+        {
+          title: '🦅 套装一：伊利达雷恶魔猎手邪能幻影',
+          style: '黑曜石皮甲配翠绿邪能纹身 · 双持蛋刀光效',
+          colors: ['#052e16', '#22c55e', '#a855f7', '#bbf7d0'],
+          parts: '头：萨格拉斯诅咒视界 · 肩：邪能利刃护肩 · 胸：伊利达雷束胸 · 武器：埃辛诺斯战刃',
+          inspectId: 'item_warglaive'
+        },
+        {
+          title: '🏹 套装二：奎尔萨拉斯远行者游侠将军',
+          style: '森林翠绿配流金羽饰 · 群星光箭特效',
+          colors: ['#064e3b', '#10b981', '#f59e0b', '#fef3c7'],
+          parts: '头：风行者兜帽 · 肩：金鹰羽翼护肩 · 背部：远行者箭袋 · 武器：索利达尔·群星之怒',
+          inspectId: 'item_thalas_bow'
+        }
+      ]
+    }
+  };
+
+  function getProfileGroupForSpec(specKey) {
+    if (['ret_paladin', 'fury_warrior', 'frost_dk'].includes(specKey)) return 'plate_str';
+    if (['bm_hunter', 'mm_hunter', 'havoc_dh', 'assa_rogue', 'ele_shaman'].includes(specKey)) return 'agi_mail_leather';
+    return 'cloth_int';
+  }
+
+  function renderSpecGearAndTransmog(specKey) {
+    const spec = SPEC_MODELS[specKey] || SPEC_MODELS.ret_paladin;
+    const badge = document.getElementById('bis-spec-badge');
+    if (badge) badge.textContent = spec.name;
+
+    const group = SPEC_BIS_PROFILES[getProfileGroupForSpec(specKey)];
+    const gearGrid = document.getElementById('spec-bis-gear-grid');
+    if (gearGrid && group) {
+      gearGrid.innerHTML = group.gear.map(g => `
+        <div onclick="openCodexInspectById('${g.inspectId}')" class="loot-card p-3.5 cursor-pointer flex items-start justify-between gap-2.5 group">
+          <div class="min-w-0 space-y-1">
+            <div class="flex items-center gap-1.5">
+              <span class="text-[10px] px-2 py-0.5 rounded q-legendary font-bold shrink-0">${escapeHtml(g.slot)}</span>
+              <span class="text-xs font-bold text-amber-100 group-hover:text-amber-300 truncate">${escapeHtml(g.name)}</span>
+            </div>
+            <div class="text-[11px] text-emerald-500 font-medium">${escapeHtml(g.stat)}</div>
+            <div class="text-[10px] text-gray-400">📍 来源：${escapeHtml(g.src)}</div>
+          </div>
+          <div class="text-right shrink-0">
+            <span class="text-xs font-mono font-bold text-amber-300">${g.ilvl}</span>
+            <div class="text-[10px] text-amber-300/80 mt-1">外观 ↗</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    const enchantBar = document.getElementById('spec-enchant-gem-bar');
+    if (enchantBar && group) {
+      enchantBar.innerHTML = `<span>${escapeHtml(group.enchantGem)}</span><button onclick="switchGuideSubView('armory')" class="px-3 py-1 rounded-lg gold-btn text-xs cursor-pointer shrink-0">🗡️ 浏览完整装备库</button>`;
+    }
+
+    const tmogBox = document.getElementById('spec-transmog-list');
+    if (tmogBox && group) {
+      tmogBox.innerHTML = group.transmogs.map(t => `
+        <div class="loot-card p-4 space-y-2.5">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <h4 class="font-bold text-amber-100 text-sm">${escapeHtml(t.title)}</h4>
+              <p class="text-[11px] text-amber-300/85 mt-0.5">${escapeHtml(t.style)}</p>
+            </div>
+            <div class="flex items-center gap-1 shrink-0" title="幻化主题配色">
+              ${t.colors.map(c => `<span class="w-4 h-4 rounded-full border border-white/30 shadow" style="background:${c}"></span>`).join('')}
+            </div>
+          </div>
+          <p class="text-xs text-gray-300 bg-black/20 p-2.5 rounded-lg border border-amber-500/15 leading-relaxed">👗 <strong>调料包部位：</strong>${escapeHtml(t.parts)}</p>
+          <div class="flex items-center justify-between pt-1">
+            <button onclick="openCodexInspectById('${t.inspectId}')" class="px-3 py-1 rounded-lg ghost-btn text-xs cursor-pointer">👁️ 预览外观立绘</button>
+            <button onclick="copyTransmogList('${escapeHtml(t.title)}', '${escapeHtml(t.parts)}')" class="px-3 py-1 rounded-lg gold-btn text-xs cursor-pointer">📋 复制调料包</button>
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+
+  function copyTransmogList(title, parts) {
+    const txt = `✨【${title}】幻化调料包：${parts}`;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(() => showToast('✅ 已复制幻化调料包方案！', 'success')).catch(() => {});
+    } else {
+      showToast('✅ 已复制幻化调料包方案！', 'success');
+    }
+  }
+
+  // 渲染神兵装备库网格
+  let currentArmoryFilter = 'all';
+  function filterArmory(cat) {
+    currentArmoryFilter = cat || 'all';
+    const wrap = document.getElementById('armory-filter-tabs');
+    if (wrap) {
+      wrap.querySelectorAll('button[data-armory-cat]').forEach(btn => {
+        const active = btn.getAttribute('data-armory-cat') === currentArmoryFilter;
+        btn.className = active
+          ? 'px-3.5 py-1.5 rounded-lg text-xs font-bold gold-btn cursor-pointer'
+          : 'px-3.5 py-1.5 rounded-lg text-xs ghost-btn cursor-pointer';
+      });
+    }
+    renderArmoryGrid();
+  }
+
+  function renderArmoryGrid() {
+    const grid = document.getElementById('armory-items-grid');
+    if (!grid) return;
+    const list = currentArmoryFilter === 'all'
+      ? ARMORY_ITEMS
+      : ARMORY_ITEMS.filter(x => x.category === currentArmoryFilter);
+    grid.innerHTML = list.map(it => `
+      <div onclick="openCodexInspectById('${it.id}')" class="loot-card p-4 flex flex-col justify-between gap-3 cursor-pointer group">
+        <div class="space-y-3">
+          <div class="w-full h-36 rounded-xl overflow-hidden border border-amber-500/25 bg-[#070a12] group-hover:border-amber-400 transition">
+            ${buildVisualSvg(it.visualKey)}
+          </div>
+          <div class="space-y-1">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-[10px] px-2 py-0.5 rounded-full ${it.quality === 'legendary' ? 'q-legendary' : 'q-epic'} font-bold">${escapeHtml(it.qualityLabel)}</span>
+              <span class="text-xs font-mono font-bold text-amber-300">装等 ${it.ilvl}</span>
+            </div>
+            <h4 class="font-bold text-amber-100 text-base group-hover:text-amber-300 transition">${escapeHtml(it.name)}</h4>
+            <div class="text-xs text-gray-400">${escapeHtml(it.slot)}</div>
+            <div class="text-xs text-emerald-500 font-medium pt-1">${escapeHtml(it.stats)}</div>
+            <p class="text-xs text-gray-300 line-clamp-2 leading-relaxed pt-1">${escapeHtml(it.effect)}</p>
+          </div>
+        </div>
+        <div class="pt-2.5 border-t border-amber-500/15 flex items-center justify-between text-[11px] text-gray-400">
+          <span class="truncate">📍 ${escapeHtml(it.source)}</span>
+          <span class="text-amber-300 font-bold shrink-0 ml-2">检视详情 →</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // 渲染宠物库 / 猎人灵魂兽宝宝 / 史诗坐骑网格
+  let currentCompanionFilter = 'all';
+  function filterCompanions(cat) {
+    currentCompanionFilter = cat || 'all';
+    const wrap = document.getElementById('pets-filter-tabs');
+    if (wrap) {
+      wrap.querySelectorAll('button[data-pet-cat]').forEach(btn => {
+        const active = btn.getAttribute('data-pet-cat') === currentCompanionFilter;
+        btn.className = active
+          ? 'px-3.5 py-1.5 rounded-lg text-xs font-bold gold-btn cursor-pointer'
+          : 'px-3.5 py-1.5 rounded-lg text-xs ghost-btn cursor-pointer';
+      });
+    }
+    renderCompanionsGrid();
+  }
+
+  function renderCompanionsGrid() {
+    const grid = document.getElementById('companions-items-grid');
+    if (!grid) return;
+    const list = currentCompanionFilter === 'all'
+      ? COMPANIONS_DATA
+      : COMPANIONS_DATA.filter(x => x.kind === currentCompanionFilter);
+    grid.innerHTML = list.map(c => `
+      <div onclick="openCompanionInspect('${c.id}')" class="loot-card p-4 flex flex-col justify-between gap-3 cursor-pointer group">
+        <div class="space-y-3">
+          <div class="w-full h-36 rounded-xl overflow-hidden border border-amber-500/25 bg-[#070a12] group-hover:border-amber-400 transition">
+            ${buildVisualSvg(c.visualKey)}
+          </div>
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-[10px] px-2 py-0.5 rounded-full ${c.quality === 'legendary' ? 'q-legendary' : 'q-epic'} font-bold">${escapeHtml(c.kindLabel)}</span>
+              <span class="text-[11px] text-sky-400 font-semibold">${escapeHtml(c.family)}</span>
+            </div>
+            <h4 class="font-bold text-amber-100 text-base group-hover:text-amber-300 transition">${escapeHtml(c.name)}</h4>
+            <div class="grid grid-cols-3 gap-1.5 pt-1 text-center">
+              <div class="bg-black/20 rounded-lg py-1 px-1.5 border border-amber-500/15">
+                <div class="text-[10px] text-gray-400">❤️ 生命值</div>
+                <div class="text-xs font-mono font-bold text-emerald-400">${c.hp.toLocaleString()}</div>
+              </div>
+              <div class="bg-black/20 rounded-lg py-1 px-1.5 border border-amber-500/15">
+                <div class="text-[10px] text-gray-400">⚔️ 攻击强度</div>
+                <div class="text-xs font-mono font-bold text-rose-400">${c.power}</div>
+              </div>
+              <div class="bg-black/20 rounded-lg py-1 px-1.5 border border-amber-500/15">
+                <div class="text-[10px] text-gray-400">⚡ 速度/移速</div>
+                <div class="text-xs font-mono font-bold text-sky-400">${c.speed}${c.kind === 'mount' ? '%' : ''}</div>
+              </div>
+            </div>
+            <p class="text-xs text-gray-300 leading-relaxed pt-1">${escapeHtml(c.skills)}</p>
+          </div>
+        </div>
+        <div class="pt-2.5 border-t border-amber-500/15 flex items-center justify-between text-[11px] text-gray-400">
+          <span class="truncate">${escapeHtml(c.source)}</span>
+          <span class="text-amber-300 font-bold shrink-0 ml-2">坐标/属性 →</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function openCodexInspectById(itemId) {
+    const it = ARMORY_ITEMS.find(x => x.id === itemId) || ARMORY_ITEMS[0];
+    if (!it) return;
+    document.getElementById('codex-modal-badge').textContent = it.qualityLabel;
+    document.getElementById('codex-modal-badge').className = `text-xs px-2.5 py-0.5 rounded-full font-bold ${it.quality === 'legendary' ? 'q-legendary' : 'q-epic'}`;
+    document.getElementById('codex-modal-sub').textContent = `${it.slot} · 物品等级 ${it.ilvl}`;
+    document.getElementById('codex-modal-title').textContent = it.name;
+    document.getElementById('codex-modal-visual').innerHTML = buildVisualSvg(it.visualKey);
+    document.getElementById('codex-modal-stats').innerHTML = `
+      <div class="text-amber-200 font-bold">${escapeHtml(it.stats)}</div>
+      <div class="text-emerald-400 leading-relaxed">${escapeHtml(it.effect)}</div>
+    `;
+    document.getElementById('codex-modal-source').textContent = `📍 获取途径：${it.source}`;
+    document.getElementById('codex-inspect-modal').classList.remove('hidden');
+  }
+
+  function openCompanionInspect(compId) {
+    const c = COMPANIONS_DATA.find(x => x.id === compId) || COMPANIONS_DATA[0];
+    if (!c) return;
+    document.getElementById('codex-modal-badge').textContent = c.kindLabel;
+    document.getElementById('codex-modal-badge').className = `text-xs px-2.5 py-0.5 rounded-full font-bold ${c.quality === 'legendary' ? 'q-legendary' : 'q-epic'}`;
+    document.getElementById('codex-modal-sub').textContent = `${c.family} · ${c.breed}`;
+    document.getElementById('codex-modal-title').textContent = c.name;
+    document.getElementById('codex-modal-visual').innerHTML = buildVisualSvg(c.visualKey);
+    document.getElementById('codex-modal-stats').innerHTML = `
+      <div class="grid grid-cols-3 gap-2 text-center pb-2 border-b border-amber-500/15">
+        <div><span class="text-xs text-gray-400 block">❤️ 满级生命</span><strong class="text-emerald-400 font-mono text-base">${c.hp.toLocaleString()}</strong></div>
+        <div><span class="text-xs text-gray-400 block">⚔️ 攻击强度</span><strong class="text-rose-400 font-mono text-base">${c.power}</strong></div>
+        <div><span class="text-xs text-gray-400 block">⚡ 速度属性</span><strong class="text-sky-400 font-mono text-base">${c.speed}${c.kind === 'mount' ? '%' : ''}</strong></div>
+      </div>
+      <div class="text-amber-200 font-semibold pt-1">🎯 专属技能与特性：</div>
+      <div class="text-gray-200 leading-relaxed">${escapeHtml(c.skills)}</div>
+    `;
+    document.getElementById('codex-modal-source').textContent = c.source;
+    document.getElementById('codex-inspect-modal').classList.remove('hidden');
+  }
+
+  function closeCodexInspectModal() {
+    const modal = document.getElementById('codex-inspect-modal');
+    if (modal) modal.classList.add('hidden');
   }
 
   function showConnBanner(text) {
