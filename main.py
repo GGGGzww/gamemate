@@ -610,6 +610,20 @@ class AuthReq(BaseModel):
 _login_fails = {}
 
 
+def _login_locked(username):
+    info = _login_fails.get(username)
+    return bool(info and info[1] > time.time())
+
+
+def _login_fail(username):
+    info = _login_fails.get(username) or [0, 0.0]
+    info[0] += 1
+    if info[0] >= 5:
+        info[1] = time.time() + 300
+        info[0] = 0
+    _login_fails[username] = info
+
+
 def _new_session(username):
     token = secrets.token_urlsafe(32)
     expires = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() + 30 * 24 * 3600))
@@ -655,9 +669,13 @@ async def register(req: AuthReq):
 @app.post("/api/auth/login")
 async def login(req: AuthReq):
     username = (req.username or "").strip()
+    if _login_locked(username):
+        raise HTTPException(status_code=429, detail="密码错误次数过多，5 分钟后再试")
     row = conn.execute("SELECT password_hash, password_salt FROM users WHERE username = ?", (username,)).fetchone()
     if not row or not hmac.compare_digest(_hash_password(req.password or "", row[1]), row[0]):
+        _login_fail(username)
         raise HTTPException(status_code=400, detail="用户名或密码错误")
+    _login_fails.pop(username, None)
     return {"success": True, "data": {"username": username, "token": _new_session(username)}}
 
 
@@ -964,6 +982,12 @@ async def create_addon(req: AddonReq, request: Request):
     return {"success": True, "id": addon_id}
 
 
+def _addon_like_count(addon_id):
+    cur = conn.execute("SELECT likes FROM addons WHERE id = ?", (addon_id,))
+    row = cur.fetchone()
+    return row[0] if row else None
+
+
 @app.post("/api/addons/{addon_id}/download")
 async def download_addon(addon_id: str):
     conn.execute("UPDATE addons SET downloads = downloads + 1 WHERE id = ?", (addon_id,))
@@ -971,6 +995,38 @@ async def download_addon(addon_id: str):
     cur = conn.execute("SELECT downloads FROM addons WHERE id = ?", (addon_id,))
     row = cur.fetchone()
     return {"success": True, "downloads": row[0] if row else 1}
+
+
+@app.post("/api/addons/{addon_id}/like")
+async def like_addon(addon_id: str, req: LikeReq, request: Request):
+    if not _auth_user(request):
+        raise HTTPException(status_code=401, detail="点赞需要先登录")
+    voter = (req.voter or "").strip()[:36]
+    if not voter:
+        raise HTTPException(status_code=400, detail="缺少 voter")
+    if _addon_like_count(addon_id) is None:
+        raise HTTPException(status_code=404, detail="插件不存在")
+    cur = conn.execute("INSERT OR IGNORE INTO addon_likes (addon_id, voter) VALUES (?, ?)", (addon_id, voter))
+    if cur.rowcount:
+        conn.execute("UPDATE addons SET likes = likes + 1 WHERE id = ?", (addon_id,))
+        conn.commit()
+    return {"success": True, "liked": True, "likes": _addon_like_count(addon_id)}
+
+
+@app.post("/api/addons/{addon_id}/unlike")
+async def unlike_addon(addon_id: str, req: LikeReq, request: Request):
+    if not _auth_user(request):
+        raise HTTPException(status_code=401, detail="点赞需要先登录")
+    voter = (req.voter or "").strip()[:36]
+    if not voter:
+        raise HTTPException(status_code=400, detail="缺少 voter")
+    if _addon_like_count(addon_id) is None:
+        raise HTTPException(status_code=404, detail="插件不存在")
+    cur = conn.execute("DELETE FROM addon_likes WHERE addon_id = ? AND voter = ?", (addon_id, voter))
+    if cur.rowcount:
+        conn.execute("UPDATE addons SET likes = MAX(likes - 1, 0) WHERE id = ?", (addon_id,))
+        conn.commit()
+    return {"success": True, "liked": False, "likes": _addon_like_count(addon_id)}
 
 
 # --- 配装模拟方案云端保存与读取 API ---
