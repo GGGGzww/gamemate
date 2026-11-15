@@ -448,6 +448,52 @@
       background: var(--accent-muted);
     }
 
+    /* 小游戏舞台与沉浸全屏自适应容器（修复 flex-1 下 iframe 默认塌缩为 150px 仅显示 1/3 的问题） */
+    .gm-game-stage {
+      position: relative;
+      width: 100%;
+      flex: 1 1 auto;
+      height: calc(100vh - 148px);
+      min-height: 660px;
+      background: #04060a;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(245, 158, 11, 0.32);
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.65);
+    }
+    .gm-game-stage > iframe {
+      position: absolute !important;
+      inset: 0 !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      border: 0 !important;
+      display: block !important;
+    }
+    body.gm-game-fs-active {
+      overflow: hidden !important;
+    }
+    body.gm-game-fs-active #sec-games,
+    body.gm-game-fs-active #sec-games > .epic-panel {
+      animation: none !important;
+      transform: none !important;
+      overflow: visible !important;
+    }
+    .gm-game-stage.gm-game-fullscreen {
+      position: fixed !important;
+      inset: 0 !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      min-height: 100vh !important;
+      max-height: 100vh !important;
+      z-index: 9999 !important;
+      border-radius: 0 !important;
+      border: 0 !important;
+    }
+
     /* 弹窗 */
     .gm-modal-panel {
       background: var(--panel-bg);
@@ -501,7 +547,7 @@
     main > section { animation: gm-fade-in 0.2s ease both; }
     @keyframes gm-fade-in {
       from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
+      to { opacity: 1; transform: none; }
     }
 
     /* 图片画廊与上传预览缩略图 */
@@ -658,7 +704,10 @@
             </button>
             <span class="text-xs text-gray-400 hidden sm:inline">觉得这篇帖子有帮助？点个赞让更多开荒队友看到！</span>
           </div>
-          <button onclick="document.getElementById('post-modal-reply-content').focus()" class="px-4 py-2 ghost-btn text-xs cursor-pointer">💬 参与回帖 →</button>
+          <div class="flex items-center gap-2">
+            <button id="post-modal-delete" class="hidden px-3.5 py-2 rounded-xl border border-red-500/45 bg-red-500/15 hover:bg-red-500/25 text-red-300 text-xs font-bold transition cursor-pointer">🗑️ 删除帖子</button>
+            <button onclick="document.getElementById('post-modal-reply-content').focus()" class="px-4 py-2 ghost-btn text-xs cursor-pointer">💬 参与回帖 →</button>
+          </div>
         </div>
       </div>
 
@@ -1751,21 +1800,23 @@
   </section>
 
   <!-- 6. 摸鱼小游戏模块 -->
-  <section id="sec-games" class="hidden flex-1 flex flex-col">
-    <div class="epic-panel p-4 sm:p-6 flex-1 flex flex-col">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-amber-500/20 pb-4 mb-4">
+  <section id="sec-games" class="hidden flex-1 flex flex-col min-h-0">
+    <div class="epic-panel p-3 sm:p-5 flex-1 flex flex-col min-h-0">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-amber-500/20 pb-3 mb-3 shrink-0">
         <div>
           <h2 class="wow-serif text-xl text-amber-300 font-bold">🎮 集合石排队 · 炉石角休闲小游戏</h2>
-          <p class="text-xs text-gray-400 mt-1">等待团长组人间隙，来一局经典地牢爬塔消遣</p>
+          <p class="text-xs text-gray-400 mt-0.5">等待团长组人间隙，来一局经典地牢爬塔消遣</p>
         </div>
-        <div class="flex flex-wrap items-center gap-2.5">
+        <div class="flex flex-wrap items-center gap-2">
           <button onclick="selectGame('tower')" id="btn-game-tower" class="px-4 py-2 rounded-xl border border-amber-500/30 text-xs sm:text-sm font-bold transition game-btn-active cursor-pointer">🧙‍♂️ 魔法高塔</button>
           <button onclick="selectGame('mota')" id="btn-game-mota" class="px-4 py-2 rounded-xl border border-amber-500/30 text-xs sm:text-sm font-bold text-gray-300 hover:text-amber-300 transition cursor-pointer">🏰 经典魔塔</button>
+          <button onclick="toggleGameFullscreen()" id="btn-game-fullscreen" class="px-3.5 py-2 text-xs ghost-btn cursor-pointer" title="将小游戏铺满整个浏览器窗口">⛶ 网页全屏</button>
           <a id="external-game-link" href="https://solomons-keep-web-chao.scotty6174.chatgpt.site/" target="_blank" rel="noopener noreferrer" class="px-4 py-2 text-xs gold-btn">↗ 全屏畅玩</a>
         </div>
       </div>
-      <div class="w-full bg-[#04060a] rounded-xl overflow-hidden border border-amber-500/30 shadow-2xl relative flex-1" style="height: 75vh; min-height: 540px;">
-        <iframe id="game-iframe" data-src="https://solomons-keep-web-chao.scotty6174.chatgpt.site/" class="w-full h-full border-0" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-fullscreen" allow="fullscreen; autoplay; gamepad" allowfullscreen></iframe>
+      <div id="game-stage-wrap" class="gm-game-stage">
+        <button id="game-exit-fs-btn" onclick="toggleGameFullscreen(false)" class="hidden fixed top-4 right-4 z-[10000] px-3.5 py-2 rounded-xl bg-black/85 hover:bg-amber-500/30 border border-amber-400/50 text-amber-200 text-xs font-bold shadow-2xl backdrop-blur cursor-pointer transition">✕ 退出全屏 (Esc)</button>
+        <iframe id="game-iframe" data-src="https://solomons-keep-web-chao.scotty6174.chatgpt.site/" class="absolute inset-0 w-full h-full border-0 block" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-fullscreen" allow="fullscreen; autoplay; gamepad" allowfullscreen></iframe>
       </div>
     </div>
   </section>
@@ -1835,7 +1886,8 @@
   };
 
   // --- 预览环境兼容：在 blob: / file: 独立预览时提供本地模拟数据，部署后自动走真实后端 ---
-  const IS_STANDALONE_PREVIEW = location.protocol === 'blob:' || location.protocol === 'file:' || location.origin === 'null';
+  const IS_STANDALONE_PREVIEW = location.protocol === 'blob:' || location.protocol === 'file:' || location.origin === 'null' || !/^(gamemate\.fun|www\.gamemate\.fun|localhost|127\.0\.0\.1)$/i.test(location.hostname);
+  const apiFetch = (url, init) => window.fetch(url, init);
   (function initPreviewAdapter() {
     if (!IS_STANDALONE_PREVIEW) return;
     const demoLootSvg = 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1e1b4b"/><stop offset="50%" stop-color="#3b0764"/><stop offset="100%" stop-color="#451a03"/></linearGradient></defs><rect width="640" height="360" fill="url(#bg)"/><rect x="16" y="16" width="608" height="328" rx="16" fill="none" stroke="#f59e0b" stroke-width="2" stroke-opacity="0.6"/><circle cx="140" cy="180" r="64" fill="#f59e0b" fill-opacity="0.18" stroke="#fbbf24" stroke-width="3"/><text x="140" y="196" text-anchor="middle" font-size="48">🗡️</text><text x="235" y="145" fill="#fb923c" font-family="serif" font-weight="900" font-size="26">【传说掉落】雷霆之怒·逐风者的祝福之剑</text><text x="235" y="182" fill="#fde68a" font-family="sans-serif" font-size="16">物品等级 639 · 拾取后绑定 · 唯一</text><text x="235" y="216" fill="#4ade80" font-family="sans-serif" font-size="15">装备：击中可能以闪电之力吞噬目标，造成自然伤害</text><text x="235" y="255" fill="#94a3b8" font-family="sans-serif" font-size="13">📸 泽风岛宏伟宝库首周低保实拍 · 欧皇时刻</text></svg>`);
@@ -1952,24 +2004,74 @@
         post.lastReplyAt = nr.createdAt;
         return jsonResp({ success: true, id: nr.id });
       }
+      if (path.startsWith('/api/posts/') && path.includes('/replies/') && method === 'DELETE') {
+        const parts = path.split('/');
+        const pid = parts[3];
+        const rid = parts[5];
+        const post = mockPosts.find(p => p.id === pid);
+        if (post && Array.isArray(post.replies)) {
+          post.replies = post.replies.filter(r => r.id !== rid);
+          post.replyCount = post.replies.length;
+        }
+        return jsonResp({ success: true });
+      }
+      if (path.startsWith('/api/posts/') && method === 'DELETE') {
+        const id = path.split('/')[3];
+        const idx = mockPosts.findIndex(p => p.id === id);
+        if (idx !== -1) mockPosts.splice(idx, 1);
+        return jsonResp({ success: true });
+      }
       if (path.startsWith('/api/posts/')) {
         const id = path.split('/')[3];
-        const post = mockPosts.find(p => p.id === id) || mockPosts[0];
+        const post = mockPosts.find(p => p.id === id);
+        if (!post) return jsonResp({ success: false, detail: '帖子不存在' }, 404);
         return jsonResp({ success: true, data: post });
+      }
+      if (path.startsWith('/api/addons/') && method === 'DELETE') {
+        const aid = path.split('/')[3];
+        const idx = mockAddons.findIndex(a => a.id === aid);
+        if (idx !== -1) mockAddons.splice(idx, 1);
+        return jsonResp({ success: true });
+      }
+      if (path === '/api/addons' && method === 'POST') {
+        const b = JSON.parse(init.body || '{}');
+        const na = {
+          id: 'addon_' + Date.now().toString(36),
+          name: b.name || '新插件',
+          version: b.version || '1.0.0',
+          gameVersion: b.game_version || '无限 / 11.0',
+          author: '灰烬使者',
+          description: b.description || '',
+          downloadUrl: b.download_url || 'https://www.curseforge.com/wow',
+          likes: 0,
+          downloads: 0,
+          createdAt: new Date().toISOString().replace('T', ' ').substring(0, 19)
+        };
+        mockAddons.unshift(na);
+        return jsonResp({ success: true, id: na.id });
       }
       if (path === '/api/addons') return jsonResp({ success: true, data: mockAddons });
       if (path === '/api/auth/me') return jsonResp({ success: true, data: { username: '灰烬使者' } });
       if (path === '/api/profile') {
+        const inboxList = [];
+        const myReplyList = [];
+        mockPosts.forEach(p => {
+          (p.replies || []).forEach(r => {
+            if (p.author === '灰烬使者' && r.author !== '灰烬使者') {
+              inboxList.push({ id: r.id, postId: p.id, postTitle: p.title, fromAuthor: r.author, content: r.content, createdAt: r.createdAt, images: r.images || [] });
+            }
+            if (r.author === '灰烬使者') {
+              myReplyList.push({ id: r.id, postId: p.id, postTitle: p.title, content: r.content, createdAt: r.createdAt, images: r.images || [] });
+            }
+          });
+        });
         return jsonResp({
           success: true,
           data: {
             username: '灰烬使者',
             posts: mockPosts.filter(p => p.author === '灰烬使者'),
-            inbox: [{ id: 'r1', postId: 'post_demo1', postTitle: '【泽风岛开荒】全首领机制拆解与输出循环细节', fromAuthor: '风行者', content: '很实用，昨晚按这个打法一把过了！', createdAt: '2026-11-15 14:10:00', images: [] }],
-            replies: [
-              { id: 'r2', postId: 'post_demo1', postTitle: '【泽风岛开荒】全首领机制拆解与输出循环细节', content: '祝各位本周都能顺利全通拿到低保！', createdAt: '2026-11-15 14:20:00', images: [] },
-              { id: 'r3', postId: 'post_demo2', postTitle: '晚间8点泽风岛精英亲友车队来稳定治疗/输出', content: '算我一个，今晚准时上线！', createdAt: '2026-11-15 14:50:00', images: [] }
-            ],
+            inbox: inboxList,
+            replies: myReplyList,
             addons: mockAddons.filter(a => a.author === '灰烬使者')
           }
         });
@@ -2120,9 +2222,11 @@
 
   const ALL_TABS = ['home', 'campfire', 'guide', 'forum', 'addons', 'games', 'profile'];
 
+  let currentGameKey = 'tower';
+
   function switchTab(id) {
     if (!ALL_TABS.includes(id)) return;
-    if (id === 'games') loadGameIframe();
+    if (id !== 'games') toggleGameFullscreen(false);
     ALL_TABS.forEach(t => {
       const sec = document.getElementById('sec-' + t);
       if (sec) sec.classList.toggle('hidden', t !== id);
@@ -2130,6 +2234,9 @@
       if (!btn) return;
       btn.classList.toggle('tab-active', t === id);
     });
+    if (id === 'games') {
+      requestAnimationFrame(() => loadGameIframe(currentGameKey));
+    }
     if (id === 'forum') loadPosts();
     if (id === 'home') loadHome();
     if (id === 'addons') loadAddons();
@@ -2160,12 +2267,29 @@
   function loadGameIframe(key) {
     const iframe = document.getElementById('game-iframe');
     if (!iframe) return;
-    const url = GAMES[key || 'tower'];
+    const targetKey = (key && GAMES[key]) ? key : (currentGameKey || 'tower');
+    currentGameKey = targetKey;
+    const url = GAMES[targetKey];
     if (iframe.getAttribute('src') !== url) iframe.src = url;
+  }
+
+  function toggleGameFullscreen(forceState) {
+    const stage = document.getElementById('game-stage-wrap');
+    const exitBtn = document.getElementById('game-exit-fs-btn');
+    const fsBtn = document.getElementById('btn-game-fullscreen');
+    if (!stage) return;
+    const isNowFs = typeof forceState === 'boolean'
+      ? forceState
+      : !stage.classList.contains('gm-game-fullscreen');
+    stage.classList.toggle('gm-game-fullscreen', isNowFs);
+    document.body.classList.toggle('gm-game-fs-active', isNowFs);
+    if (exitBtn) exitBtn.classList.toggle('hidden', !isNowFs);
+    if (fsBtn) fsBtn.textContent = isNowFs ? '🗗 退出全屏' : '⛶ 网页全屏';
   }
 
   function selectGame(key) {
     if (!(key in GAMES)) return;
+    currentGameKey = key;
     const url = GAMES[key];
     loadGameIframe(key);
     document.getElementById('external-game-link').href = url;
@@ -2262,7 +2386,7 @@
     // 优先调用后端新增的 /api/profile 聚合接口（单次 SQL JOIN 查询，且不增加帖子浏览量）
     let loadedFromProfileApi = false;
     try {
-      const pres = await fetch('/api/profile', { headers: authHeaders() });
+      const pres = await apiFetch('/api/profile', { headers: authHeaders() });
       if (pres.ok) {
         const pjson = await pres.json();
         if (pjson.success && pjson.data) {
@@ -2278,7 +2402,7 @@
     // 兼容兜底：若后端尚未升级 /api/profile，则回退为组合接口查询
     if (!loadedFromProfileApi) {
       try {
-        const res = await fetch('/api/posts?author=' + encodeURIComponent(activeName));
+        const res = await apiFetch('/api/posts?author=' + encodeURIComponent(activeName));
         const json = await res.json();
         if (json.success && Array.isArray(json.data)) myPosts = json.data;
       } catch (e) {}
@@ -2286,12 +2410,12 @@
       const seenInboxKeys = new Set();
       const seenReplyKeys = new Set();
       try {
-        const allRes = await fetch('/api/posts');
+        const allRes = await apiFetch('/api/posts');
         const allJson = await allRes.json();
         const candidatePosts = (allJson.success && Array.isArray(allJson.data))
           ? allJson.data.filter(p => (p.replyCount || 0) > 0).slice(0, 20)
           : [];
-        const details = await Promise.all(candidatePosts.map(p => fetch(`/api/posts/${p.id}`).then(r => r.json()).catch(() => null)));
+        const details = await Promise.all(candidatePosts.map(p => apiFetch(`/api/posts/${p.id}`).then(r => r.json()).catch(() => null)));
         details.forEach(d => {
           if (!d || !d.success || !d.data || !Array.isArray(d.data.replies)) return;
           const isMyPost = (d.data.author === activeName);
@@ -2326,7 +2450,7 @@
       } catch (e) {}
 
       try {
-        const ares = await fetch('/api/addons');
+        const ares = await apiFetch('/api/addons');
         const ajson = await ares.json();
         if (ajson.success && Array.isArray(ajson.data)) {
           myAddons = ajson.data.filter(a => a.author === activeName);
@@ -2334,10 +2458,10 @@
       } catch (e) {}
     }
 
-    // 渲染 1：我发布的帖子
+    // 渲染 1：我发布的帖子（支持一键删除）
     document.getElementById('profile-count-posts').textContent = myPosts.length;
     postsBox.innerHTML = myPosts.length
-      ? myPosts.map(p => `<div onclick="openPostModal('${p.id}')" class="loot-card p-4 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+      ? myPosts.map(p => `<div onclick="openPostModal('${p.id}')" class="loot-card p-4 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div class="space-y-1 min-w-0">
             <div class="flex items-center gap-2">
               <span class="text-[11px] px-2 py-0.5 rounded-full ${categoryBadgeClass(p.category)} font-semibold shrink-0">${escapeHtml(p.category)}</span>
@@ -2345,35 +2469,44 @@
             </div>
             <p class="text-xs text-gray-400 truncate">${escapeHtml(p.content)}</p>
           </div>
-          <div class="text-xs text-gray-400 shrink-0 font-mono">🔥 ${p.likes} · 💬 ${p.replyCount || 0} · ${p.createdAt.substring(5, 16)}</div>
+          <div class="flex items-center gap-3 shrink-0">
+            <span class="text-xs text-gray-400 font-mono">🔥 ${p.likes} · 💬 ${p.replyCount || 0} · ${p.createdAt.substring(5, 16)}</span>
+            <button onclick="event.stopPropagation(); deletePost('${p.id}')" class="px-2.5 py-1 rounded-lg border border-red-500/40 bg-red-500/15 hover:bg-red-500/25 text-red-300 text-xs font-semibold transition cursor-pointer" title="删除这篇帖子">🗑️ 删除</button>
+          </div>
         </div>`).join('')
       : `<div class="text-center py-12 text-gray-400 text-sm">📜 你还没有发布过主题帖，去酒馆发第一篇吧！</div>`;
 
-    // 渲染 2：别人回复我的
+    // 渲染 2：别人回复我的（作为楼主可管理删除）
     document.getElementById('profile-count-inbox').textContent = repliesToMe.length;
     inboxBox.innerHTML = repliesToMe.length
       ? repliesToMe.map(r => `<div onclick="openPostModal('${r.postId}')" class="loot-card p-4 cursor-pointer space-y-1.5">
           <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-gray-400">
             <span>🔔 <strong class="text-emerald-500 font-bold">${escapeHtml(r.fromAuthor)}</strong> 回复了你的帖子《<strong class="text-amber-200">${escapeHtml(r.postTitle)}</strong>》</span>
-            <span class="font-mono shrink-0">${escapeHtml((r.createdAt || '').substring(5, 16))}</span>
+            <div class="flex items-center gap-2 shrink-0">
+              <span class="font-mono">${escapeHtml((r.createdAt || '').substring(5, 16))}</span>
+              ${r.id ? `<button onclick="event.stopPropagation(); deleteReply('${r.postId}', '${r.id}')" class="px-2 py-0.5 rounded border border-red-500/35 bg-red-500/10 hover:bg-red-500/25 text-red-300 text-[11px] transition cursor-pointer">🗑️ 删除</button>` : ''}
+            </div>
           </div>
           <p class="text-sm text-gray-200 leading-relaxed">${escapeHtml(r.content)}</p>
         </div>`).join('')
       : `<div class="text-center py-12 text-gray-400 text-sm">🔔 还没有收到其他冒险者的回复，多去酒馆发帖交流吧！</div>`;
 
-    // 渲染 3：我发表的评论
+    // 渲染 3：我发表的评论（支持删除自己的评论）
     document.getElementById('profile-count-replies').textContent = myReplies.length;
     repliesBox.innerHTML = myReplies.length
       ? myReplies.map(r => `<div onclick="openPostModal('${r.postId}')" class="loot-card p-4 cursor-pointer space-y-1.5">
           <div class="flex items-center justify-between gap-2 text-xs text-gray-400">
             <span>💬 回复于帖子：<strong class="text-amber-200">${escapeHtml(r.postTitle)}</strong></span>
-            <span class="font-mono shrink-0">${escapeHtml((r.createdAt || '').substring(5, 16))}</span>
+            <div class="flex items-center gap-2 shrink-0">
+              <span class="font-mono">${escapeHtml((r.createdAt || '').substring(5, 16))}</span>
+              ${r.id ? `<button onclick="event.stopPropagation(); deleteReply('${r.postId}', '${r.id}')" class="px-2 py-0.5 rounded border border-red-500/35 bg-red-500/10 hover:bg-red-500/25 text-red-300 text-[11px] transition cursor-pointer">🗑️ 删除</button>` : ''}
+            </div>
           </div>
           <p class="text-sm text-gray-200 leading-relaxed">${escapeHtml(r.content)}</p>
         </div>`).join('')
       : `<div class="text-center py-12 text-gray-400 text-sm">💬 暂无你的回帖评论记录，去酒馆帖子里互动吧！</div>`;
 
-    // 渲染 4：我分享的插件
+    // 渲染 4：我分享的插件（支持删除自己上传的插件）
     document.getElementById('profile-count-addons').textContent = myAddons.length;
     addonsBox.innerHTML = myAddons.length
       ? myAddons.map(a => `<div class="loot-card p-4 flex flex-col justify-between gap-2">
@@ -2384,9 +2517,12 @@
             </div>
             <p class="text-xs text-gray-400 mt-1 line-clamp-2">${escapeHtml(a.description || '（无简介）')}</p>
           </div>
-          <div class="text-xs text-gray-400 pt-2 border-t border-amber-500/15 flex justify-between">
+          <div class="text-xs text-gray-400 pt-2 border-t border-amber-500/15 flex items-center justify-between gap-2">
             <span>⬇️ ${a.downloads || 0} 次下载 · 🔥 ${a.likes}</span>
-            <a href="${escapeHtml(a.downloadUrl)}" target="_blank" rel="noopener" class="text-amber-300 hover:underline">下载链接 ↗</a>
+            <div class="flex items-center gap-2">
+              <a href="${escapeHtml(a.downloadUrl)}" target="_blank" rel="noopener" class="text-amber-300 hover:underline">下载链接 ↗</a>
+              <button onclick="deleteAddon('${a.id}')" class="px-2.5 py-1 rounded-lg border border-red-500/40 bg-red-500/15 hover:bg-red-500/25 text-red-300 text-xs font-semibold transition cursor-pointer">🗑️ 删除</button>
+            </div>
           </div>
         </div>`).join('')
       : `<div class="md:col-span-2 text-center py-12 text-gray-400 text-sm">🧩 你还没有分享过插件，点击右上角「分享插件」贡献你的常用工具吧！</div>`;
@@ -2428,7 +2564,7 @@
     if (!category) { showToast('请选择版块', 'error'); return; }
     if (!title || (!content && pendingPublishImages.length === 0)) { showToast('标题和内容（或配图）不能为空', 'error'); return; }
     try {
-      const res = await fetch('/api/posts', {
+      const res = await apiFetch('/api/posts', {
         method: 'POST', headers: authHeaders(),
         body: JSON.stringify({ category, title, content, images: pendingPublishImages })
       });
@@ -2451,7 +2587,7 @@
       const url = onlyMine
         ? '/api/posts?author=' + encodeURIComponent(currentUser)
         : '/api/posts' + (currentBoard ? '?category=' + encodeURIComponent(currentBoard) : '');
-      const res = await fetch(url);
+      const res = await apiFetch(url);
       const json = await res.json();
       const container = document.getElementById('forum-posts-list');
       if (!json.success || json.data.length === 0) {
@@ -2485,9 +2621,12 @@
                 <span class="text-amber-200/85 font-medium">✍️ ${escapeHtml(p.author)}</span>
                 <span class="text-gray-500">👁 ${p.views || 0} · 💬 ${p.replyCount || 0} · 最后回复 ${p.lastReplyAt ? p.lastReplyAt.substring(5, 16) : '—'}</span>
               </div>
-              <button data-like-id="${p.id}" class="like-btn px-3 py-1 rounded-lg bg-[#0c101a] hover:bg-[#1a2236] text-amber-300 border border-amber-500/30 transition cursor-pointer font-medium">
-                ${liked.includes(p.id) ? '❤️ 已赞' : '🔥 点赞'} (${p.likes})
-              </button>
+              <div class="flex items-center gap-2">
+                ${currentUser && p.author === currentUser ? `<button data-del-post-id="${p.id}" class="px-2.5 py-1 rounded-lg border border-red-500/40 bg-red-500/15 hover:bg-red-500/25 text-red-300 transition cursor-pointer font-medium">🗑️ 删除</button>` : ''}
+                <button data-like-id="${p.id}" class="like-btn px-3 py-1 rounded-lg bg-[#0c101a] hover:bg-[#1a2236] text-amber-300 border border-amber-500/30 transition cursor-pointer font-medium">
+                  ${liked.includes(p.id) ? '❤️ 已赞' : '🔥 点赞'} (${p.likes})
+                </button>
+              </div>
             </div>
           </div>
         `;
@@ -2500,6 +2639,8 @@
   document.getElementById('forum-posts-list').addEventListener('click', (e) => {
     const zoomEl = e.target.closest('[data-zoom-src]');
     if (zoomEl) { e.stopPropagation(); openImageLightbox(zoomEl.dataset.zoomSrc); return; }
+    const delBtn = e.target.closest('[data-del-post-id]');
+    if (delBtn) { e.stopPropagation(); deletePost(delBtn.dataset.delPostId); return; }
     const likeBtn = e.target.closest('[data-like-id]');
     if (likeBtn) { toggleLike(likeBtn.dataset.likeId, likeBtn); return; }
     const card = e.target.closest('[data-post-id]');
@@ -2510,7 +2651,7 @@
     if (!currentUser) { openAuthModal('login'); return; }
     const liked = getLikedPosts().includes(postId);
     try {
-      const res = await fetch(`/api/posts/${postId}/${liked ? 'unlike' : 'like'}`, {
+      const res = await apiFetch(`/api/posts/${postId}/${liked ? 'unlike' : 'like'}`, {
         method: 'POST', headers: authHeaders(),
         body: JSON.stringify({ voter: myClientId })
       });
@@ -2530,7 +2671,7 @@
   let currentModalPostTitle = '';
   async function openPostModal(postId) {
     try {
-      const res = await fetch(`/api/posts/${postId}`);
+      const res = await apiFetch(`/api/posts/${postId}`);
       const json = await res.json();
       if (!json.success) { showToast('帖子不存在或已被删除', 'error'); return; }
       const p = json.data;
@@ -2568,6 +2709,12 @@
       const likeBtn = document.getElementById('post-modal-like');
       likeBtn.dataset.postId = p.id;
       likeBtn.textContent = `${getLikedPosts().includes(p.id) ? '❤️ 已赞支持' : '🔥 点赞支持'} (${p.likes})`;
+      const delPostBtn = document.getElementById('post-modal-delete');
+      if (delPostBtn) {
+        const canDelPost = !!(currentUser && p.author === currentUser);
+        delPostBtn.classList.toggle('hidden', !canDelPost);
+        delPostBtn.onclick = canDelPost ? () => deletePost(p.id) : null;
+      }
       document.getElementById('post-modal-reply-count').textContent = p.replyCount || (p.replies ? p.replies.length : 0);
 
       const floorNames = ['沙发', '板凳', '地板'];
@@ -2576,6 +2723,7 @@
         ? p.replies.map((r, idx) => {
             const avatarChar = (r.author || '友').substring(0, 1).toUpperCase();
             const isOp = r.author === p.author;
+            const canDelReply = !!(currentUser && r.id && (r.author === currentUser || p.author === currentUser));
             const floorTag = idx < 3 ? `#${idx + 2} ${floorNames[idx]}` : `#${idx + 2} 楼`;
             const rImgs = Array.isArray(r.images) ? r.images : [];
             const rImgsHtml = rImgs.length
@@ -2593,7 +2741,10 @@
                     <div class="text-[11px] text-gray-400 font-mono">${escapeHtml((r.createdAt || '').substring(5, 16))}</div>
                   </div>
                 </div>
-                <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-gray-400 shrink-0">${floorTag}</span>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  ${canDelReply ? `<button onclick="deleteReply('${p.id}', '${r.id}')" class="text-[11px] px-2 py-0.5 rounded border border-red-500/35 bg-red-500/10 hover:bg-red-500/25 text-red-300 transition cursor-pointer" title="删除此条回帖">🗑️</button>` : ''}
+                  <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-gray-400">${floorTag}</span>
+                </div>
               </div>
               ${r.content ? `<div class="text-sm text-gray-200 leading-relaxed pl-11 break-words">${escapeHtml(r.content)}</div>` : ''}
               ${rImgsHtml}
@@ -2615,6 +2766,43 @@
     renderReplyImagePreviews();
   }
 
+  function deletePost(postId) {
+    if (!currentUser) { openAuthModal('login'); return; }
+    openConfirmModal('确定要删除这篇帖子吗？删除后帖子及其回帖将不可恢复。', async () => {
+      try {
+        const res = await apiFetch(`/api/posts/${postId}`, { method: 'DELETE', headers: authHeaders() });
+        const json = await res.json();
+        if (res.status === 401) { openAuthModal('login'); return; }
+        if (!res.ok || !json.success) { showToast(json.detail || '删除帖子失败', 'error'); return; }
+        if (currentModalPostId === postId) closePostModal();
+        showToast('🗑️ 帖子已删除', 'success');
+        loadPosts();
+        loadHome();
+        if (!document.getElementById('sec-profile').classList.contains('hidden')) loadProfile();
+      } catch (e) {
+        showToast('删除失败，请检查网络', 'error');
+      }
+    });
+  }
+
+  function deleteReply(postId, replyId) {
+    if (!currentUser) { openAuthModal('login'); return; }
+    openConfirmModal('确定要删除这条评论回复吗？', async () => {
+      try {
+        const res = await apiFetch(`/api/posts/${postId}/replies/${replyId}`, { method: 'DELETE', headers: authHeaders() });
+        const json = await res.json();
+        if (res.status === 401) { openAuthModal('login'); return; }
+        if (!res.ok || !json.success) { showToast(json.detail || '删除评论失败', 'error'); return; }
+        showToast('🗑️ 评论已删除', 'success');
+        if (currentModalPostId === postId) openPostModal(postId);
+        loadPosts();
+        if (!document.getElementById('sec-profile').classList.contains('hidden')) loadProfile();
+      } catch (e) {
+        showToast('删除失败，请检查网络', 'error');
+      }
+    });
+  }
+
   async function openNewsModal(i) {
     const n = cachedNews[i];
     if (!n) return;
@@ -2629,7 +2817,7 @@
     document.getElementById('news-modal-body').innerHTML = '<div class="text-gray-400 text-sm py-4">正在解析情报卷轴…</div>';
     document.getElementById('news-modal').classList.remove('hidden');
     try {
-      const res = await fetch('/api/news/article?url=' + encodeURIComponent(n.url));
+      const res = await apiFetch('/api/news/article?url=' + encodeURIComponent(n.url));
       const json = await res.json();
       if (!res.ok || !json.success) throw new Error('load failed');
       document.getElementById('news-modal-body').innerHTML = json.data.content;
@@ -2690,7 +2878,7 @@
     const t = authToken();
     if (!t && !IS_STANDALONE_PREVIEW) { currentUser = ''; renderAuthArea(); return; }
     try {
-      const res = await fetch('/api/auth/me', { headers: t ? { 'Authorization': 'Bearer ' + t } : {} });
+      const res = await apiFetch('/api/auth/me', { headers: t ? { 'Authorization': 'Bearer ' + t } : {} });
       const json = await res.json();
       currentUser = (res.ok && json.success) ? json.data.username : '';
       if (!currentUser) try { localStorage.removeItem('gm-auth-token'); } catch (e) {}
@@ -2718,7 +2906,7 @@
     const errEl = document.getElementById('auth-error');
     if (!username || !password) { errEl.textContent = '用户名和密码不能为空'; errEl.classList.remove('hidden'); return; }
     try {
-      const res = await fetch(`/api/auth/${authMode}`, {
+      const res = await apiFetch(`/api/auth/${authMode}`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
       });
@@ -2734,7 +2922,7 @@
     } catch (e) { errEl.textContent = '请求失败，请检查网络'; errEl.classList.remove('hidden'); }
   }
   async function logout() {
-    try { await fetch('/api/auth/logout', { method: 'POST', headers: authHeaders() }); } catch (e) {}
+    try { await apiFetch('/api/auth/logout', { method: 'POST', headers: authHeaders() }); } catch (e) {}
     try { localStorage.removeItem('gm-auth-token'); } catch (e) {}
     currentUser = ''; onlyMine = false;
     renderAuthArea(); renderBoardNav(); loadPosts();
@@ -2747,7 +2935,7 @@
     if (!currentModalPostId) return;
     if (!content && pendingReplyImages.length === 0) { showToast('回帖内容或配图不能为空', 'error'); return; }
     try {
-      const res = await fetch(`/api/posts/${currentModalPostId}/replies`, {
+      const res = await apiFetch(`/api/posts/${currentModalPostId}/replies`, {
         method: 'POST', headers: authHeaders(),
         body: JSON.stringify({ content, images: pendingReplyImages })
       });
@@ -2798,7 +2986,7 @@
   document.getElementById('post-modal-reply-content').addEventListener('keydown', (e) => { if (e.key === 'Enter') submitReply(); });
   document.getElementById('auth-password').addEventListener('keydown', (e) => { if (e.key === 'Enter') submitAuth(); });
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') { closeImageLightbox(); closeCodexInspectModal(); closePostModal(); closePublishModal(); closeShareAddonModal(); closeAuthModal(); closeNewsModal(); closePwdModal(); closeConfirmModal(false); }
+    if (e.key === 'Escape') { toggleGameFullscreen(false); closeImageLightbox(); closeCodexInspectModal(); closePostModal(); closePublishModal(); closeShareAddonModal(); closeAuthModal(); closeNewsModal(); closePwdModal(); closeConfirmModal(false); }
   });
 
   function renderMemberSlots(count, max) {
@@ -2842,7 +3030,7 @@
 
   async function loadGuides() {
     try {
-      const res = await fetch('/api/posts?category=' + encodeURIComponent('攻略心得'));
+      const res = await apiFetch('/api/posts?category=' + encodeURIComponent('攻略心得'));
       const json = await res.json();
       const box = document.getElementById('guide-posts-list');
       if (!box) return;
@@ -2938,7 +3126,7 @@
       if (currentNewsSource) qs.set('source', currentNewsSource);
       if (forceRefresh) qs.set('refresh', '1');
       const url = '/api/news' + (qs.toString() ? `?${qs.toString()}` : '');
-      const res = await fetch(url);
+      const res = await apiFetch(url);
       const json = await res.json();
       cachedNews = (json.success && json.data) ? json.data : [];
       renderHomeNews();
@@ -2984,7 +3172,7 @@
     loadHomeNews();
     renderHomeRooms(lastLobbyRooms);
     try {
-      const res = await fetch('/api/home');
+      const res = await apiFetch('/api/home');
       const json = await res.json();
       if (!json.success) return;
       const d = json.data;
@@ -3003,7 +3191,7 @@
       if (heroRooms) heroRooms.textContent = d.stats.rooms;
     } catch (e) { console.error(e); }
     try {
-      const ares = await fetch('/api/addons');
+      const ares = await apiFetch('/api/addons');
       const ajson = await ares.json();
       const aBox = document.getElementById('home-addons-list');
       const heroAddons = document.getElementById('hero-stat-addons');
@@ -3035,7 +3223,7 @@
 
   async function loadAddons() {
     try {
-      const res = await fetch('/api/addons');
+      const res = await apiFetch('/api/addons');
       const json = await res.json();
       const container = document.getElementById('addons-list');
       if (!json.success || json.data.length === 0) {
@@ -3060,6 +3248,7 @@
             <div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-amber-500/15 text-xs text-gray-400">
               <span>🧑‍💻 ${escapeHtml(a.author)} · ⬇️ ${a.downloads || 0} 次下载</span>
               <span class="flex items-center gap-2">
+                ${currentUser && a.author === currentUser ? `<button data-addon-del-id="${a.id}" class="px-3 py-1.5 rounded-lg border border-red-500/40 bg-red-500/15 hover:bg-red-500/25 text-red-300 transition cursor-pointer font-medium">🗑️ 删除</button>` : ''}
                 <a href="${escapeHtml(a.downloadUrl)}" target="_blank" rel="noopener" onclick="trackAddonDownload('${a.id}')" class="px-3.5 py-1.5 gold-btn text-xs">⬇️ 获取插件</a>
                 <button data-addon-like-id="${a.id}" class="addon-like-btn px-3 py-1.5 rounded-lg bg-[#0c101a] hover:bg-[#1a2236] text-amber-300 border border-amber-500/30 transition cursor-pointer font-medium">
                   ${liked.includes(a.id) ? '❤️ 已赞' : '🔥 点赞'} (${a.likes})
@@ -3074,15 +3263,35 @@
   }
 
   document.getElementById('addons-list').addEventListener('click', (e) => {
+    const delBtn = e.target.closest('[data-addon-del-id]');
+    if (delBtn) { deleteAddon(delBtn.dataset.addonDelId); return; }
     const likeBtn = e.target.closest('[data-addon-like-id]');
     if (likeBtn) toggleAddonLike(likeBtn.dataset.addonLikeId, likeBtn);
   });
+
+  function deleteAddon(addonId) {
+    if (!currentUser) { openAuthModal('login'); return; }
+    openConfirmModal('确定要删除你上传的这个插件吗？删除后不可恢复。', async () => {
+      try {
+        const res = await apiFetch(`/api/addons/${addonId}`, { method: 'DELETE', headers: authHeaders() });
+        const json = await res.json();
+        if (res.status === 401) { openAuthModal('login'); return; }
+        if (!res.ok || !json.success) { showToast(json.detail || '删除插件失败', 'error'); return; }
+        showToast('🗑️ 插件已删除', 'success');
+        loadAddons();
+        loadHome();
+        if (!document.getElementById('sec-profile').classList.contains('hidden')) loadProfile();
+      } catch (e) {
+        showToast('删除失败，请检查网络', 'error');
+      }
+    });
+  }
 
   async function toggleAddonLike(addonId, btn) {
     if (!currentUser) { openAuthModal('login'); return; }
     const liked = getLikedAddons().includes(addonId);
     try {
-      const res = await fetch(`/api/addons/${addonId}/${liked ? 'unlike' : 'like'}`, {
+      const res = await apiFetch(`/api/addons/${addonId}/${liked ? 'unlike' : 'like'}`, {
         method: 'POST', headers: authHeaders(),
         body: JSON.stringify({ voter: myClientId })
       });
@@ -3095,7 +3304,7 @@
   }
 
   async function trackAddonDownload(addonId) {
-    try { await fetch(`/api/addons/${addonId}/download`, { method: 'POST' }); } catch (e) {}
+    try { await apiFetch(`/api/addons/${addonId}/download`, { method: 'POST' }); } catch (e) {}
   }
 
   async function submitAddon() {
@@ -3108,7 +3317,7 @@
     if (!name) { showToast('请填写插件名称', 'error'); return; }
     if (!/^https?:\/\//.test(downloadUrl)) { showToast('下载链接请以 http:// 或 https:// 开头', 'error'); return; }
     try {
-      const res = await fetch('/api/addons', {
+      const res = await apiFetch('/api/addons', {
         method: 'POST', headers: authHeaders(),
         body: JSON.stringify({ name, version, game_version: gameVersion, description, download_url: downloadUrl })
       });
@@ -3580,7 +3789,7 @@
   let cachedSimBuilds = [];
   async function loadSimBuilds() {
     try {
-      const res = await fetch('/api/sim/builds');
+      const res = await apiFetch('/api/sim/builds');
       const json = await res.json();
       cachedSimBuilds = (json.success && Array.isArray(json.data)) ? json.data : [];
       const box = document.getElementById('sim-builds-list');
@@ -3645,7 +3854,7 @@
       dps: lastCalculatedDps || 0
     };
     try {
-      const res = await fetch('/api/sim/builds', {
+      const res = await apiFetch('/api/sim/builds', {
         method: 'POST',
         headers: authHeaders(),
         body: JSON.stringify(payload)

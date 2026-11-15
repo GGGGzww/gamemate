@@ -601,6 +601,41 @@ async def unlike_post(post_id: str, req: LikeReq, request: Request):
     return {"success": True, "liked": False, "likes": _like_count(post_id)}
 
 
+@app.delete("/api/posts/{post_id}")
+async def delete_post(post_id: str, request: Request):
+    username = _auth_user(request)
+    if not username:
+        raise HTTPException(status_code=401, detail="删除帖子需要先登录")
+    row = conn.execute("SELECT author FROM posts WHERE id = ?", (post_id,)).fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail="帖子不存在")
+    if row[0] != username:
+        raise HTTPException(status_code=403, detail="只能删除自己发布的帖子")
+    conn.execute("DELETE FROM replies WHERE post_id = ?", (post_id,))
+    conn.execute("DELETE FROM post_likes WHERE post_id = ?", (post_id,))
+    conn.execute("DELETE FROM posts WHERE id = ?", (post_id,))
+    conn.commit()
+    return {"success": True}
+
+
+@app.delete("/api/posts/{post_id}/replies/{reply_id}")
+async def delete_reply(post_id: str, reply_id: str, request: Request):
+    username = _auth_user(request)
+    if not username:
+        raise HTTPException(status_code=401, detail="删除评论需要先登录")
+    rrow = conn.execute("SELECT author FROM replies WHERE id = ? AND post_id = ?", (reply_id, post_id)).fetchone()
+    if not rrow:
+        raise HTTPException(status_code=404, detail="评论不存在")
+    prow = conn.execute("SELECT author FROM posts WHERE id = ?", (post_id,)).fetchone()
+    post_author = prow[0] if prow else ""
+    if rrow[0] != username and post_author != username:
+        raise HTTPException(status_code=403, detail="只能删除自己发表的评论或自己帖子下的评论")
+    conn.execute("DELETE FROM replies WHERE id = ? AND post_id = ?", (reply_id, post_id))
+    conn.execute("UPDATE posts SET reply_count = MAX(reply_count - 1, 0) WHERE id = ?", (post_id,))
+    conn.commit()
+    return {"success": True}
+
+
 # --- 账号登录认证 ---
 class AuthReq(BaseModel):
     username: str = ""
@@ -1027,6 +1062,22 @@ async def unlike_addon(addon_id: str, req: LikeReq, request: Request):
         conn.execute("UPDATE addons SET likes = MAX(likes - 1, 0) WHERE id = ?", (addon_id,))
         conn.commit()
     return {"success": True, "liked": False, "likes": _addon_like_count(addon_id)}
+
+
+@app.delete("/api/addons/{addon_id}")
+async def delete_addon(addon_id: str, request: Request):
+    username = _auth_user(request)
+    if not username:
+        raise HTTPException(status_code=401, detail="删除插件需要先登录")
+    row = conn.execute("SELECT author FROM addons WHERE id = ?", (addon_id,)).fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail="插件不存在")
+    if row[0] != username:
+        raise HTTPException(status_code=403, detail="只能删除自己上传的插件")
+    conn.execute("DELETE FROM addon_likes WHERE addon_id = ?", (addon_id,))
+    conn.execute("DELETE FROM addons WHERE id = ?", (addon_id,))
+    conn.commit()
+    return {"success": True}
 
 
 # --- 配装模拟方案云端保存与读取 API ---
