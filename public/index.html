@@ -591,7 +591,7 @@
   <img id="img-lightbox-target" src="" alt="大图预览" onclick="event.stopPropagation()" class="max-w-[94vw] max-h-[90vh] object-contain rounded-2xl border border-amber-500/40 shadow-2xl cursor-default">
 </div>
 
-<!-- 装备 / 宠物宝宝 / 幻化 高清外观与属性检视弹窗 -->
+<!-- 装备 / 宠物宝宝 高清外观与属性检视弹窗 -->
 <div id="codex-inspect-modal" onclick="if(event.target.id==='codex-inspect-modal') closeCodexInspectModal()" class="hidden fixed inset-0 z-[88] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 gm-modal-backdrop">
   <div class="gm-modal-panel max-w-xl w-full p-6 space-y-4 max-h-[88vh] overflow-y-auto">
     <div class="flex items-start justify-between gap-3 border-b border-amber-500/20 pb-3">
@@ -907,79 +907,96 @@
 <header class="gm-sidebar">
   <div class="gm-sidebar-inner">
 
-    <!-- 2.1 纯净图形化专属 Logo（3D 浮雕金属字标 + 皇家双剑纹章盾） -->
+    <!-- 2.1 gamemate.fun 专属品牌 Logo（V1 精雕版：双子星轨炉石罗盘 + GameMate.fun + 双胶囊铭牌） -->
     <div class="gm-mobile-top">
-      <div onclick="switchTab('home')" class="cursor-pointer group select-none flex items-center justify-center py-1" title="返回营地总览">
-        <svg viewBox="0 0 228 62" class="w-full max-w-[220px] h-auto drop-shadow-[0_6px_16px_rgba(0,0,0,0.45)] transition-transform duration-200 group-hover:scale-[1.02]">
+      <div id="gm-brand-logo-slot" onclick="switchTab('home')" class="cursor-pointer group select-none flex items-center justify-center py-1 w-full" title="gamemate.fun · 返回营地总览">
+        <svg viewBox="0 0 232 64" width="224" height="62" class="w-full max-w-[224px] h-auto drop-shadow-[0_6px_16px_rgba(0,0,0,0.35)] transition-transform duration-200 group-hover:scale-[1.02]">
           <defs>
-            <linearGradient id="gmGoldBevel" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="#FFFDF0"/>
-              <stop offset="28%" stop-color="#FFE082"/>
-              <stop offset="52%" stop-color="#D99B26"/>
-              <stop offset="58%" stop-color="#9C650C"/>
-              <stop offset="85%" stop-color="#F5C451"/>
-              <stop offset="100%" stop-color="#FFF3B0"/>
+            <!-- 3D 皇家鎏金立体渐变 -->
+            <linearGradient id="gmLogoGold" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#FFFDF5"/>
+              <stop offset="28%" stop-color="#FDE68A"/>
+              <stop offset="52%" stop-color="#F59E0B"/>
+              <stop offset="68%" stop-color="#B45309"/>
+              <stop offset="100%" stop-color="#FEF08A"/>
             </linearGradient>
-            <linearGradient id="gmGoldRim" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#FFF2B2"/>
-              <stop offset="50%" stop-color="#E5A93C"/>
-              <stop offset="100%" stop-color="#8A5A10"/>
+            <!-- 罗盘金属外环斜角渐变 -->
+            <linearGradient id="gmCompassRim" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#FEF3C7"/>
+              <stop offset="45%" stop-color="#D97706"/>
+              <stop offset="80%" stop-color="#78350F"/>
+              <stop offset="100%" stop-color="#FBBF24"/>
             </linearGradient>
-            <linearGradient id="gmArcaneSub" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="#60A5FA"/>
-              <stop offset="50%" stop-color="#38BDF8"/>
-              <stop offset="100%" stop-color="#60A5FA"/>
+            <!-- 深空黑曜石底盘径向渐变 -->
+            <radialGradient id="gmVoidCore" cx="50%" cy="50%" r="52%">
+              <stop offset="0%" stop-color="#0C2D48"/>
+              <stop offset="58%" stop-color="#091326"/>
+              <stop offset="100%" stop-color="#050811"/>
+            </radialGradient>
+            <!-- 主星璇：奥术天蓝至星辉白流光渐变 -->
+            <linearGradient id="gmArcaneStream" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#FFFFFF"/>
+              <stop offset="35%" stop-color="#7DD3FC"/>
+              <stop offset="75%" stop-color="#0284C7"/>
+              <stop offset="100%" stop-color="#1E40AF"/>
             </linearGradient>
-            <linearGradient id="gmShieldBg" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="#1E293B"/>
-              <stop offset="100%" stop-color="#070A12"/>
+            <!-- 伴星轨：圣光流金至琥珀渐变（寓意游伴双星交汇） -->
+            <linearGradient id="gmCompanionStream" x1="100%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#FFFBEB"/>
+              <stop offset="45%" stop-color="#FBBF24"/>
+              <stop offset="100%" stop-color="#D97706"/>
             </linearGradient>
-            <filter id="gmTextExtrude" x="-10%" y="-20%" width="125%" height="150%">
-              <feDropShadow dx="0" dy="1.8" stdDeviation="0" flood-color="#2A1700" flood-opacity="1"/>
-              <feDropShadow dx="0" dy="3" stdDeviation="2.2" flood-color="#000000" flood-opacity="0.75"/>
-            </filter>
-            <filter id="gmGemGlow" x="-40%" y="-40%" width="180%" height="180%">
-              <feGaussianBlur stdDeviation="2" result="blur"/>
+            <filter id="gmStarGlow" x="-35%" y="-35%" width="170%" height="170%">
+              <feGaussianBlur stdDeviation="1.4" result="blur"/>
               <feComposite in="SourceGraphic" in2="blur" operator="over"/>
             </filter>
           </defs>
 
-          <!-- 左侧：交叉双剑 + 六边形艾泽拉斯皇家盾徽 -->
-          <g transform="translate(2, 2)">
-            <line x1="8" y1="8" x2="46" y2="48" stroke="url(#gmGoldRim)" stroke-width="2" stroke-linecap="round"/>
-            <line x1="46" y1="8" x2="8" y2="48" stroke="url(#gmGoldRim)" stroke-width="2" stroke-linecap="round"/>
-            <polygon points="27,2 48,11 48,34 27,54 6,34 6,11" fill="url(#gmShieldBg)" stroke="url(#gmGoldRim)" stroke-width="2.4"/>
-            <polygon points="27,6 44,13.5 44,32.5 27,49 10,32.5 10,13.5" fill="none" stroke="rgba(255,232,163,0.32)" stroke-width="1"/>
-            <polygon points="27,10 34,17 27,24 20,17" fill="rgba(56,189,248,0.16)" stroke="rgba(125,211,252,0.4)" stroke-width="0.8"/>
-            <path d="M19.5,24.5 C16,24.5 14,27 14,30 C14,33 16.5,35.5 19.5,35.5 C23.5,35.5 25.5,24.5 34.5,24.5 C37.5,24.5 40,27 40,30 C40,33 37.5,35.5 34.5,35.5 C30.5,35.5 28.5,24.5 19.5,24.5 Z" fill="none" stroke="url(#gmGoldBevel)" stroke-width="2.8" stroke-linecap="round" filter="url(#gmTextExtrude)"/>
-            <polygon points="27,9 29,14 34,14 30,17 31.5,22 27,19 22.5,22 24,17 20,14 25,14" fill="url(#gmGoldBevel)"/>
+          <!-- ==================== 左侧图标：双子星轨·炉石星盘 (Concept Emblem) ==================== -->
+          <g transform="translate(4, 4)">
+            <!-- 1. 外层黑曜石罗盘底座与双层鎏金护圈 -->
+            <circle cx="28" cy="28" r="25.5" fill="url(#gmVoidCore)" stroke="url(#gmCompassRim)" stroke-width="2.4"/>
+            <circle cx="28" cy="28" r="22.2" fill="none" stroke="#FDE68A" stroke-opacity="0.28" stroke-width="0.8"/>
+
+            <!-- 2. 星盘十二刻度与精密奥术轨迹环 -->
+            <circle cx="28" cy="28" r="19.2" fill="none" stroke="#38BDF8" stroke-opacity="0.45" stroke-width="1" stroke-dasharray="3.2 2.4"/>
+            <circle cx="28" cy="28" r="14.5" fill="none" stroke="#38BDF8" stroke-opacity="0.18" stroke-width="0.7"/>
+
+            <!-- 3. 四方罗盘黄金卡扣（北/南/西/东四极定位，赋予徽章机械与史诗精密感） -->
+            <polygon points="28,0.8 31,5.2 28,7.4 25,5.2" fill="url(#gmLogoGold)" stroke="#2A1700" stroke-width="0.6"/>
+            <polygon points="28,55.2 31,50.8 28,48.6 25,50.8" fill="url(#gmLogoGold)" stroke="#2A1700" stroke-width="0.6"/>
+            <polygon points="0.8,28 5.2,25 7.4,28 5.2,31" fill="url(#gmLogoGold)" stroke="#2A1700" stroke-width="0.6"/>
+            <polygon points="55.2,28 50.8,25 48.6,28 50.8,31" fill="url(#gmLogoGold)" stroke="#2A1700" stroke-width="0.6"/>
+
+            <!-- 4. 核心设计概念：双子交汇炉石星璇（主轨天蓝奥术 + 伴轨流金圣光，隐喻 Game & Mate 战友集结，同时构成 G 字螺旋轮廓） -->
+            <!-- 主星璇（外弧切入中心，带渐变粗细感） -->
+            <path d="M28,10.5 C40,10.5 45.5,21.5 38.5,31.5 C34,37.8 24.5,37.5 21.5,31 C19.5,26.5 23,22 27.8,22.8" fill="none" stroke="url(#gmArcaneStream)" stroke-width="3.8" stroke-linecap="round" filter="url(#gmStarGlow)"/>
+            <!-- 伴星璇（对称环抱而上，金色流光与主轨交织） -->
+            <path d="M28,45.5 C16,45.5 10.5,34.5 17.5,24.5 C22,18.2 31.5,18.5 34.5,25 C36.5,29.5 33,34 28.2,33.2" fill="none" stroke="url(#gmCompanionStream)" stroke-width="2.5" stroke-linecap="round"/>
+
+            <!-- 5. 螺旋尾端伴星粒子 -->
+            <circle cx="20" cy="15.5" r="1.5" fill="#FDE68A"/>
+            <circle cx="36" cy="40.5" r="1.5" fill="#7DD3FC"/>
+            <circle cx="14.5" cy="27.5" r="1.1" fill="#38BDF8"/>
+            <circle cx="41.5" cy="28.5" r="1.1" fill="#FBBF24"/>
+
+            <!-- 6. 中心棱彩奥术星核与北极十字星芒 -->
+            <g filter="url(#gmStarGlow)">
+              <polygon points="28,20.5 30,26 35.5,28 30,30 28,35.5 26,30 20.5,28 26,26" fill="#E0F2FE"/>
+              <polygon points="28,23.5 31.5,28 28,32.5 24.5,28" fill="#38BDF8" stroke="#FFFFFF" stroke-width="0.6"/>
+              <circle cx="28" cy="28" r="2" fill="#FFFFFF"/>
+            </g>
           </g>
 
-          <!-- 右侧：史诗级定制字标区 -->
-          <path d="M58,9 L96,9 L101,6 L106,9 L218,9" fill="none" stroke="url(#gmGoldRim)" stroke-width="1" stroke-opacity="0.55"/>
-          <polygon points="58,7.5 62,9 58,10.5" fill="#F5C25C"/>
+          <!-- ==================== 右侧上排：V2 版 GameMate.fun 黄金+天蓝字标 ==================== -->
+          <text x="64" y="29" fill="url(#gmLogoGold)" stroke="#2A1700" stroke-width="1.3" paint-order="stroke fill" font-family="'Cinzel', 'Inter', serif" font-weight="900" font-size="18.5" letter-spacing="0.4">GameMate</text>
+          <text x="178" y="29" fill="#38BDF8" stroke="#082F49" stroke-width="1.2" paint-order="stroke fill" font-family="'Inter', sans-serif" font-weight="900" font-size="15.5" letter-spacing="0.4">.fun</text>
 
-          <g filter="url(#gmTextExtrude)">
-            <text x="58" y="31" fill="url(#gmGoldBevel)" stroke="#4A2C00" stroke-width="0.6" paint-order="stroke fill" font-family="'Cinzel', 'Noto Serif SC', serif" font-weight="900" font-size="21" letter-spacing="1.5">W</text>
-            <text x="80" y="29.5" fill="url(#gmGoldBevel)" stroke="#4A2C00" stroke-width="0.6" paint-order="stroke fill" font-family="'Cinzel', 'Noto Serif SC', serif" font-weight="900" font-size="17.5" letter-spacing="1">O</text>
-            <text x="97" y="31" fill="url(#gmGoldBevel)" stroke="#4A2C00" stroke-width="0.6" paint-order="stroke fill" font-family="'Cinzel', 'Noto Serif SC', serif" font-weight="900" font-size="21" letter-spacing="1.5">W</text>
-          </g>
-
-          <g filter="url(#gmGemGlow)">
-            <polygon points="123,17 126.5,22.5 123,28 119.5,22.5" fill="#38BDF8" stroke="#FFF2B2" stroke-width="1"/>
-            <polygon points="123,19.2 124.8,22.5 123,25.8 121.2,22.5" fill="#E0F2FE"/>
-          </g>
-
-          <g filter="url(#gmTextExtrude)">
-            <text x="131" y="29.5" fill="url(#gmGoldBevel)" stroke="#4A2C00" stroke-width="0.55" paint-order="stroke fill" font-family="'Cinzel', 'Noto Serif SC', serif" font-weight="900" font-size="15.5" letter-spacing="1.2">FOREVER</text>
-          </g>
-
-          <path d="M58,37 L128,37 L138,34.5 L148,37 L220,37" fill="none" stroke="url(#gmGoldRim)" stroke-width="1.2" stroke-opacity="0.75"/>
-          <polygon points="138,33 141.5,35.8 138,38.6 134.5,35.8" fill="url(#gmGoldBevel)"/>
-
-          <rect x="58" y="42" width="34" height="13" rx="3" fill="#1E293B" stroke="url(#gmGoldRim)" stroke-width="0.9"/>
-          <text x="75" y="51.2" text-anchor="middle" fill="#FFE299" font-family="'Noto Serif SC', serif" font-weight="900" font-size="8.5" letter-spacing="1.5">无限</text>
-          <text x="98" y="51.5" fill="url(#gmArcaneSub)" font-family="'Cinzel', 'Inter', sans-serif" font-weight="700" font-size="9.2" letter-spacing="2.4">GAMEMATE CAMP</text>
+          <!-- ==================== 右侧下排：V4 版 WOW CAMP + 开荒·配装·社区 双胶囊 ==================== -->
+          <rect x="64" y="37" width="64" height="16" rx="4" fill="url(#gmLogoGold)" stroke="#2A1700" stroke-width="0.8"/>
+          <text x="96" y="48" text-anchor="middle" fill="#090D16" font-family="'Inter', sans-serif" font-weight="900" font-size="8.5" letter-spacing="0.6">WOW CAMP</text>
+          <rect x="133" y="37" width="93" height="16" rx="4" fill="#090D16" stroke="url(#gmLogoGold)" stroke-width="1"/>
+          <text x="179.5" y="48" text-anchor="middle" fill="#FDE68A" font-family="'Noto Serif SC', sans-serif" font-weight="800" font-size="8.5" letter-spacing="0.8">开荒 · 配装 · 社区</text>
         </svg>
       </div>
     </div>
@@ -1076,7 +1093,7 @@
           </p>
           <div class="flex flex-wrap items-center gap-2.5 pt-1">
             <button onclick="switchTab('campfire')" class="px-4 py-2 text-xs sm:text-sm gold-btn cursor-pointer">🔥 点燃 / 加入营火</button>
-            <button onclick="switchTab('guide'); switchGuideSubView('sim')" class="px-3.5 py-2 text-xs sm:text-sm ghost-btn cursor-pointer">⚡ DPS配装与幻化</button>
+            <button onclick="switchTab('guide'); switchGuideSubView('sim')" class="px-3.5 py-2 text-xs sm:text-sm ghost-btn cursor-pointer">⚡ DPS模拟与配装</button>
             <button onclick="switchTab('guide'); switchGuideSubView('armory')" class="px-3.5 py-2 text-xs sm:text-sm ghost-btn cursor-pointer">🗡️ 神兵装备库</button>
             <button onclick="switchTab('guide'); switchGuideSubView('pets')" class="px-3.5 py-2 text-xs sm:text-sm ghost-btn cursor-pointer">🐉 宠物与宝宝库</button>
             <button onclick="switchTab('forum')" class="px-3.5 py-2 text-xs sm:text-sm ghost-btn cursor-pointer">🍺 逛酒馆</button>
@@ -1308,7 +1325,7 @@
     </div>
   </section>
 
-  <!-- 3. 英雄秘典与收藏库模块（DPS模拟器 + 毕业配装与幻化 + 神兵装备库 + 宠物宝宝库） -->
+  <!-- 3. 英雄秘典与收藏库模块（DPS模拟器 + 角色全身配装台 + 神兵装备库 + 宠物宝宝库） -->
   <section id="sec-guide" class="hidden flex-1 flex flex-col">
     <div class="epic-panel p-5 sm:p-6 space-y-6 flex-1 flex flex-col">
       <!-- 顶部标题与三大核心子模块切换栏 -->
@@ -1318,12 +1335,12 @@
             <h2 class="wow-serif text-xl text-amber-300 font-bold">📜 泽风岛英雄秘典与图鉴收藏库</h2>
             <span class="text-[11px] wow-en px-2.5 py-0.5 rounded-full q-rare font-bold">CODEX & ARMORY v4.0</span>
           </div>
-          <p class="text-xs text-gray-400 mt-1">集专精 DPS 模拟、毕业装备搭配与幻化推荐、神兵外观装备库、猎人宝宝与战宠坐骑图鉴为一体的战术宝典</p>
+          <p class="text-xs text-gray-400 mt-1">集专精 DPS 模拟、角色全身可视化配装台、神兵装备库、猎人宝宝与战宠坐骑图鉴为一体的战术宝典</p>
         </div>
 
         <!-- 三大子视图切换按钮组 -->
         <div class="flex flex-wrap items-center gap-2 bg-[#080b12] p-1.5 rounded-xl border border-amber-500/30">
-          <button onclick="switchGuideSubView('sim')" id="guide-tab-sim" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-bold gold-btn cursor-pointer transition">⚡ DPS模拟·配装·幻化</button>
+          <button onclick="switchGuideSubView('sim')" id="guide-tab-sim" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-bold gold-btn cursor-pointer transition">⚡ DPS模拟与角色配装</button>
           <button onclick="switchGuideSubView('armory')" id="guide-tab-armory" class="px-4 py-2 rounded-lg text-xs sm:text-sm ghost-btn cursor-pointer transition">🗡️ 神兵装备库 (外观)</button>
           <button onclick="switchGuideSubView('pets')" id="guide-tab-pets" class="px-4 py-2 rounded-lg text-xs sm:text-sm ghost-btn cursor-pointer transition">🐉 宠物与宝宝库 (属性)</button>
         </div>
@@ -1570,35 +1587,124 @@
           </div>
         </div>
 
-        <!-- 第三步（新增核心功能 1）：当前专精毕业装备搭配推荐 (BiS) & 主题外观幻化推荐 -->
-        <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 pt-2">
-          <!-- 左 7 列：当前专精毕业装备搭配推荐 (BiS Gear) -->
-          <div class="xl:col-span-7 bg-[#080b12] p-5 rounded-xl border border-amber-500/25 space-y-4">
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-amber-500/15 pb-3">
-              <div>
-                <h3 class="text-sm font-bold text-amber-300 flex items-center gap-2">
-                  <span>🛡️ 第三步：当前专精毕业装备搭配推荐 (BiS Gear)</span>
-                  <span id="bis-spec-badge" class="text-[11px] px-2.5 py-0.5 rounded-full q-legendary font-bold">⚔️ 惩戒圣骑士</span>
-                </h3>
-                <p class="text-xs text-gray-400 mt-0.5">切换上方专精自动更新 6 大核心部位毕业装、制造业美化与附魔宝石建议（点击装备可检视外观）</p>
+        <!-- 第三步（整合版）：角色全身可视化配装台与部位属性检视（支持阵营/种族/性别 + 点击部位自由换装并在下方展示属性） -->
+        <div id="transmog-dressing-room" class="bg-[#080b12] p-5 sm:p-6 rounded-xl border border-amber-500/30 space-y-5 mt-2">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-amber-500/20 pb-3.5">
+            <div>
+              <div class="flex flex-wrap items-center gap-2.5">
+                <h3 class="wow-serif text-base sm:text-lg font-bold text-amber-300">🛡️ 第三步：角色全身配装试衣间与部位属性检视</h3>
+                <span id="bis-spec-badge" class="text-[11px] px-2.5 py-0.5 rounded-full q-legendary font-bold">⚔️ 惩戒圣骑士</span>
               </div>
-              <button onclick="switchGuideSubView('armory')" class="text-xs text-amber-300 hover:underline cursor-pointer">前往神兵装备库 →</button>
+              <p class="text-xs text-gray-400 mt-1">选择阵营、种族与性别，点击角色四周的任意装备槽位即可切换穿戴对应部位装备，并在下方查看该装备完整属性与全身加成</p>
             </div>
-            <div id="spec-bis-gear-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
-            <div id="spec-enchant-gem-bar" class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-400/30 text-xs text-gray-200 flex flex-wrap items-center justify-between gap-2"></div>
+            <div class="flex flex-wrap items-center gap-2">
+              <button onclick="syncEquippedGearToSim()" class="px-3.5 py-1.5 rounded-lg gold-btn text-xs cursor-pointer">⚡ 同步全身配装属性至模拟器</button>
+              <button onclick="randomizeDressingRoom()" class="px-3 py-1.5 rounded-lg ghost-btn text-xs cursor-pointer">🎲 随机配装</button>
+              <button onclick="copyCurrentDressingRoom()" class="px-3 py-1.5 rounded-lg ghost-btn text-xs cursor-pointer">📋 导出配装清单</button>
+            </div>
           </div>
 
-          <!-- 右 5 列：当前专精高人气外观幻化推荐 (Transmog Sets) -->
-          <div class="xl:col-span-5 bg-[#080b12] p-5 rounded-xl border border-amber-500/25 space-y-4">
-            <div class="flex items-center justify-between border-b border-amber-500/15 pb-3">
-              <div>
-                <h3 class="text-sm font-bold text-amber-300">✨ 专精典藏外观幻化推荐 (Transmog)</h3>
-                <p class="text-xs text-gray-400 mt-0.5">包含经典T套复刻、神兵光效配色与调料包部位清单</p>
+          <!-- 上半部：左 7 列 2D 平面角色纸娃娃与可点选装备槽 + 右 5 列 角色体型设置与当前选中部位换装列表 -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+
+            <!-- 左 7 列：2D 平面角色纸娃娃舞台（左右两侧共 8 个护甲槽 + 底部武器与饰品槽，全部支持点击选中） -->
+            <div class="lg:col-span-7 bg-[#050811] rounded-2xl border border-amber-500/35 p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden shadow-2xl min-h-[480px]">
+              <div class="flex flex-wrap items-center justify-between gap-2 z-10 pb-2.5 border-b border-white/10">
+                <div class="flex items-center gap-2 min-w-0">
+                  <span id="dress-stage-faction-pill" class="text-xs px-2.5 py-0.5 rounded-full font-bold bg-blue-500/20 text-blue-300 border border-blue-400/40 shrink-0">🦁 联盟</span>
+                  <span id="dress-stage-title" class="wow-serif text-sm sm:text-base font-black text-amber-100 truncate">人类 · 男性 · 永恒审判战甲</span>
+                </div>
+                <span id="dress-stage-ilvl" class="text-xs font-mono text-amber-300 font-bold shrink-0">⚡ 全身平均装等 639</span>
               </div>
-              <span class="text-[11px] px-2.5 py-0.5 rounded-full q-epic font-bold">幻化调料包</span>
+
+              <!-- 中部：左侧 4 槽 (头/肩/背/胸) + 中央 2D 平面角色立绘 + 右侧 4 槽 (手/腰/腿/脚) -->
+              <div class="grid grid-cols-12 gap-2 sm:gap-3 items-center my-auto py-2 z-10">
+                <div id="dress-slots-left" class="col-span-4 sm:col-span-3 space-y-2"></div>
+                <div class="col-span-4 sm:col-span-6 h-[330px] sm:h-[360px] flex flex-col items-center justify-center relative select-none">
+                  <div id="dressing-room-canvas" class="w-full h-full flex items-center justify-center relative"></div>
+                </div>
+                <div id="dress-slots-right" class="col-span-4 sm:col-span-3 space-y-2"></div>
+              </div>
+
+              <!-- 底部：主手神兵槽 + 毕业饰品槽（点击同样可切换武器/饰品并查看属性） -->
+              <div id="dress-weapon-bar" class="pt-2.5 border-t border-white/10 grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs z-10"></div>
             </div>
-            <div id="spec-transmog-list" class="space-y-3"></div>
+
+            <!-- 右 5 列：阵营/种族/性别切换 + 当前点选部位的可选装备库 -->
+            <div class="lg:col-span-5 flex flex-col justify-between gap-4">
+              <!-- 角色阵营、种族、性别与全身流派预设 -->
+              <div class="loot-card p-4 space-y-3">
+                <div class="flex items-center justify-between border-b border-amber-500/15 pb-2">
+                  <span class="text-xs font-bold text-amber-300">🧬 角色阵营 · 种族 · 性别与套装流派</span>
+                  <div class="flex items-center gap-2 text-[11px] text-gray-400">
+                    <label class="inline-flex items-center gap-1 cursor-pointer"><input type="checkbox" id="dress-toggle-helm" checked onchange="renderDressingRoom()" class="accent-amber-500"><span>头盔</span></label>
+                    <label class="inline-flex items-center gap-1 cursor-pointer"><input type="checkbox" id="dress-toggle-cloak" checked onchange="renderDressingRoom()" class="accent-amber-500"><span>披风</span></label>
+                    <label class="inline-flex items-center gap-1 cursor-pointer"><input type="checkbox" id="dress-toggle-aura" checked onchange="renderDressingRoom()" class="accent-amber-500"><span>法阵</span></label>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                  <button type="button" onclick="setDressFaction('alliance')" id="dress-faction-alliance" class="py-1.5 px-3 rounded-xl border text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1.5">
+                    <span>🦁 联盟 (Alliance)</span>
+                  </button>
+                  <button type="button" onclick="setDressFaction('horde')" id="dress-faction-horde" class="py-1.5 px-3 rounded-xl border text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1.5">
+                    <span>🦅 部落 (Horde)</span>
+                  </button>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2">
+                  <div class="col-span-2">
+                    <select id="dress-race-select" onchange="onDressRaceChange(this.value)" class="w-full px-2.5 py-1.5 text-xs font-semibold"></select>
+                  </div>
+                  <div class="grid grid-cols-2 gap-1">
+                    <button type="button" onclick="setDressGender('male')" id="dress-gender-male" class="py-1.5 rounded-lg border text-xs font-bold transition cursor-pointer">♂ 男</button>
+                    <button type="button" onclick="setDressGender('female')" id="dress-gender-female" class="py-1.5 rounded-lg border text-xs font-bold transition cursor-pointer">♀ 女</button>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-0.5">
+                  <div>
+                    <label class="block text-[11px] text-gray-400 mb-1">🛡️ 全身护甲套装模型</label>
+                    <select id="dress-set-select" onchange="setDressArmorSet(this.value)" class="w-full px-2.5 py-1.5 text-xs font-semibold">
+                      <option value="judgement">👑 永恒审判战甲 (重装板甲)</option>
+                      <option value="scourgelord">❄️ 冰冠天灾战甲 (寒冰板甲)</option>
+                      <option value="kirintor">🔮 肯瑞托议会法袍 (奥术布甲)</option>
+                      <option value="sindorei">🔥 辛多雷烈焰战衣 (王室战甲)</option>
+                      <option value="illidari">🦅 伊利达雷邪能战甲 (敏捷皮甲)</option>
+                      <option value="farstrider">🏹 远行者将军战甲 (追猎锁甲)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-[11px] text-gray-400 mb-1">🗡️ 主手神兵快速切换</label>
+                    <select id="dress-weapon-select" onchange="setDressWeapon(this.value)" class="w-full px-2.5 py-1.5 text-xs font-semibold">
+                      <option value="ashbringer">✨ 灰烬使者 (双手巨剑)</option>
+                      <option value="thunderfury">⚡ 雷霆之怒 (逐风之剑)</option>
+                      <option value="frostmourne">❄️ 霜之哀伤 (符文重剑)</option>
+                      <option value="aluneth">🔮 艾露尼斯 (守护法杖)</option>
+                      <option value="warglaive">🦅 埃辛诺斯战刃 (邪能双刀)</option>
+                      <option value="thalas_bow">🏹 索利达尔 (群星长弓)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 当前点选部位的可选装备列表（点击装备直接穿戴上身） -->
+              <div class="loot-card p-4 space-y-3 flex-1 flex flex-col">
+                <div class="flex items-center justify-between border-b border-amber-500/15 pb-2">
+                  <div>
+                    <h4 id="active-slot-picker-title" class="text-xs sm:text-sm font-bold text-amber-300">🪖 当前选中部位：【头部】可选装备</h4>
+                    <p class="text-[11px] text-gray-400 mt-0.5">点击下方任意装备即可穿戴到角色身上并查看下方详细属性</p>
+                  </div>
+                  <span class="text-[10px] px-2 py-0.5 rounded-full q-legendary font-bold shrink-0">点选换装</span>
+                </div>
+                <div id="spec-bis-gear-grid" class="space-y-2 flex-1"></div>
+              </div>
+            </div>
           </div>
+
+          <!-- 下半部：当前选中部位所穿戴装备的完整属性面板 + 全身配装总属性汇总与附魔宝石建议 -->
+          <div id="dress-summary-card" class="grid grid-cols-1 lg:grid-cols-12 gap-4 pt-1"></div>
+          <div id="spec-enchant-gem-bar" class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-400/30 text-xs text-gray-200 flex flex-wrap items-center justify-between gap-2"></div>
         </div>
       </div>
 
@@ -1609,7 +1715,7 @@
             <button onclick="filterArmory('all')" data-armory-cat="all" class="px-3.5 py-1.5 rounded-lg text-xs font-bold gold-btn cursor-pointer">⚔️ 全部神兵装备</button>
             <button onclick="filterArmory('weapon')" data-armory-cat="weapon" class="px-3.5 py-1.5 rounded-lg text-xs ghost-btn cursor-pointer">🗡️ 传世神兵武器</button>
             <button onclick="filterArmory('trinket')" data-armory-cat="trinket" class="px-3.5 py-1.5 rounded-lg text-xs ghost-btn cursor-pointer">🔮 团本毕业饰品</button>
-            <button onclick="filterArmory('armor')" data-armory-cat="armor" class="px-3.5 py-1.5 rounded-lg text-xs ghost-btn cursor-pointer">🛡️ 史诗套装与幻化</button>
+            <button onclick="filterArmory('armor')" data-armory-cat="armor" class="px-3.5 py-1.5 rounded-lg text-xs ghost-btn cursor-pointer">🛡️ 史诗套装与护甲</button>
           </div>
           <span class="text-xs text-gray-400">💡 点击任意装备卡片可打开高清立绘与完整属性面板</span>
         </div>
@@ -2244,6 +2350,7 @@
       loadGuides();
       renderArmoryGrid();
       renderCompanionsGrid();
+      requestAnimationFrame(() => renderDressingRoom());
     }
     if (id === 'profile') loadProfile();
   }
@@ -3953,10 +4060,10 @@
     },
     {
       id: 'item_armor_judgement', category: 'armor', name: '永恒审判战甲 · 高清重制典藏套',
-      quality: 'epic', qualityLabel: '典藏套装外观', slot: '全身 8 件套 · 套装与幻化', ilvl: 639,
+      quality: 'epic', qualityLabel: '典藏套装外观', slot: '全身 8 件套 · 团本职业套装', ilvl: 639,
       stats: '2件套：核心消耗技能伤害 +10% · 4件套：触发天锤/灰烬觉醒时绿字全面提升 12%',
       effect: '典藏高清粒子光效：肩部双翼圣契悬浮展开，施放爆发技能时背后浮现金色炽天使光翼。',
-      source: '泽风岛团本套装兑换物 / 化生台转化解锁全套幻化',
+      source: '泽风岛团本套装兑换物 / 化生台转化激活套装属性',
       visualKey: 'armor_judgement'
     }
   ];
@@ -4013,88 +4120,159 @@
     }
   ];
 
-  // 根据专精动态生成：毕业装备推荐 (BiS) + 外观幻化推荐 (Transmog)
-  const SPEC_BIS_PROFILES = {
-    plate_str: {
-      enchantGem: '💎 宝石与附魔推荐：主槽镶嵌【至尊主属性钻石】+ 其余插槽全插【精湛精通/暴击宝石】；武器附魔【圣光威权之誓】，戒指附魔【绚灿精通】。',
-      gear: [
-        { slot: '主手武器', name: '灰烬使者 · 圣光大领主巨剑', ilvl: 639, stat: '暴击 + 精通', src: '泽风岛4号守关 / 神兵任务', inspectId: 'item_ashbringer' },
-        { slot: '毕业饰品 1', name: '泽风之心 · 共鸣奥术核心', ilvl: 639, stat: '主动2分钟爆发主属性+绿字', src: '泽风岛团本 4号首领', inspectId: 'item_trinket_heart' },
-        { slot: '毕业饰品 2', name: '熔核巨像的狂怒铁砧', ilvl: 639, stat: '常驻力量 + 叠层暴击', src: '泽风岛团本 2号首领', inspectId: 'item_trinket_heart' },
-        { slot: '套装4件套', name: '永恒审判胸甲/肩铠/头盔/腿甲', ilvl: 639, stat: '激活4件套 12% 全绿字增幅', src: '团本掉落 / 化生台转化', inspectId: 'item_armor_judgement' },
-        { slot: '制造业美化 1', name: '圣火纹章锻造腰带 (双美化)', ilvl: 636, stat: '自选公函：暴击 + 精通', src: '锻造订单 + 暗影烈焰纹章', inspectId: 'item_armor_judgement' },
-        { slot: '制造业美化 2', name: '圣火纹章护腕 (暗月升华)', ilvl: 636, stat: '自选公函：急速 + 精通', src: '锻造订单 + 暗月美化', inspectId: 'item_armor_judgement' }
-      ],
-      transmogs: [
-        {
-          title: '👑 套装一：高清重制 T2 永恒审判黄金圣骑',
-          style: '红金黑经典宗教审判风 · 炽天使粒子光翼',
-          colors: ['#991b1b', '#f59e0b', '#1e1b4b', '#fef08a'],
-          parts: '头：审判皇冠 · 肩：审判圣契肩铠 · 胸：审判战袍 · 武器：灰烬使者（炽焰外观）',
-          inspectId: 'item_armor_judgement'
-        },
-        {
-          title: '❄️ 套装二：冰冠堡垒天灾领主暗蓝板甲',
-          style: '诺森德寒冰符文风 · 幽蓝冷光粒子特效',
-          colors: ['#0f172a', '#0284c7', '#38bdf8', '#e2e8f0'],
-          parts: '头：巫妖统帅面甲 · 肩：霜语骨刺肩甲 · 披风：寒冬皇室斗篷 · 武器：霜之哀伤回响',
-          inspectId: 'item_frostmourne'
-        }
-      ]
+  // =========================================================================
+  // 🛡️ 第三步（整合版）：2D 平面角色全身配装试衣间 + 部位点选换装 + 下方详细属性展示
+  // =========================================================================
+  const DRESS_RACES = {
+    alliance: [
+      { key: 'human', name: '🛡️ 人类 (Human)', skin: '#f1c6a7', hair: '#5c3a21', eye: '#38bdf8', ear: 'normal', scaleX: 1.0, scaleY: 1.0, trait: '暴风城王国勇士 (+2%全副属性获取)' },
+      { key: 'night_elf', name: '🌙 暗夜精灵 (Night Elf)', skin: '#a78bfa', hair: '#1e1b4b', eye: '#fef08a', ear: 'long_side', scaleX: 0.96, scaleY: 1.06, trait: '艾露恩之触 (+1%急速/暴击)' },
+      { key: 'draenei', name: '💎 德莱尼 (Draenei)', skin: '#60a5fa', hair: '#f8fafc', eye: '#bae6fd', ear: 'horns', scaleX: 1.06, scaleY: 1.05, trait: '英雄灵气 (主属性提升)' },
+      { key: 'dwarf', name: '🍺 矮人 (Dwarf)', skin: '#eab696', hair: '#b45309', eye: '#f59e0b', ear: 'beard', scaleX: 1.12, scaleY: 0.86, trait: '山丘之力 (+2%暴击伤害与治疗)' }
+    ],
+    horde: [
+      { key: 'blood_elf', name: '☀️ 血精灵 (Blood Elf)', skin: '#f7d3ba', hair: '#facc15', eye: '#4ade80', ear: 'long_up', scaleX: 0.93, scaleY: 1.03, trait: '奥术敏锐 (+1%暴击率与能量回复)' },
+      { key: 'orc', name: '🪓 兽人 (Orc)', skin: '#4d7c0f', hair: '#1c1917', eye: '#ef4444', ear: 'tusks', scaleX: 1.16, scaleY: 1.02, trait: '血性狂怒 (爆发期主属性提升)' },
+      { key: 'undead', name: '💀 被遗忘者 (Undead)', skin: '#94a3b8', hair: '#312e81', eye: '#facc15', ear: 'undead', scaleX: 0.92, scaleY: 0.98, trait: '哀伤之触 (攻击附带暗影吸取)' },
+      { key: 'zandalari', name: '👑 赞达拉巨魔 (Zandalari)', skin: '#0d9488', hair: '#dc2626', eye: '#38bdf8', ear: 'troll_tusks', scaleX: 1.02, scaleY: 1.08, trait: '洛阿神灵之拥 (可选暴击或精通赐福)' }
+    ]
+  };
+
+  const DRESS_ARMOR_SETS = {
+    judgement: {
+      name: '永恒审判战甲 (重装板甲)',
+      armorType: '板甲 · 力量专精套装',
+      primary: '#991b1b', secondary: '#fbbf24', trim: '#fef08a', dark: '#1e1b4b', aura: '#f59e0b',
+      wingStyle: 'seraph', helmStyle: 'crown_hood', shoulderStyle: 'tome', robe: true
     },
-    cloth_int: {
-      enchantGem: '💎 宝石与附魔推荐：主槽镶嵌【洞察智力钻石】+ 其余插槽优先【迅捷急速/暴击宝石】；武器附魔【奥术洪流之威】，护腿使用【拂晓魔线】。',
-      gear: [
-        { slot: '主手武器', name: '艾露尼斯 · 守护者之杖', ilvl: 639, stat: '高额智力 + 精通急速', src: '泽风岛团本 3号首领', inspectId: 'item_aluneth' },
-        { slot: '毕业饰品 1', name: '泽风之心 · 共鸣奥术核心', ilvl: 639, stat: '主动2分钟爆发绿字', src: '泽风岛团本 4号首领', inspectId: 'item_trinket_heart' },
-        { slot: '毕业饰品 2', name: '潮汐女祭司的低语海螺', ilvl: 639, stat: '施法叠层急速 + 奥术箭', src: '泽风岛团本 3号首领', inspectId: 'item_trinket_heart' },
-        { slot: '套装4件套', name: '肯瑞托大法师丝绸4件套', ilvl: 639, stat: '激活4件套爆发回能与增伤', src: '团本掉落 / 化生台转化', inspectId: 'item_aluneth' },
-        { slot: '制造业美化 1', name: '织造曙光丝绸便鞋 (双美化)', ilvl: 636, stat: '自选公函：急速 + 暴击', src: '裁缝订单 + 纹章美化', inspectId: 'item_aluneth' },
-        { slot: '制造业美化 2', name: '织造曙光丝绸护腕 (内衬美化)', ilvl: 636, stat: '自选公函：急速 + 精通', src: '裁缝订单 + 蓝缎内衬', inspectId: 'item_aluneth' }
-      ],
-      transmogs: [
-        {
-          title: '🔮 套装一：达拉然六人议会紫金星界法师',
-          style: '奥术紫与鎏金浮空符文 · 施法星辰轨迹',
-          colors: ['#581c87', '#a855f7', '#f59e0b', '#f3e8ff'],
-          parts: '头：星界学者光环 · 肩：浮空奥术宝珠肩 · 胸：提瑞斯法长袍 · 武器：艾露尼斯（奥术之怒）',
-          inspectId: 'item_aluneth'
-        },
-        {
-          title: '🔥 套装二：辛多雷血精灵凤凰烈焰贵族',
-          style: '银月城绯红配灿金 · 凯尔萨斯浮空翠绿宝珠',
-          colors: ['#7f1d1d', '#ef4444', '#facc15', '#22c55e'],
-          parts: '头：烈日王冠 · 肩：凤凰羽翼肩垫 · 背部：翠绿魔导师浮球 · 武器：奎尔萨拉斯金杖',
-          inspectId: 'item_aluneth'
-        }
-      ]
+    scourgelord: {
+      name: '冰冠天灾战甲 (寒冰板甲)',
+      armorType: '板甲 · 凛冬符文套装',
+      primary: '#0f172a', secondary: '#0284c7', trim: '#7dd3fc', dark: '#020617', aura: '#38bdf8',
+      wingStyle: 'frost', helmStyle: 'skull_horns', shoulderStyle: 'spikes', robe: false
     },
-    agi_mail_leather: {
-      enchantGem: '💎 宝石与附魔推荐：主槽镶嵌【敏锐敏捷钻石】+ 其余插槽优先【致命暴击/精通宝石】；武器附魔【风暴猎手之印】，胸甲附魔【觉醒属性】。',
-      gear: [
-        { slot: '主手/远程武器', name: '索利达尔群星长弓 / 埃辛诺斯战刃', ilvl: 639, stat: '满额敏捷 + 暴击精通', src: '泽风岛4号守关掉落', inspectId: 'item_thalas_bow' },
-        { slot: '毕业饰品 1', name: '泽风之心 · 共鸣奥术核心', ilvl: 639, stat: '主动爆发绿字饰品', src: '泽风岛团本 4号首领', inspectId: 'item_trinket_heart' },
-        { slot: '毕业饰品 2', name: '风暴领主的雷霆羽翎', ilvl: 639, stat: '攻击触发连锁闪电顺劈', src: '泽风岛团本 1号首领', inspectId: 'item_thunderfury' },
-        { slot: '套装4件套', name: '追风游侠 / 伊利达雷猎手4件套', ilvl: 639, stat: '激活4件套核心技能必暴', src: '团本掉落 / 化生台转化', inspectId: 'item_warglaive' },
-        { slot: '制造业美化 1', name: '龙鳞/狂野皮甲腰带 (毒液美化)', ilvl: 636, stat: '自选公函：暴击 + 精通', src: '制皮订单 + 纹章美化', inspectId: 'item_warglaive' },
-        { slot: '制造业美化 2', name: '元素焦镜项链 (珠宝双孔美化)', ilvl: 636, stat: '三宝石插槽高绿字', src: '珠宝加工订单', inspectId: 'item_trinket_heart' }
-      ],
-      transmogs: [
-        {
-          title: '🦅 套装一：伊利达雷恶魔猎手邪能幻影',
-          style: '黑曜石皮甲配翠绿邪能纹身 · 双持蛋刀光效',
-          colors: ['#052e16', '#22c55e', '#a855f7', '#bbf7d0'],
-          parts: '头：萨格拉斯诅咒视界 · 肩：邪能利刃护肩 · 胸：伊利达雷束胸 · 武器：埃辛诺斯战刃',
-          inspectId: 'item_warglaive'
-        },
-        {
-          title: '🏹 套装二：奎尔萨拉斯远行者游侠将军',
-          style: '森林翠绿配流金羽饰 · 群星光箭特效',
-          colors: ['#064e3b', '#10b981', '#f59e0b', '#fef3c7'],
-          parts: '头：风行者兜帽 · 肩：金鹰羽翼护肩 · 背部：远行者箭袋 · 武器：索利达尔·群星之怒',
-          inspectId: 'item_thalas_bow'
-        }
-      ]
+    kirintor: {
+      name: '肯瑞托议会法袍 (奥术布甲)',
+      armorType: '布甲 · 智力法系套装',
+      primary: '#4c1d95', secondary: '#c084fc', trim: '#fde047', dark: '#1e1b4b', aura: '#a855f7',
+      wingStyle: 'arcane', helmStyle: 'arcane_halo', shoulderStyle: 'orbs', robe: true
+    },
+    sindorei: {
+      name: '辛多雷烈焰战衣 (王室战甲)',
+      armorType: '通用 · 烈焰暴击套装',
+      primary: '#7f1d1d', secondary: '#ef4444', trim: '#facc15', dark: '#450a0a', aura: '#22c55e',
+      wingStyle: 'phoenix', helmStyle: 'sun_tiara', shoulderStyle: 'phoenix', robe: true
+    },
+    illidari: {
+      name: '伊利达雷邪能战甲 (敏捷皮甲)',
+      armorType: '皮甲 · 敏捷高机动套装',
+      primary: '#14532d', secondary: '#22c55e', trim: '#bbf7d0', dark: '#052e16', aura: '#4ade80',
+      wingStyle: 'demon', helmStyle: 'blindfold_horns', shoulderStyle: 'fel_blades', robe: false
+    },
+    farstrider: {
+      name: '远行者将军战甲 (追猎锁甲)',
+      armorType: '锁甲 · 远程猎手套装',
+      primary: '#064e3b', secondary: '#10b981', trim: '#fbbf24', dark: '#022c22', aura: '#34d399',
+      wingStyle: 'quiver', helmStyle: 'ranger_hood', shoulderStyle: 'eagle', robe: false
+    }
+  };
+
+  const DRESS_WEAPONS = {
+    ashbringer: { name: '灰烬使者 · 圣光大领主巨剑', type: '双手巨剑' },
+    thunderfury: { name: '雷霆之怒 · 逐风者的祝福之剑', type: '传说风剑' },
+    frostmourne: { name: '霜之哀伤回响 · 凛冬符文剑', type: '双手符文剑' },
+    aluneth: { name: '艾露尼斯 · 提瑞斯法守护者之杖', type: '传奇法杖' },
+    warglaive: { name: '埃辛诺斯战刃 · 伊利达雷双刀', type: '双持战刃' },
+    thalas_bow: { name: '索利达尔 · 群星之怒长弓', type: '传说星弓' }
+  };
+
+  // 10 大可点选装备槽位定义与各部位可选装备库（含主副属性、特效与获取途径）
+  const SLOT_META = {
+    head: { icon: '🪖', label: '头部' },
+    shoulder: { icon: '🛡️', label: '肩部' },
+    back: { icon: '🪽', label: '背部' },
+    chest: { icon: '🦺', label: '胸部' },
+    hands: { icon: '🧤', label: '手部' },
+    waist: { icon: '🎗️', label: '腰部' },
+    legs: { icon: '👖', label: '腿部' },
+    feet: { icon: '🥾', label: '脚部' },
+    weapon: { icon: '🗡️', label: '主手神兵' },
+    trinket: { icon: '🔮', label: '毕业饰品' }
+  };
+
+  const SLOT_GEAR_CATALOG = {
+    head: [
+      { id: 'head_raid', name: '永恒审判皇冠 · 史诗套装头盔', quality: 'legendary', tag: '套装部位 (1/4)', ilvl: 639, main: 620, stam: 1120, crit: 310, haste: 0, mastery: 420, vers: 0, setKey: 'judgement', effect: '【套装激活】集齐 2/4 件套使核心终结技伤害提高 10%，触发天锤/爆发时全绿字提升 12%。', source: '泽风岛团本 4号守关首领「虚空大君」掉落' },
+      { id: 'head_mplus', name: '巫妖统帅骸骨面甲 · 冲层头盔', quality: 'epic', tag: '大秘境毕业', ilvl: 639, main: 620, stam: 1120, crit: 440, haste: 290, mastery: 0, vers: 0, setKey: 'scourgelord', effect: '【高暴击急速】带有 1 个棱彩插槽，适合高层大秘境高频顺劈波次。', source: '宏伟宝库 10层以上大秘境低保箱 / 化生台转化' },
+      { id: 'head_craft', name: '星界学者奥术光环 · 制造业美化头', quality: 'epic', tag: '制造业美化', ilvl: 636, main: 595, stam: 1080, crit: 0, haste: 360, mastery: 360, vers: 0, setKey: 'kirintor', effect: '【美化特效】处于 80% 生命值以上时，你的急速与精通额外提高 245 点。', source: '专业制造订单 + 鎏金先驱纹章定制' }
+    ],
+    shoulder: [
+      { id: 'shd_raid', name: '审判圣契肩铠 · 史诗套装护肩', quality: 'legendary', tag: '套装部位 (2/4)', ilvl: 639, main: 490, stam: 890, crit: 260, haste: 0, mastery: 320, vers: 0, setKey: 'judgement', effect: '【套装激活】肩部悬浮神圣法典，计入泽风岛 4 件套核心增益。', source: '泽风岛团本 3号首领「潮汐女祭司艾萨莉」掉落' },
+      { id: 'shd_mplus', name: '不死鸟羽翼肩垫 · 烈焰高暴肩', quality: 'epic', tag: '暴击特化', ilvl: 639, main: 490, stam: 890, crit: 380, haste: 200, mastery: 0, vers: 0, setKey: 'sindorei', effect: '【烈焰共鸣】高暴击配比，完美契合爆发专精阈值。', source: '泽风岛史诗五人本「风暴神殿」尾王掉落' },
+      { id: 'shd_agi', name: '邪能利刃护肩 · 伊利达雷战肩', quality: 'epic', tag: '敏捷/急速流', ilvl: 636, main: 472, stam: 850, crit: 290, haste: 270, mastery: 0, vers: 0, setKey: 'illidari', effect: '【疾影迅捷】提供均衡的暴击与急速绿字支撑。', source: '泽风岛军团突袭周常宝箱' }
+    ],
+    back: [
+      { id: 'back_raid', name: '炽天使圣光羽翼披风 · 稀有掉落', quality: 'legendary', tag: '稀有特效披风', ilvl: 639, main: 360, stam: 660, crit: 210, haste: 160, mastery: 240, vers: 0, effect: '【炽天使之翼】你的暴击有几率展开圣光双翼，在 6 秒内使主属性提高 420 点并附带吸血效果。', source: '泽风岛团本 4号守关首领极低几率额外掉落' },
+      { id: 'back_craft', name: '织造曙光丝绸披风 · 蓝缎内衬', quality: 'epic', tag: '制造业美化', ilvl: 636, main: 345, stam: 630, crit: 220, haste: 0, mastery: 220, vers: 0, effect: '【蓝缎内衬】战斗中每 15 秒提供一层专注护盾并提升 180 点精通。', source: '裁缝制造订单 + 公函自选属性' },
+      { id: 'back_mplus', name: '远行者星光箭袋斗篷', quality: 'epic', tag: '大秘境优选', ilvl: 636, main: 345, stam: 630, crit: 240, haste: 200, mastery: 0, vers: 0, effect: '【轻羽步伐】常驻 +120 闪避，移动速度提高 5%。', source: '泽风岛大秘境掉落' }
+    ],
+    chest: [
+      { id: 'chest_raid', name: '永恒审判圣洁胸甲 · 史诗套装胸', quality: 'legendary', tag: '套装部位 (3/4)', ilvl: 639, main: 620, stam: 1120, crit: 340, haste: 0, mastery: 390, vers: 0, setKey: 'judgement', effect: '【套装激活】胸甲提供最高档位的主属性与精通加成，计入 4 件套效果。', source: '泽风岛团本 2号首领「熔核巨像加尔隆」掉落' },
+      { id: 'chest_robe', name: '肯瑞托议会星界长袍 · 奥术套装胸', quality: 'epic', tag: '法系毕业胸袍', ilvl: 639, main: 620, stam: 1120, crit: 0, haste: 380, mastery: 350, vers: 0, setKey: 'kirintor', effect: '【奥术洪流】高急速与精通配比，大幅缩短读条与公共冷却时间。', source: '泽风岛团本 2号首领掉落 / 化生台转化' },
+      { id: 'chest_leather', name: '游侠将军巡林胸甲 · 敏捷胸甲', quality: 'epic', tag: '高暴击全能', ilvl: 636, main: 595, stam: 1080, crit: 410, haste: 0, mastery: 0, vers: 310, setKey: 'farstrider', effect: '【坚韧游侠】兼顾高层大秘境生存减伤（全能）与高额暴击。', source: '宏伟宝库低保周常箱' }
+    ],
+    hands: [
+      { id: 'hands_raid', name: '审判圣光重装护手 · 史诗套装手', quality: 'legendary', tag: '套装部位 (4/4)', ilvl: 639, main: 490, stam: 890, crit: 0, haste: 270, mastery: 310, vers: 0, effect: '【4件套达成】穿戴该护手后完美激活泽风岛 4 件套终极套装特效！', source: '泽风岛团本 1号首领「风暴领主」掉落' },
+      { id: 'hands_mplus', name: '碎冰重装利爪护手 · 暴击精通手', quality: 'epic', tag: '散件极品', ilvl: 639, main: 490, stam: 890, crit: 330, haste: 0, mastery: 250, vers: 0, effect: '【极品绿字】当头部/肩部/胸部/腿部已凑齐 4 件套时，手部最佳暴击精通散件。', source: '泽风岛大秘境「寒冰裂隙」掉落' },
+      { id: 'hands_craft', name: '圣火纹章锻造护手 (双美化)', quality: 'epic', tag: '制造业定制', ilvl: 636, main: 472, stam: 850, crit: 280, haste: 280, mastery: 0, vers: 0, effect: '【自选公函】支持自由定制任意两项核心绿字属性。', source: '锻造/制皮/裁缝订单制造' }
+    ],
+    waist: [
+      { id: 'waist_craft', name: '圣火纹章锻造腰带 · 暗月升华美化', quality: 'legendary', tag: '制造业毕业美化', ilvl: 639, main: 490, stam: 890, crit: 295, haste: 0, mastery: 295, vers: 0, effect: '【暗月徽记：升华】战斗中每 8 秒叠加一层随机副属性，搭配双倍美化衬垫收益翻倍（全专精必做美化部位）。', source: '专业制造订单 + 暗月升华美化 + 棱彩宝石孔' },
+      { id: 'waist_raid', name: '熔核巨像的锁链束腰 · 团本腰带', quality: 'epic', tag: '团本高装等', ilvl: 639, main: 490, stam: 890, crit: 350, haste: 230, mastery: 0, vers: 0, effect: '【天生的插槽】自带 1 个棱彩宝石插槽与吸血第三属性。', source: '泽风岛团本 2号首领「熔核巨像」掉落' },
+      { id: 'waist_mplus', name: '奎尔萨拉斯金叶腰带', quality: 'epic', tag: '急速全能', ilvl: 636, main: 472, stam: 850, crit: 0, haste: 320, mastery: 0, vers: 240, effect: '【稳健循环】补充急速阈值并提供额外全能减伤。', source: '泽风岛五人地下城掉落' }
+    ],
+    legs: [
+      { id: 'legs_raid', name: '永恒审判战裙腿甲 · 史诗套装腿', quality: 'legendary', tag: '高主属性大件', ilvl: 639, main: 620, stam: 1120, crit: 360, haste: 210, mastery: 370, vers: 0, effect: '【重装护腿】可附魔【阿加护甲片 / 拂晓魔线】，额外提供 +290 主属性与耐力。', source: '泽风岛团本 3号首领「潮汐女祭司」掉落' },
+      { id: 'legs_mplus', name: '冰冠天灾重装护腿 · 暴击精通腿', quality: 'epic', tag: '大秘境毕业', ilvl: 639, main: 620, stam: 1120, crit: 430, haste: 0, mastery: 300, vers: 0, effect: '【纯输出绿字】0 全能损耗，最大化暴击与精通面板。', source: '宏伟宝库大秘境低保箱' },
+      { id: 'legs_craft', name: '织造曙光丝绸衬裤 · 制造业定制', quality: 'epic', tag: '制造业大件', ilvl: 636, main: 595, stam: 1080, crit: 0, haste: 370, mastery: 350, vers: 0, effect: '【急速精通】适合尚未摸到 639 套装腿时的过渡毕业选择。', source: '专业制造订单' }
+    ],
+    feet: [
+      { id: 'feet_raid', name: '审判黄金战靴 · 史诗团本靴', quality: 'legendary', tag: '团本毕业靴', ilvl: 639, main: 490, stam: 890, crit: 280, haste: 0, mastery: 300, vers: 0, effect: '【圣光踏步】可附魔【卫士进击】，提升移动速度与耐力。', source: '泽风岛团本 1号首领「风暴领主」掉落' },
+      { id: 'feet_craft', name: '疾影邪能战靴 · 制造业美化鞋', quality: 'epic', tag: '制造业美化', ilvl: 636, main: 472, stam: 850, crit: 290, haste: 270, mastery: 0, vers: 0, effect: '【毒液浸泡美化】攻击有几率附加额外自然伤害并提高次要属性。', source: '制皮/锻造/裁缝订单制造' },
+      { id: 'feet_mplus', name: '踏霜铁靴 · 高全能减伤靴', quality: 'epic', tag: '高层生存向', ilvl: 636, main: 472, stam: 850, crit: 260, haste: 0, mastery: 0, vers: 300, effect: '【坚不可摧】适合 14 层以上高层大秘境防秒杀配装。', source: '泽风岛五人本掉落' }
+    ],
+    weapon: [
+      { id: 'wep_ashbringer', weaponKey: 'ashbringer', name: '灰烬使者 · 圣光大领主之剑', quality: 'legendary', tag: '传说双手巨剑', ilvl: 639, main: 1840, stam: 2760, crit: 540, haste: 0, mastery: 680, vers: 0, effect: '【灰烬觉醒】审判与终结技有几率唤醒灰烬圣光，使接下来 8 秒内的神圣与火焰伤害提高 18%。', source: '泽风岛团本 4号守关首领「虚空大君」掉落' },
+      { id: 'wep_thunderfury', weaponKey: 'thunderfury', name: '雷霆之怒 · 逐风者的祝福之剑', quality: 'legendary', tag: '传说风剑', ilvl: 639, main: 1840, stam: 2760, crit: 460, haste: 760, mastery: 0, vers: 0, effect: '【旋风雷霆】击中目标时释放连锁闪电吞噬最多 5 个敌人，并使自身急速提高 12%。', source: '泽风岛元素领主「奥拉基尔之影」左右风吻之刃合成' },
+      { id: 'wep_frostmourne', weaponKey: 'frostmourne', name: '霜之哀伤回响 · 凛冬符文剑', quality: 'legendary', tag: '双手符文巨剑', ilvl: 639, main: 1840, stam: 2760, crit: 710, haste: 0, mastery: 510, vers: 0, effect: '【收割灵魂】叠满 10 层符文能量后自动释放凛冬风暴，冰霜与暗影伤害提高 20%。', source: '泽风岛英雄/史诗隐藏冰冠裂隙首领掉落' },
+      { id: 'wep_aluneth', weaponKey: 'aluneth', name: '艾露尼斯 · 提瑞斯法守护者之杖', quality: 'legendary', tag: '法系毕业法杖', ilvl: 639, main: 1840, stam: 2760, crit: 0, haste: 530, mastery: 690, vers: 0, effect: '【艾格文的回响】施放法术时吸收奥术洪流，每 30 秒使法术暴击伤害提高 25%。', source: '泽风岛团本 3号首领「潮汐女祭司」史诗掉落' },
+      { id: 'wep_warglaive', weaponKey: 'warglaive', name: '埃辛诺斯战刃 · 伊利达雷双刀', quality: 'legendary', tag: '双持传奇战刃', ilvl: 639, main: 1840, stam: 2760, crit: 660, haste: 560, mastery: 0, vers: 0, effect: '【伊利达雷之怒】双持攻击触发攻击速度提高 30%，物理与混乱伤害附带邪能溅射。', source: '泽风岛军团突袭事件 / 时空漫游伊利丹掉落' },
+      { id: 'wep_thalas_bow', weaponKey: 'thalas_bow', name: '索利达尔 · 群星之怒长弓', quality: 'legendary', tag: '猎人传说星弓', ilvl: 639, main: 1840, stam: 2760, crit: 720, haste: 0, mastery: 500, vers: 0, effect: '【群星坠落】自动发射星界能量箭矢，瞄准射击与杀戮命令会召唤星落轰击目标区域。', source: '泽风岛团本 4号守关首领掉落' }
+    ],
+    trinket: [
+      { id: 'trk_heart', name: '泽风之心 · 共鸣奥术核心', quality: 'legendary', tag: '主动爆发饰品 (T0)', ilvl: 639, main: 980, stam: 0, crit: 420, haste: 420, mastery: 480, vers: 180, effect: '【主动使用 (2分钟CD)】引导泽风岛狂暴能量，使你最高的一项次要属性提高 3,280 点，持续 20 秒（完美契合2分钟爆发轴）。', source: '泽风岛团本 4号守关首领 / 宏伟宝库低保箱' },
+      { id: 'trk_anvil', name: '熔核巨像的狂怒铁砧', quality: 'epic', tag: '常驻叠层饰品', ilvl: 639, main: 980, stam: 0, crit: 560, haste: 0, mastery: 380, vers: 160, effect: '【被动常驻】近战或远程暴击时叠加「熔火淬炼」，最高提供 +1,450 暴击等级。', source: '泽风岛团本 2号首领「熔核巨像」掉落' },
+      { id: 'trk_conch', name: '潮汐女祭司的低语海螺', quality: 'epic', tag: '急速触发饰品', ilvl: 639, main: 980, stam: 0, crit: 220, haste: 620, mastery: 260, vers: 160, effect: '【被动触发】施放技能有一定几率召唤深海激流，使你的急速提高 2,890 点，持续 12 秒。', source: '泽风岛团本 3号首领「潮汐女祭司」掉落' }
+    ]
+  };
+
+  const SPEC_ENCHANT_ADVICE = {
+    plate_str: '💎 宝石与附魔推荐：主槽镶嵌【至尊主属性钻石】+ 其余插槽优先【精湛精通/暴击宝石】；武器附魔【圣光威权之誓】，戒指附魔【绚灿精通】。',
+    cloth_int: '💎 宝石与附魔推荐：主槽镶嵌【洞察智力钻石】+ 其余插槽优先【迅捷急速/暴击宝石】；武器附魔【奥术洪流之威】，护腿使用【拂晓魔线】。',
+    agi_mail_leather: '💎 宝石与附魔推荐：主槽镶嵌【敏锐敏捷钻石】+ 其余插槽优先【致命暴击/精通宝石】；武器附魔【风暴猎手之印】，胸甲附魔【觉醒属性】。'
+  };
+
+  let dressState = {
+    faction: 'alliance',
+    race: 'human',
+    gender: 'male',
+    setKey: 'judgement',
+    weaponKey: 'ashbringer',
+    activeSlot: 'weapon',
+    equippedIdx: {
+      head: 0, shoulder: 0, back: 0, chest: 0,
+      hands: 0, waist: 0, legs: 0, feet: 0,
+      weapon: 0, trinket: 0
     }
   };
 
@@ -4109,61 +4287,669 @@
     const badge = document.getElementById('bis-spec-badge');
     if (badge) badge.textContent = spec.name;
 
-    const group = SPEC_BIS_PROFILES[getProfileGroupForSpec(specKey)];
-    const gearGrid = document.getElementById('spec-bis-gear-grid');
-    if (gearGrid && group) {
-      gearGrid.innerHTML = group.gear.map(g => `
-        <div onclick="openCodexInspectById('${g.inspectId}')" class="loot-card p-3.5 cursor-pointer flex items-start justify-between gap-2.5 group">
-          <div class="min-w-0 space-y-1">
-            <div class="flex items-center gap-1.5">
-              <span class="text-[10px] px-2 py-0.5 rounded q-legendary font-bold shrink-0">${escapeHtml(g.slot)}</span>
-              <span class="text-xs font-bold text-amber-100 group-hover:text-amber-300 truncate">${escapeHtml(g.name)}</span>
-            </div>
-            <div class="text-[11px] text-emerald-500 font-medium">${escapeHtml(g.stat)}</div>
-            <div class="text-[10px] text-gray-400">📍 来源：${escapeHtml(g.src)}</div>
-          </div>
-          <div class="text-right shrink-0">
-            <span class="text-xs font-mono font-bold text-amber-300">${g.ilvl}</span>
-            <div class="text-[10px] text-amber-300/80 mt-1">外观 ↗</div>
-          </div>
-        </div>
-      `).join('');
-    }
-
+    const groupKey = getProfileGroupForSpec(specKey);
     const enchantBar = document.getElementById('spec-enchant-gem-bar');
-    if (enchantBar && group) {
-      enchantBar.innerHTML = `<span>${escapeHtml(group.enchantGem)}</span><button onclick="switchGuideSubView('armory')" class="px-3 py-1 rounded-lg gold-btn text-xs cursor-pointer shrink-0">🗡️ 浏览完整装备库</button>`;
+    if (enchantBar) {
+      enchantBar.innerHTML = `<span>${escapeHtml(SPEC_ENCHANT_ADVICE[groupKey])}</span><button onclick="switchGuideSubView('armory')" class="px-3 py-1 rounded-lg gold-btn text-xs cursor-pointer shrink-0">🗡️ 浏览完整神兵库</button>`;
     }
 
-    const tmogBox = document.getElementById('spec-transmog-list');
-    if (tmogBox && group) {
-      tmogBox.innerHTML = group.transmogs.map(t => `
-        <div class="loot-card p-4 space-y-2.5">
-          <div class="flex items-start justify-between gap-2">
-            <div>
-              <h4 class="font-bold text-amber-100 text-sm">${escapeHtml(t.title)}</h4>
-              <p class="text-[11px] text-amber-300/85 mt-0.5">${escapeHtml(t.style)}</p>
-            </div>
-            <div class="flex items-center gap-1 shrink-0" title="幻化主题配色">
-              ${t.colors.map(c => `<span class="w-4 h-4 rounded-full border border-white/30 shadow" style="background:${c}"></span>`).join('')}
-            </div>
-          </div>
-          <p class="text-xs text-gray-300 bg-black/20 p-2.5 rounded-lg border border-amber-500/15 leading-relaxed">👗 <strong>调料包部位：</strong>${escapeHtml(t.parts)}</p>
-          <div class="flex items-center justify-between pt-1">
-            <button onclick="openCodexInspectById('${t.inspectId}')" class="px-3 py-1 rounded-lg ghost-btn text-xs cursor-pointer">👁️ 预览外观立绘</button>
-            <button onclick="copyTransmogList('${escapeHtml(t.title)}', '${escapeHtml(t.parts)}')" class="px-3 py-1 rounded-lg gold-btn text-xs cursor-pointer">📋 复制调料包</button>
-          </div>
-        </div>
-      `).join('');
+    // 随专精自动匹配默认护甲模型与主手神兵
+    if (specKey === 'frost_dk') {
+      dressState.setKey = 'scourgelord';
+      dressState.weaponKey = 'frostmourne';
+      dressState.equippedIdx.weapon = 2;
+    } else if (specKey === 'ret_paladin' || specKey === 'fury_warrior') {
+      dressState.setKey = 'judgement';
+      dressState.weaponKey = 'ashbringer';
+      dressState.equippedIdx.weapon = 0;
+    } else if (specKey === 'bm_hunter' || specKey === 'mm_hunter') {
+      dressState.setKey = 'farstrider';
+      dressState.weaponKey = 'thalas_bow';
+      dressState.equippedIdx.weapon = 5;
+    } else if (specKey === 'havoc_dh' || specKey === 'assa_rogue') {
+      dressState.setKey = 'illidari';
+      dressState.weaponKey = 'warglaive';
+      dressState.equippedIdx.weapon = 4;
+    } else {
+      dressState.setKey = 'kirintor';
+      dressState.weaponKey = 'aluneth';
+      dressState.equippedIdx.weapon = 3;
+    }
+    const setSel = document.getElementById('dress-set-select');
+    const wepSel = document.getElementById('dress-weapon-select');
+    if (setSel) setSel.value = dressState.setKey;
+    if (wepSel) wepSel.value = dressState.weaponKey;
+    renderDressingRoom();
+  }
+
+  function populateDressRaceSelect() {
+    const sel = document.getElementById('dress-race-select');
+    if (!sel) return;
+    const list = DRESS_RACES[dressState.faction] || DRESS_RACES.alliance;
+    if (!list.some(r => r.key === dressState.race)) {
+      dressState.race = list[0].key;
+    }
+    sel.innerHTML = list.map(r => `<option value="${r.key}" ${r.key === dressState.race ? 'selected' : ''}>${escapeHtml(r.name)}</option>`).join('');
+  }
+
+  function setDressFaction(faction) {
+    if (!DRESS_RACES[faction]) return;
+    dressState.faction = faction;
+    dressState.race = DRESS_RACES[faction][0].key;
+    populateDressRaceSelect();
+    renderDressingRoom();
+  }
+
+  function onDressRaceChange(raceKey) {
+    dressState.race = raceKey;
+    renderDressingRoom();
+  }
+
+  function setDressGender(gender) {
+    dressState.gender = gender === 'female' ? 'female' : 'male';
+    renderDressingRoom();
+  }
+
+  function setDressArmorSet(setKey) {
+    if (!DRESS_ARMOR_SETS[setKey]) return;
+    dressState.setKey = setKey;
+    const sel = document.getElementById('dress-set-select');
+    if (sel) sel.value = setKey;
+    renderDressingRoom();
+  }
+
+  function setDressWeapon(weaponKey) {
+    if (!DRESS_WEAPONS[weaponKey]) return;
+    dressState.weaponKey = weaponKey;
+    const wepList = SLOT_GEAR_CATALOG.weapon || [];
+    const idx = wepList.findIndex(w => w.weaponKey === weaponKey);
+    if (idx !== -1) dressState.equippedIdx.weapon = idx;
+    dressState.activeSlot = 'weapon';
+    const sel = document.getElementById('dress-weapon-select');
+    if (sel) sel.value = weaponKey;
+    renderDressingRoom();
+  }
+
+  function selectGearSlot(slotKey) {
+    if (!SLOT_META[slotKey]) return;
+    dressState.activeSlot = slotKey;
+    renderDressingRoom();
+  }
+
+  function equipSlotOption(slotKey, optionIdx) {
+    const options = SLOT_GEAR_CATALOG[slotKey];
+    if (!options || !options[optionIdx]) return;
+    dressState.activeSlot = slotKey;
+    dressState.equippedIdx[slotKey] = optionIdx;
+    const chosen = options[optionIdx];
+    if (chosen.weaponKey && DRESS_WEAPONS[chosen.weaponKey]) {
+      dressState.weaponKey = chosen.weaponKey;
+      const wepSel = document.getElementById('dress-weapon-select');
+      if (wepSel) wepSel.value = chosen.weaponKey;
+    }
+    if (chosen.setKey && DRESS_ARMOR_SETS[chosen.setKey]) {
+      dressState.setKey = chosen.setKey;
+      const setSel = document.getElementById('dress-set-select');
+      if (setSel) setSel.value = chosen.setKey;
+    }
+    renderDressingRoom();
+    showToast(`🛡️ 已为【${SLOT_META[slotKey].label}】穿戴「${chosen.name}」！`, 'success');
+  }
+
+  function tryOnArmoryItem(itemId) {
+    const mapItem = {
+      item_ashbringer: { slot: 'weapon', idx: 0 },
+      item_thunderfury: { slot: 'weapon', idx: 1 },
+      item_frostmourne: { slot: 'weapon', idx: 2 },
+      item_aluneth: { slot: 'weapon', idx: 3 },
+      item_warglaive: { slot: 'weapon', idx: 4 },
+      item_thalas_bow: { slot: 'weapon', idx: 5 },
+      item_trinket_heart: { slot: 'trinket', idx: 0 },
+      item_armor_judgement: { slot: 'chest', idx: 0 }
+    };
+    const target = mapItem[itemId] || { slot: 'weapon', idx: 0 };
+    switchGuideSubView('sim');
+    setTimeout(() => {
+      equipSlotOption(target.slot, target.idx);
+      const roomEl = document.getElementById('transmog-dressing-room');
+      if (roomEl) roomEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 60);
+  }
+
+  function computeEquippedTotals() {
+    let ilvlSum = 0, main = 0, stam = 0, critRating = 0, hasteRating = 0, mastRating = 0, versRating = 0;
+    const slots = Object.keys(SLOT_META);
+    slots.forEach(sk => {
+      const list = SLOT_GEAR_CATALOG[sk] || [];
+      const item = list[dressState.equippedIdx[sk] || 0] || list[0];
+      if (!item) return;
+      ilvlSum += item.ilvl || 636;
+      main += item.main || 0;
+      stam += item.stam || 0;
+      critRating += item.crit || 0;
+      hasteRating += item.haste || 0;
+      mastRating += item.mastery || 0;
+      versRating += item.vers || 0;
+    });
+    const avgIlvl = Math.round(ilvlSum / slots.length);
+    const critPct = +(12 + critRating / 95).toFixed(1);
+    const hastePct = +(8 + hasteRating / 92).toFixed(1);
+    const mastPct = +(14 + mastRating / 88).toFixed(1);
+    const versPct = +(4 + versRating / 105).toFixed(1);
+    return { avgIlvl, main, stam, critRating, hasteRating, mastRating, versRating, critPct, hastePct, mastPct, versPct };
+  }
+
+  function syncEquippedGearToSim() {
+    const totals = computeEquippedTotals();
+    document.getElementById('sim-ilvl').value = totals.avgIlvl;
+    document.getElementById('sim-main-stat').value = Math.round(totals.main * 0.24);
+    document.getElementById('sim-crit').value = totals.critPct;
+    document.getElementById('sim-haste').value = totals.hastePct;
+    document.getElementById('sim-mastery').value = totals.mastPct;
+    document.getElementById('sim-vers').value = totals.versPct;
+    syncSlidersFromInputs();
+    runSimulation();
+    showToast(`⚡ 已将当前全身配装（装等 ${totals.avgIlvl}）属性同步至 DPS 模拟器！`, 'success');
+  }
+
+  function randomizeDressingRoom() {
+    const factions = ['alliance', 'horde'];
+    const f = factions[Math.floor(Math.random() * factions.length)];
+    const races = DRESS_RACES[f];
+    const r = races[Math.floor(Math.random() * races.length)];
+    dressState.faction = f;
+    dressState.race = r.key;
+    dressState.gender = Math.random() > 0.5 ? 'male' : 'female';
+    Object.keys(SLOT_GEAR_CATALOG).forEach(sk => {
+      const arr = SLOT_GEAR_CATALOG[sk];
+      dressState.equippedIdx[sk] = Math.floor(Math.random() * arr.length);
+    });
+    const wepItem = SLOT_GEAR_CATALOG.weapon[dressState.equippedIdx.weapon];
+    if (wepItem && wepItem.weaponKey) dressState.weaponKey = wepItem.weaponKey;
+    const setKeys = Object.keys(DRESS_ARMOR_SETS);
+    dressState.setKey = setKeys[Math.floor(Math.random() * setKeys.length)];
+    populateDressRaceSelect();
+    const setSel = document.getElementById('dress-set-select');
+    const wepSel = document.getElementById('dress-weapon-select');
+    if (setSel) setSel.value = dressState.setKey;
+    if (wepSel) wepSel.value = dressState.weaponKey;
+    renderDressingRoom();
+    showToast('🎲 已随机生成一套全身配装组合！', 'info');
+  }
+
+  function copyCurrentDressingRoom() {
+    const raceObj = (DRESS_RACES[dressState.faction] || DRESS_RACES.alliance).find(x => x.key === dressState.race) || DRESS_RACES.alliance[0];
+    const totals = computeEquippedTotals();
+    const lines = Object.keys(SLOT_META).map(sk => {
+      const it = SLOT_GEAR_CATALOG[sk][dressState.equippedIdx[sk] || 0];
+      return `${SLOT_META[sk].label}：${it ? it.name : ''}`;
+    });
+    const text = `🛡️【泽风岛全身配装方案】${dressState.faction === 'alliance' ? '联盟' : '部落'} · ${raceObj.name} (${dressState.gender === 'female' ? '女' : '男'}) · 平均装等 ${totals.avgIlvl} | 暴击 ${totals.critPct}% / 急速 ${totals.hastePct}% / 精通 ${totals.mastPct}% / 全能 ${totals.versPct}% | ${lines.join(' · ')}`;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => showToast('✅ 已复制当前全身配装方案与属性清单！', 'success')).catch(() => {});
+    } else {
+      showToast('✅ 已复制当前全身配装方案与属性清单！', 'success');
     }
   }
 
-  function copyTransmogList(title, parts) {
-    const txt = `✨【${title}】幻化调料包：${parts}`;
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(txt).then(() => showToast('✅ 已复制幻化调料包方案！', 'success')).catch(() => {});
+  function buildCharacterPaperdollSvg(raceObj, gender, setObj, wepObj, showHelm, showCloak, showAura) {
+    const isFemale = gender === 'female';
+    const sx = +(raceObj.scaleX * (isFemale ? 0.91 : 1.04)).toFixed(2);
+    const sy = +(raceObj.scaleY * (isFemale ? 0.98 : 1.0)).toFixed(2);
+    const shoulderW = isFemale ? 36 : 44;
+    const waistW = isFemale ? 14 : 20;
+    const hipW = isFemale ? 22 : 21;
+
+    // 1. 脚底法阵与背景辉光
+    const auraHtml = showAura ? `
+      <ellipse cx="140" cy="306" rx="76" ry="18" fill="${setObj.aura}" fill-opacity="0.18" stroke="${setObj.trim}" stroke-width="1.5" stroke-dasharray="6 4"/>
+      <ellipse cx="140" cy="306" rx="52" ry="11" fill="none" stroke="${setObj.secondary}" stroke-width="1" stroke-opacity="0.7"/>
+      <circle cx="88" cy="240" r="2.5" fill="${setObj.trim}" opacity="0.8"/>
+      <circle cx="196" cy="210" r="3" fill="${setObj.secondary}" opacity="0.75"/>
+      <circle cx="96" cy="120" r="2" fill="${setObj.trim}" opacity="0.8"/>
+      <circle cx="192" cy="110" r="2.5" fill="${setObj.aura}" opacity="0.85"/>
+    ` : '';
+
+    // 2. 披风与背部特效
+    let wingsHtml = '';
+    if (showCloak) {
+      if (setObj.wingStyle === 'seraph') {
+        wingsHtml = `
+          <path d="M140,115 C95,62 42,72 28,125 C52,122 82,135 112,155 Z" fill="url(#wingGrad)" opacity="0.88" stroke="${setObj.trim}" stroke-width="1.2"/>
+          <path d="M140,115 C185,62 238,72 252,125 C228,122 198,135 168,155 Z" fill="url(#wingGrad)" opacity="0.88" stroke="${setObj.trim}" stroke-width="1.2"/>
+          <path d="M110,122 L95,288 L185,288 L170,122 Z" fill="${setObj.primary}" stroke="${setObj.trim}" stroke-width="1.2" opacity="0.9"/>
+        `;
+      } else if (setObj.wingStyle === 'demon') {
+        wingsHtml = `
+          <path d="M135,118 L48,64 L32,136 L72,124 L92,162 Z" fill="#052e16" stroke="#22c55e" stroke-width="1.8" opacity="0.92"/>
+          <path d="M145,118 L232,64 L248,136 L208,124 L188,162 Z" fill="#052e16" stroke="#22c55e" stroke-width="1.8" opacity="0.92"/>
+        `;
+      } else if (setObj.wingStyle === 'phoenix') {
+        wingsHtml = `
+          <circle cx="92" cy="72" r="8" fill="#22c55e" stroke="#fef08a" stroke-width="1.5"/>
+          <circle cx="140" cy="56" r="9" fill="#22c55e" stroke="#fef08a" stroke-width="1.5"/>
+          <circle cx="188" cy="72" r="8" fill="#22c55e" stroke="#fef08a" stroke-width="1.5"/>
+          <path d="M108,122 L92,286 L188,286 L172,122 Z" fill="#7f1d1d" stroke="#facc15" stroke-width="1.3"/>
+        `;
+      } else if (setObj.wingStyle === 'arcane') {
+        wingsHtml = `
+          <circle cx="140" cy="108" r="54" fill="none" stroke="#e879f9" stroke-width="2" stroke-dasharray="8 5" opacity="0.85"/>
+          <path d="M110,122 L96,286 L184,286 L170,122 Z" fill="#3b0764" stroke="#fde047" stroke-width="1.2"/>
+        `;
+      } else {
+        wingsHtml = `
+          <path d="M108,122 L92,286 L188,286 L172,122 Z" fill="${setObj.primary}" stroke="${setObj.trim}" stroke-width="1.2" opacity="0.9"/>
+        `;
+      }
+    }
+
+    // 3. 种族耳朵 / 犄角 / 獠牙 / 胡须特征
+    let raceHeadTraits = '';
+    if (raceObj.ear === 'long_side') {
+      raceHeadTraits = `
+        <polygon points="118,92 88,82 96,98 119,100" fill="${raceObj.skin}" stroke="#4c1d95" stroke-width="1"/>
+        <polygon points="162,92 192,82 184,98 161,100" fill="${raceObj.skin}" stroke="#4c1d95" stroke-width="1"/>
+      `;
+    } else if (raceObj.ear === 'long_up') {
+      raceHeadTraits = `
+        <polygon points="120,90 104,58 114,94" fill="${raceObj.skin}" stroke="#b45309" stroke-width="1"/>
+        <polygon points="160,90 176,58 166,94" fill="${raceObj.skin}" stroke="#b45309" stroke-width="1"/>
+      `;
+    } else if (raceObj.ear === 'horns') {
+      raceHeadTraits = `
+        <path d="M122,82 C106,68 102,52 114,46 C114,60 120,70 128,76 Z" fill="#cbd5e1" stroke="#38bdf8" stroke-width="1"/>
+        <path d="M158,82 C174,68 178,52 166,46 C166,60 160,70 152,76 Z" fill="#cbd5e1" stroke="#38bdf8" stroke-width="1"/>
+        <polygon points="140,64 144,72 140,80 136,72" fill="#38bdf8"/>
+      `;
+    } else if (raceObj.ear === 'tusks') {
+      raceHeadTraits = `
+        <polygon points="128,108 123,95 132,106" fill="#fef3c7" stroke="#78350f" stroke-width="1"/>
+        <polygon points="152,108 157,95 148,106" fill="#fef3c7" stroke="#78350f" stroke-width="1"/>
+      `;
+    } else if (raceObj.ear === 'troll_tusks') {
+      raceHeadTraits = `
+        <polygon points="126,106 112,86 131,103" fill="#fef08a" stroke="#ca8a04" stroke-width="1"/>
+        <polygon points="154,106 168,86 149,103" fill="#fef08a" stroke="#ca8a04" stroke-width="1"/>
+      `;
+    } else if (raceObj.ear === 'beard' && !isFemale) {
+      raceHeadTraits = `
+        <path d="M124,104 L118,142 L132,150 L140,156 L148,150 L162,142 L156,104 Z" fill="${raceObj.hair}" stroke="#fbbf24" stroke-width="1.2"/>
+      `;
+    }
+
+    const hairHtml = isFemale
+      ? `<path d="M118,78 C114,60 166,60 162,78 L170,132 L156,128 L156,94 L124,94 L124,128 L110,132 Z" fill="${raceObj.hair}"/>`
+      : `<path d="M119,86 C118,64 162,64 161,86 Z" fill="${raceObj.hair}"/>`;
+
+    let helmHtml = '';
+    if (showHelm) {
+      if (setObj.helmStyle === 'crown_hood') {
+        helmHtml = `
+          <path d="M115,96 L118,66 L130,74 L140,58 L150,74 L162,66 L165,96 Z" fill="${setObj.secondary}" stroke="${setObj.trim}" stroke-width="1.5"/>
+          <rect x="122" y="84" width="36" height="8" rx="2" fill="#1e1b4b" stroke="${setObj.trim}" stroke-width="1"/>
+          <circle cx="132" cy="88" r="2.8" fill="#fef08a"/>
+          <circle cx="148" cy="88" r="2.8" fill="#fef08a"/>
+        `;
+      } else if (setObj.helmStyle === 'skull_horns') {
+        helmHtml = `
+          <path d="M116,92 L92,58 L118,74 L140,62 L162,74 L188,58 L164,92 Z" fill="#334155" stroke="#7dd3fc" stroke-width="1.5"/>
+          <circle cx="132" cy="88" r="3.2" fill="#38bdf8"/>
+          <circle cx="148" cy="88" r="3.2" fill="#38bdf8"/>
+        `;
+      } else if (setObj.helmStyle === 'blindfold_horns') {
+        helmHtml = `
+          <path d="M118,82 C92,62 88,42 106,38 C106,56 114,68 124,74" fill="#1e293b" stroke="#22c55e" stroke-width="1.5"/>
+          <path d="M162,82 C188,62 192,42 174,38 C174,56 166,68 156,74" fill="#1e293b" stroke="#22c55e" stroke-width="1.5"/>
+          <rect x="119" y="84" width="42" height="9" rx="3" fill="#052e16" stroke="#4ade80" stroke-width="1.4"/>
+        `;
+      } else {
+        helmHtml = `
+          <polygon points="140,54 154,74 166,66 162,84 118,84 114,66 126,74" fill="${setObj.secondary}" stroke="${setObj.trim}" stroke-width="1.4"/>
+          <circle cx="140" cy="70" r="4" fill="${setObj.aura}"/>
+        `;
+      }
+    }
+
+    const shouldersHtml = `
+      <g>
+        <path d="M${140 - shoulderW - 26},128 C${140 - shoulderW - 22},98 ${140 - shoulderW + 6},96 ${140 - 16},114 L${140 - 20},138 Z" fill="${setObj.primary}" stroke="${setObj.trim}" stroke-width="2"/>
+        <circle cx="${140 - shoulderW - 6}" cy="116" r="6" fill="${setObj.secondary}" stroke="${setObj.trim}" stroke-width="1.2"/>
+        <path d="M${140 + shoulderW + 26},128 C${140 + shoulderW + 22},98 ${140 + shoulderW - 6},96 ${140 + 16},114 L${140 + 20},138 Z" fill="${setObj.primary}" stroke="${setObj.trim}" stroke-width="2"/>
+        <circle cx="${140 + shoulderW + 6}" cy="116" r="6" fill="${setObj.secondary}" stroke="${setObj.trim}" stroke-width="1.2"/>
+      </g>
+    `;
+
+    const lowerBodyHtml = setObj.robe
+      ? `
+        <path d="M${140 - waistW},190 L${140 - hipW - 14},288 L${140 + hipW + 14},288 L${140 + waistW},190 Z" fill="${setObj.primary}" stroke="${setObj.trim}" stroke-width="1.6"/>
+        <path d="M130,190 L126,288 L154,288 L150,190 Z" fill="${setObj.dark}" stroke="${setObj.secondary}" stroke-width="1.2"/>
+      `
+      : `
+        <path d="M${140 - waistW},190 L${140 - hipW - 4},252 L136,252 L138,205 L142,205 L144,252 L${140 + hipW + 4},252 L${140 + waistW},190 Z" fill="${setObj.dark}" stroke="${setObj.secondary}" stroke-width="1.5"/>
+        <rect x="${140 - hipW - 3}" y="250" width="16" height="40" rx="4" fill="${setObj.primary}" stroke="${setObj.trim}" stroke-width="1.5"/>
+        <rect x="${140 + hipW - 13}" y="250" width="16" height="40" rx="4" fill="${setObj.primary}" stroke="${setObj.trim}" stroke-width="1.5"/>
+      `;
+
+    let weaponSvg = '';
+    const wx = 140 + shoulderW + 18;
+    const wy = 186;
+    if (dressState.weaponKey === 'ashbringer') {
+      weaponSvg = `
+        <g transform="translate(${wx}, ${wy}) rotate(-18)">
+          <rect x="-3" y="-12" width="6" height="28" fill="#78350f" stroke="#fde047"/>
+          <path d="M-16,-12 L16,-12 L10,-22 L-10,-22 Z" fill="#fbbf24" stroke="#fef08a"/>
+          <path d="M-9,-22 L-11,-118 L0,-142 L11,-118 L9,-22 Z" fill="#f59e0b" stroke="#fffbeb" stroke-width="1.6"/>
+          <circle cx="0" cy="-58" r="8" fill="#fef08a" stroke="#dc2626" stroke-width="2"/>
+        </g>
+      `;
+    } else if (dressState.weaponKey === 'thunderfury') {
+      weaponSvg = `
+        <g transform="translate(${wx}, ${wy}) rotate(-16)">
+          <rect x="-3" y="-10" width="6" height="24" fill="#334155" stroke="#bae6fd"/>
+          <path d="M-8,-10 L-14,-82 L-4,-70 L-10,-128 L0,-150 L10,-128 L4,-70 L14,-82 L8,-10 Z" fill="#38bdf8" stroke="#ffffff" stroke-width="1.5"/>
+          <circle cx="0" cy="-52" r="6" fill="#e0f2fe"/>
+        </g>
+      `;
+    } else if (dressState.weaponKey === 'frostmourne') {
+      weaponSvg = `
+        <g transform="translate(${wx}, ${wy}) rotate(-18)">
+          <rect x="-3" y="-12" width="6" height="28" fill="#1e293b" stroke="#93c5fd"/>
+          <path d="M-20,-12 L0,-26 L20,-12 L0,-6 Z" fill="#cbd5e1" stroke="#38bdf8"/>
+          <path d="M-8,-22 L-10,-124 L0,-148 L10,-124 L8,-22 Z" fill="#e2e8f0" stroke="#38bdf8" stroke-width="1.6"/>
+          <circle cx="0" cy="-18" r="5" fill="#0ea5e9"/>
+        </g>
+      `;
+    } else if (dressState.weaponKey === 'aluneth') {
+      weaponSvg = `
+        <g transform="translate(${wx}, ${wy}) rotate(-10)">
+          <rect x="-2.5" y="-135" width="5" height="195" rx="2" fill="#a855f7" stroke="#fde047" stroke-width="1.2"/>
+          <polygon points="0,-162 14,-142 0,-124 -14,-142" fill="#e879f9" stroke="#ffffff" stroke-width="1.5"/>
+          <circle cx="0" cy="-142" r="18" fill="none" stroke="#fde047" stroke-width="1.5" stroke-dasharray="4 3"/>
+        </g>
+      `;
+    } else if (dressState.weaponKey === 'warglaive') {
+      weaponSvg = `
+        <g transform="translate(${wx}, ${wy}) rotate(12)">
+          <path d="M-8,-78 C24,-45 24,45 -8,78 C6,35 6,-35 -8,-78 Z" fill="#22c55e" stroke="#bbf7d0" stroke-width="1.6"/>
+          <rect x="-8" y="-12" width="12" height="24" rx="3" fill="#ca8a04" stroke="#fef08a"/>
+        </g>
+        <g transform="translate(${140 - shoulderW - 18}, ${wy}) scale(-1,1) rotate(12)">
+          <path d="M-8,-78 C24,-45 24,45 -8,78 C6,35 6,-35 -8,-78 Z" fill="#22c55e" stroke="#bbf7d0" stroke-width="1.6"/>
+          <rect x="-8" y="-12" width="12" height="24" rx="3" fill="#ca8a04" stroke="#fef08a"/>
+        </g>
+      `;
     } else {
-      showToast('✅ 已复制幻化调料包方案！', 'success');
+      weaponSvg = `
+        <g transform="translate(${wx}, ${wy - 10})">
+          <path d="M-8,-68 C32,-38 32,38 -8,68" fill="none" stroke="#f59e0b" stroke-width="5" stroke-linecap="round"/>
+          <line x1="-8" y1="-68" x2="-8" y2="68" stroke="#7dd3fc" stroke-width="1.5"/>
+          <line x1="-18" y1="0" x2="28" y2="0" stroke="#38bdf8" stroke-width="2.5"/>
+        </g>
+      `;
+    }
+
+    return `
+      <svg viewBox="0 0 280 335" class="w-full h-full max-h-[350px] drop-shadow-[0_14px_28px_rgba(0,0,0,0.85)]">
+        <defs>
+          <radialGradient id="stageGlow" cx="50%" cy="48%" r="52%">
+            <stop offset="0%" stop-color="${setObj.aura}" stop-opacity="0.32"/>
+            <stop offset="65%" stop-color="${dressState.faction === 'alliance' ? '#1d4ed8' : '#b91c1c'}" stop-opacity="0.10"/>
+            <stop offset="100%" stop-color="#050811" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="wingGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#fffbeb"/>
+            <stop offset="50%" stop-color="${setObj.secondary}"/>
+            <stop offset="100%" stop-color="${setObj.primary}"/>
+          </linearGradient>
+        </defs>
+
+        <circle cx="140" cy="165" r="132" fill="url(#stageGlow)"/>
+        ${auraHtml}
+
+        <g transform="translate(140, 295) scale(${sx}, ${sy}) translate(-140, -295)">
+          ${wingsHtml}
+
+          <path d="M${140 - shoulderW},118 L${140 + shoulderW},118 L${140 + waistW},190 L${140 - waistW},190 Z" fill="${setObj.primary}" stroke="${setObj.trim}" stroke-width="1.8"/>
+          <path d="M128,122 L152,122 L146,184 L134,184 Z" fill="${setObj.dark}" stroke="${setObj.secondary}" stroke-width="1.2"/>
+
+          <rect x="${140 - shoulderW - 14}" y="126" width="14" height="58" rx="6" fill="${setObj.dark}" stroke="${setObj.secondary}" stroke-width="1.4"/>
+          <rect x="${140 + shoulderW}" y="126" width="14" height="58" rx="6" fill="${setObj.dark}" stroke="${setObj.secondary}" stroke-width="1.4"/>
+          <circle cx="${140 - shoulderW - 7}" cy="186" r="7" fill="${setObj.secondary}" stroke="${setObj.trim}" stroke-width="1.2"/>
+          <circle cx="${140 + shoulderW + 7}" cy="186" r="7" fill="${setObj.secondary}" stroke="${setObj.trim}" stroke-width="1.2"/>
+
+          ${lowerBodyHtml}
+
+          <rect x="${140 - waistW - 3}" y="182" width="${(waistW + 3) * 2}" height="12" rx="3" fill="${setObj.secondary}" stroke="${setObj.trim}" stroke-width="1.4"/>
+          <polygon points="140,178 148,188 140,198 132,188" fill="${setObj.aura}" stroke="#ffffff" stroke-width="1"/>
+
+          ${hairHtml}
+          <ellipse cx="140" cy="92" rx="${isFemale ? 17 : 19}" ry="${isFemale ? 20 : 21}" fill="${raceObj.skin}" stroke="#1e293b" stroke-width="1.2"/>
+          <ellipse cx="133" cy="91" rx="3.2" ry="2" fill="${raceObj.eye}"/>
+          <ellipse cx="147" cy="91" rx="3.2" ry="2" fill="${raceObj.eye}"/>
+          ${raceHeadTraits}
+          ${helmHtml}
+
+          ${shouldersHtml}
+          ${weaponSvg}
+        </g>
+      </svg>
+    `;
+  }
+
+  function renderDressingRoom() {
+    const canvas = document.getElementById('dressing-room-canvas');
+    if (!canvas) return;
+    populateDressRaceSelect();
+
+    const isAlliance = dressState.faction === 'alliance';
+    const btnAlli = document.getElementById('dress-faction-alliance');
+    const btnHorde = document.getElementById('dress-faction-horde');
+    if (btnAlli) {
+      btnAlli.className = isAlliance
+        ? 'py-1.5 px-3 rounded-xl border border-blue-400 bg-blue-500/25 text-blue-200 text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1.5 shadow'
+        : 'py-1.5 px-3 rounded-xl border border-amber-500/20 bg-black/20 text-gray-400 text-xs font-semibold transition cursor-pointer flex items-center justify-center gap-1.5';
+    }
+    if (btnHorde) {
+      btnHorde.className = !isAlliance
+        ? 'py-1.5 px-3 rounded-xl border border-red-400 bg-red-500/25 text-red-200 text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1.5 shadow'
+        : 'py-1.5 px-3 rounded-xl border border-amber-500/20 bg-black/20 text-gray-400 text-xs font-semibold transition cursor-pointer flex items-center justify-center gap-1.5';
+    }
+
+    const btnMale = document.getElementById('dress-gender-male');
+    const btnFemale = document.getElementById('dress-gender-female');
+    if (btnMale) {
+      btnMale.className = dressState.gender === 'male'
+        ? 'py-1.5 rounded-lg text-xs font-bold gold-btn cursor-pointer'
+        : 'py-1.5 rounded-lg text-xs ghost-btn cursor-pointer';
+    }
+    if (btnFemale) {
+      btnFemale.className = dressState.gender === 'female'
+        ? 'py-1.5 rounded-lg text-xs font-bold gold-btn cursor-pointer'
+        : 'py-1.5 rounded-lg text-xs ghost-btn cursor-pointer';
+    }
+
+    const raceObj = (DRESS_RACES[dressState.faction] || DRESS_RACES.alliance).find(x => x.key === dressState.race) || DRESS_RACES.alliance[0];
+    const setObj = DRESS_ARMOR_SETS[dressState.setKey] || DRESS_ARMOR_SETS.judgement;
+    const wepObj = DRESS_WEAPONS[dressState.weaponKey] || DRESS_WEAPONS.ashbringer;
+    const showHelm = document.getElementById('dress-toggle-helm') ? document.getElementById('dress-toggle-helm').checked : true;
+    const showCloak = document.getElementById('dress-toggle-cloak') ? document.getElementById('dress-toggle-cloak').checked : true;
+    const showAura = document.getElementById('dress-toggle-aura') ? document.getElementById('dress-toggle-aura').checked : true;
+    const totals = computeEquippedTotals();
+
+    const fPill = document.getElementById('dress-stage-faction-pill');
+    if (fPill) {
+      fPill.textContent = isAlliance ? '🦁 联盟' : '🦅 部落';
+      fPill.className = isAlliance
+        ? 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-blue-500/20 text-blue-300 border border-blue-400/40 shrink-0'
+        : 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-red-500/20 text-red-300 border border-red-400/40 shrink-0';
+    }
+    const stageTitle = document.getElementById('dress-stage-title');
+    if (stageTitle) {
+      stageTitle.textContent = `${raceObj.name.replace(/^[^\s]+\s/, '')} · ${dressState.gender === 'female' ? '女性' : '男性'} · ${setObj.name}`;
+    }
+    const stageIlvl = document.getElementById('dress-stage-ilvl');
+    if (stageIlvl) {
+      stageIlvl.textContent = `⚡ 全身平均装等 ${totals.avgIlvl}`;
+    }
+
+    // 渲染 2D 平面角色立绘
+    canvas.innerHTML = buildCharacterPaperdollSvg(raceObj, dressState.gender, setObj, wepObj, showHelm, showCloak, showAura);
+
+    // 渲染左右两侧可点选护甲槽位 (8 槽) + 底部武器与饰品槽位 (2 槽)
+    const renderClickableSlot = (sk) => {
+      const meta = SLOT_META[sk];
+      const list = SLOT_GEAR_CATALOG[sk] || [];
+      const eqItem = list[dressState.equippedIdx[sk] || 0] || list[0];
+      const isSelected = dressState.activeSlot === sk;
+      return `
+        <div onclick="selectGearSlot('${sk}')" class="p-2 rounded-xl border transition cursor-pointer flex items-center justify-between gap-2 ${isSelected ? 'bg-amber-500/20 border-amber-400 shadow-[0_0_15px_rgba(245,194,92,0.28)]' : 'bg-white/[0.04] border-amber-500/25 hover:border-amber-400/60 hover:bg-white/[0.08]'}">
+          <div class="flex items-center gap-2 min-w-0">
+            <div class="w-7 h-7 rounded-lg ${isSelected ? 'gold-btn' : 'bg-amber-500/15 border border-amber-400/40'} flex items-center justify-center text-sm shrink-0">${meta.icon}</div>
+            <div class="min-w-0">
+              <div class="flex items-center gap-1">
+                <span class="text-[10px] ${isSelected ? 'text-amber-300 font-bold' : 'text-gray-400'}">${meta.label}</span>
+                <span class="text-[10px] font-mono text-amber-300/90">${eqItem ? eqItem.ilvl : 639}</span>
+              </div>
+              <div class="text-[11px] font-bold text-amber-100 truncate" title="${escapeHtml(eqItem ? eqItem.name : '')}">${escapeHtml(eqItem ? eqItem.name : '')}</div>
+            </div>
+          </div>
+          ${isSelected ? '<span class="text-[10px] text-amber-300 font-bold shrink-0">✦</span>' : ''}
+        </div>
+      `;
+    };
+
+    const leftBox = document.getElementById('dress-slots-left');
+    const rightBox = document.getElementById('dress-slots-right');
+    if (leftBox) leftBox.innerHTML = ['head', 'shoulder', 'back', 'chest'].map(renderClickableSlot).join('');
+    if (rightBox) rightBox.innerHTML = ['hands', 'waist', 'legs', 'feet'].map(renderClickableSlot).join('');
+
+    const wepBar = document.getElementById('dress-weapon-bar');
+    if (wepBar) {
+      wepBar.innerHTML = ['weapon', 'trinket'].map(renderClickableSlot).join('');
+    }
+
+    // 渲染右侧「当前选中部位可选装备列表」
+    const activeSlot = dressState.activeSlot || 'weapon';
+    const activeMeta = SLOT_META[activeSlot] || SLOT_META.weapon;
+    const activeOptions = SLOT_GEAR_CATALOG[activeSlot] || [];
+    const activeEqIdx = dressState.equippedIdx[activeSlot] || 0;
+    const pickerTitle = document.getElementById('active-slot-picker-title');
+    if (pickerTitle) {
+      pickerTitle.textContent = `${activeMeta.icon} 当前选中部位：【${activeMeta.label}】可选装备 (${activeOptions.length} 件)`;
+    }
+
+    const gearGrid = document.getElementById('spec-bis-gear-grid');
+    if (gearGrid) {
+      gearGrid.innerHTML = activeOptions.map((item, idx) => {
+        const isEquipped = idx === activeEqIdx;
+        const statParts = [];
+        if (item.crit) statParts.push(`+${item.crit} 暴击`);
+        if (item.haste) statParts.push(`+${item.haste} 急速`);
+        if (item.mastery) statParts.push(`+${item.mastery} 精通`);
+        if (item.vers) statParts.push(`+${item.vers} 全能`);
+        return `
+          <div onclick="equipSlotOption('${activeSlot}', ${idx})" class="loot-card p-3 cursor-pointer flex items-center justify-between gap-3 transition ${isEquipped ? 'border-amber-400 bg-amber-500/15' : ''}">
+            <div class="min-w-0 space-y-1">
+              <div class="flex flex-wrap items-center gap-1.5">
+                <span class="text-[10px] px-2 py-0.5 rounded ${item.quality === 'legendary' ? 'q-legendary' : 'q-epic'} font-bold shrink-0">${escapeHtml(item.tag)}</span>
+                <span class="text-xs font-bold text-amber-100 truncate">${escapeHtml(item.name)}</span>
+              </div>
+              <div class="text-[11px] text-emerald-400 font-mono">
+                +${item.main} 主属性 ${item.stam ? `· +${item.stam} 耐力 ` : ''}· ${statParts.join(' / ')}
+              </div>
+              <div class="text-[10px] text-gray-400 truncate">📍 ${escapeHtml(item.source)}</div>
+            </div>
+            <div class="text-right shrink-0">
+              <div class="text-xs font-mono font-bold text-amber-300">装等 ${item.ilvl}</div>
+              <div class="mt-1 text-[11px] px-2 py-0.5 rounded ${isEquipped ? 'gold-btn font-bold' : 'ghost-btn'}">${isEquipped ? '✅ 已穿戴' : '点击穿戴'}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // 渲染下方「当前选中部位穿戴装备完整属性详情」+「全身 10 部位配装总属性面板」
+    const currentItem = activeOptions[activeEqIdx] || activeOptions[0];
+    const sumCard = document.getElementById('dress-summary-card');
+    if (sumCard && currentItem) {
+      const secondaryBadges = [];
+      if (currentItem.crit) secondaryBadges.push(`<span class="px-2.5 py-1 rounded-lg bg-rose-500/15 border border-rose-500/35 text-rose-300 font-mono text-xs">🎯 暴击 +${currentItem.crit}</span>`);
+      if (currentItem.haste) secondaryBadges.push(`<span class="px-2.5 py-1 rounded-lg bg-sky-500/15 border border-sky-500/35 text-sky-300 font-mono text-xs">⚡ 急速 +${currentItem.haste}</span>`);
+      if (currentItem.mastery) secondaryBadges.push(`<span class="px-2.5 py-1 rounded-lg bg-purple-500/15 border border-purple-500/35 text-purple-300 font-mono text-xs">🔮 精通 +${currentItem.mastery}</span>`);
+      if (currentItem.vers) secondaryBadges.push(`<span class="px-2.5 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/35 text-emerald-300 font-mono text-xs">🛡️ 全能 +${currentItem.vers}</span>`);
+
+      sumCard.innerHTML = `
+        <!-- 左 7 列：当前选中部位所穿戴装备的完整魔兽属性详情卡 -->
+        <div class="lg:col-span-7 loot-card p-4 sm:p-5 space-y-3 border-l-4 ${currentItem.quality === 'legendary' ? 'border-l-orange-500' : 'border-l-purple-500'}">
+          <div class="flex flex-wrap items-start justify-between gap-2 border-b border-amber-500/15 pb-2.5">
+            <div class="space-y-1">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="text-xs px-2.5 py-0.5 rounded-full ${currentItem.quality === 'legendary' ? 'q-legendary' : 'q-epic'} font-bold">${activeMeta.icon} ${activeMeta.label} · ${escapeHtml(currentItem.tag)}</span>
+                <span class="text-xs font-mono font-bold text-amber-300">物品等级 ${currentItem.ilvl}</span>
+              </div>
+              <h4 class="wow-serif text-base sm:text-lg font-black text-amber-100">${escapeHtml(currentItem.name)}</h4>
+            </div>
+            <span class="text-[11px] px-2.5 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-bold">✅ 当前部位已穿戴</span>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="px-2.5 py-1 rounded-lg bg-amber-500/15 border border-amber-400/35 text-amber-200 font-mono text-xs font-bold">💪 主属性 +${currentItem.main.toLocaleString()}</span>
+            ${currentItem.stam ? `<span class="px-2.5 py-1 rounded-lg bg-white/5 border border-white/15 text-gray-200 font-mono text-xs">❤️ 耐力 +${currentItem.stam.toLocaleString()}</span>` : ''}
+            ${secondaryBadges.join('')}
+          </div>
+
+          <div class="p-3 rounded-xl bg-black/25 border border-amber-500/20 text-xs text-emerald-400 leading-relaxed">
+            ${escapeHtml(currentItem.effect)}
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-gray-400 pt-1">
+            <span>📍 获取途径：<strong class="text-gray-200">${escapeHtml(currentItem.source)}</strong></span>
+            <span>🧬 当前角色特质：<strong class="text-amber-200">${escapeHtml(raceObj.trait)}</strong></span>
+          </div>
+        </div>
+
+        <!-- 右 5 列：全身 10 部位穿戴总属性汇总面板 -->
+        <div class="lg:col-span-5 loot-card p-4 sm:p-5 flex flex-col justify-between space-y-3">
+          <div class="flex items-center justify-between border-b border-amber-500/15 pb-2.5">
+            <div>
+              <h4 class="text-sm font-bold text-amber-300">📊 全身 10 部位穿戴总属性汇总</h4>
+              <p class="text-[11px] text-gray-400 mt-0.5">切换任意部位装备后实时重算全身绿字与装等</p>
+            </div>
+            <span class="text-xs font-mono font-extrabold text-amber-200 px-2.5 py-0.5 rounded bg-amber-500/20 border border-amber-400/40">iLvl ${totals.avgIlvl}</span>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-center">
+            <div class="p-2 rounded-xl bg-black/25 border border-amber-500/20">
+              <div class="text-[10px] text-gray-400">💪 装备总主属性</div>
+              <div class="text-sm font-mono font-bold text-amber-300">+${totals.main.toLocaleString()}</div>
+            </div>
+            <div class="p-2 rounded-xl bg-black/25 border border-amber-500/20">
+              <div class="text-[10px] text-gray-400">❤️ 装备总耐力</div>
+              <div class="text-sm font-mono font-bold text-gray-200">+${totals.stam.toLocaleString()}</div>
+            </div>
+            <div class="p-2 rounded-xl bg-black/25 border border-rose-500/25">
+              <div class="text-[10px] text-rose-400">🎯 暴击面板</div>
+              <div class="text-sm font-mono font-bold text-rose-300">${totals.critPct}% <span class="text-[10px] text-gray-400">(${totals.critRating})</span></div>
+            </div>
+            <div class="p-2 rounded-xl bg-black/25 border border-sky-500/25">
+              <div class="text-[10px] text-sky-400">⚡ 急速面板</div>
+              <div class="text-sm font-mono font-bold text-sky-300">${totals.hastePct}% <span class="text-[10px] text-gray-400">(${totals.hasteRating})</span></div>
+            </div>
+            <div class="p-2 rounded-xl bg-black/25 border border-purple-500/25">
+              <div class="text-[10px] text-purple-400">🔮 精通面板</div>
+              <div class="text-sm font-mono font-bold text-purple-300">${totals.mastPct}% <span class="text-[10px] text-gray-400">(${totals.mastRating})</span></div>
+            </div>
+            <div class="p-2 rounded-xl bg-black/25 border border-emerald-500/25">
+              <div class="text-[10px] text-emerald-400">🛡️ 全能面板</div>
+              <div class="text-sm font-mono font-bold text-emerald-300">${totals.versPct}% <span class="text-[10px] text-gray-400">(${totals.versRating})</span></div>
+            </div>
+          </div>
+
+          <button onclick="syncEquippedGearToSim()" class="w-full py-2 rounded-xl gold-btn text-xs font-bold cursor-pointer">
+            ⚡ 将当前全身穿戴属性同步至上方 DPS 模拟器计算秒伤
+          </button>
+        </div>
+      `;
     }
   }
 
@@ -4206,9 +4992,12 @@
             <p class="text-xs text-gray-300 line-clamp-2 leading-relaxed pt-1">${escapeHtml(it.effect)}</p>
           </div>
         </div>
-        <div class="pt-2.5 border-t border-amber-500/15 flex items-center justify-between text-[11px] text-gray-400">
+        <div class="pt-2.5 border-t border-amber-500/15 flex items-center justify-between gap-2 text-[11px] text-gray-400">
           <span class="truncate">📍 ${escapeHtml(it.source)}</span>
-          <span class="text-amber-300 font-bold shrink-0 ml-2">检视详情 →</span>
+          <div class="flex items-center gap-2 shrink-0">
+            <button onclick="event.stopPropagation(); tryOnArmoryItem('${it.id}')" class="px-2 py-0.5 rounded gold-btn text-[11px] cursor-pointer">👕 试穿</button>
+            <span class="text-amber-300 font-bold">详情 →</span>
+          </div>
         </div>
       </div>
     `).join('');
@@ -4611,6 +5400,7 @@
   window.onload = async () => {
     selectBossGuide(0);
     runSimulation();
+    renderDressingRoom();
     loadSimBuilds();
     await refreshMe();
     if (IS_STANDALONE_PREVIEW) {
