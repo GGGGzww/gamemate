@@ -575,6 +575,35 @@
       background: var(--input-bg);
       flex-shrink: 0;
     }
+    /* 魔兽特色表情包贴纸内联展示与选择器样式 */
+    .gm-sticker-inline {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      vertical-align: middle;
+      width: 62px;
+      height: 62px;
+      margin: 2px 4px;
+      padding: 4px;
+      border-radius: 12px;
+      background: linear-gradient(145deg, rgba(15, 23, 42, 0.92), rgba(7, 10, 18, 0.96));
+      border: 1px solid rgba(245, 194, 92, 0.38);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+      user-select: none;
+      transition: transform 0.15s ease;
+    }
+    .gm-sticker-inline:hover {
+      transform: scale(1.12) translateY(-2px);
+      border-color: #fbbf24;
+    }
+    .gm-emoji-drawer {
+      background: var(--panel-sub);
+      border: 1px solid var(--accent-border);
+      border-radius: 12px;
+      padding: 10px;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -611,6 +640,30 @@
     <div class="flex items-center justify-between pt-2 border-t border-amber-500/20">
       <span id="codex-modal-source" class="text-xs text-gray-400">📍 获取来源：泽风岛团本</span>
       <button onclick="closeCodexInspectModal()" class="px-5 py-2 gold-btn text-xs font-bold cursor-pointer">关闭图鉴</button>
+    </div>
+  </div>
+</div>
+
+<!-- 🎨 gamemate.fun 6款概念级左侧图标对比挑选弹窗 -->
+<div id="logo-picker-modal" onclick="if(event.target.id==='logo-picker-modal') closeLogoPickerModal()" class="hidden fixed inset-0 z-[90] flex items-center justify-center bg-black/85 backdrop-blur-md p-4 gm-modal-backdrop">
+  <div class="gm-modal-panel max-w-4xl w-full p-6 space-y-5 max-h-[90vh] overflow-y-auto">
+    <div class="flex items-start justify-between gap-3 border-b border-amber-500/20 pb-3.5">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs px-2.5 py-0.5 rounded-full q-legendary font-bold">🎨 概念图标设计工坊</span>
+          <span class="text-xs font-mono text-gray-400">GameMate.fun · 6 款高辨识度概念图标</span>
+        </div>
+        <h3 class="wow-serif text-xl font-black text-amber-100 mt-1">挑选最具记忆点的 GameMate.fun 概念图标</h3>
+        <p class="text-xs text-gray-400 mt-0.5">右侧固定为 V2 域名 + V4 双胶囊，左侧提供 6 款融合几何正负形、双子星轨与魔兽图腾的概念设计</p>
+      </div>
+      <button onclick="closeLogoPickerModal()" class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-amber-200 hover:bg-white/5 transition text-lg leading-none shrink-0 cursor-pointer">✕</button>
+    </div>
+
+    <div id="logo-picker-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+
+    <div class="flex items-center justify-between pt-2 border-t border-amber-500/20 text-xs text-gray-400">
+      <span>💡 点击任意卡片或左上角 V1～V6 即可实时切换预览</span>
+      <button onclick="closeLogoPickerModal()" class="px-5 py-2 gold-btn text-xs font-bold cursor-pointer">完成挑选</button>
     </div>
   </div>
 </div>
@@ -733,9 +786,13 @@
                 <span>🖼️ 配图 (<span id="reply-img-count">0</span>/2)</span>
                 <input type="file" id="reply-img-input" accept="image/*" multiple class="hidden" onchange="handleReplyImageFiles(this.files)">
               </label>
+              <button type="button" onclick="toggleStickerDrawer('reply')" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/15 hover:bg-amber-500/25 border border-amber-400/35 text-amber-300 cursor-pointer transition">
+                <span>😄 表情包</span>
+              </button>
             </div>
             <input id="post-modal-reply-author" placeholder="昵称" maxlength="12" class="w-28 px-2.5 py-1 text-xs text-right">
           </div>
+          <div id="sticker-drawer-reply" class="hidden gm-emoji-drawer"></div>
           <div id="reply-img-preview" class="flex flex-wrap gap-2 empty:hidden"></div>
           <div class="flex gap-2">
             <input id="post-modal-reply-content" placeholder="说点什么，支持 Ctrl+V 粘贴截图…" maxlength="300" class="flex-1 min-w-0 px-3.5 py-2.5 text-sm">
@@ -841,13 +898,19 @@
       </div>
       <!-- 发帖图片上传区 -->
       <div class="space-y-2">
-        <div class="flex items-center justify-between">
-          <label class="text-gray-300 text-xs">🖼️ 附带游戏截图 / 配图 <span class="text-gray-500">(最多 4 张，支持 Ctrl+V 粘贴)</span></label>
-          <label class="px-3 py-1 rounded-lg ghost-btn text-xs cursor-pointer inline-flex items-center gap-1.5">
-            <span>➕ 选择图片 (<span id="publish-img-count">0</span>/4)</span>
-            <input type="file" id="publish-img-input" accept="image/*" multiple class="hidden" onchange="handlePublishImageFiles(this.files)">
-          </label>
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <label class="text-gray-300 text-xs">🖼️ 截图配图与魔兽表情包 <span class="text-gray-500">(最多 4 张图，支持 Ctrl+V 粘贴)</span></label>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="toggleStickerDrawer('publish')" class="px-3 py-1 rounded-lg ghost-btn text-xs cursor-pointer inline-flex items-center gap-1">
+              <span>😄 插入表情包</span>
+            </button>
+            <label class="px-3 py-1 rounded-lg ghost-btn text-xs cursor-pointer inline-flex items-center gap-1.5">
+              <span>➕ 选择图片 (<span id="publish-img-count">0</span>/4)</span>
+              <input type="file" id="publish-img-input" accept="image/*" multiple class="hidden" onchange="handlePublishImageFiles(this.files)">
+            </label>
+          </div>
         </div>
+        <div id="sticker-drawer-publish" class="hidden gm-emoji-drawer"></div>
         <div id="publish-img-preview" class="flex flex-wrap gap-2.5 empty:hidden pt-1"></div>
       </div>
     </div>
@@ -907,97 +970,21 @@
 <header class="gm-sidebar">
   <div class="gm-sidebar-inner">
 
-    <!-- 2.1 gamemate.fun 专属品牌 Logo（V1 精雕版：双子星轨炉石罗盘 + GameMate.fun + 双胶囊铭牌） -->
-    <div class="gm-mobile-top">
-      <div id="gm-brand-logo-slot" onclick="switchTab('home')" class="cursor-pointer group select-none flex items-center justify-center py-1 w-full" title="gamemate.fun · 返回营地总览">
-        <svg viewBox="0 0 232 64" width="224" height="62" class="w-full max-w-[224px] h-auto drop-shadow-[0_6px_16px_rgba(0,0,0,0.35)] transition-transform duration-200 group-hover:scale-[1.02]">
-          <defs>
-            <!-- 3D 皇家鎏金立体渐变 -->
-            <linearGradient id="gmLogoGold" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="#FFFDF5"/>
-              <stop offset="28%" stop-color="#FDE68A"/>
-              <stop offset="52%" stop-color="#F59E0B"/>
-              <stop offset="68%" stop-color="#B45309"/>
-              <stop offset="100%" stop-color="#FEF08A"/>
-            </linearGradient>
-            <!-- 罗盘金属外环斜角渐变 -->
-            <linearGradient id="gmCompassRim" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#FEF3C7"/>
-              <stop offset="45%" stop-color="#D97706"/>
-              <stop offset="80%" stop-color="#78350F"/>
-              <stop offset="100%" stop-color="#FBBF24"/>
-            </linearGradient>
-            <!-- 深空黑曜石底盘径向渐变 -->
-            <radialGradient id="gmVoidCore" cx="50%" cy="50%" r="52%">
-              <stop offset="0%" stop-color="#0C2D48"/>
-              <stop offset="58%" stop-color="#091326"/>
-              <stop offset="100%" stop-color="#050811"/>
-            </radialGradient>
-            <!-- 主星璇：奥术天蓝至星辉白流光渐变 -->
-            <linearGradient id="gmArcaneStream" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#FFFFFF"/>
-              <stop offset="35%" stop-color="#7DD3FC"/>
-              <stop offset="75%" stop-color="#0284C7"/>
-              <stop offset="100%" stop-color="#1E40AF"/>
-            </linearGradient>
-            <!-- 伴星轨：圣光流金至琥珀渐变（寓意游伴双星交汇） -->
-            <linearGradient id="gmCompanionStream" x1="100%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="#FFFBEB"/>
-              <stop offset="45%" stop-color="#FBBF24"/>
-              <stop offset="100%" stop-color="#D97706"/>
-            </linearGradient>
-            <filter id="gmStarGlow" x="-35%" y="-35%" width="170%" height="170%">
-              <feGaussianBlur stdDeviation="1.4" result="blur"/>
-              <feComposite in="SourceGraphic" in2="blur" operator="over"/>
-            </filter>
-          </defs>
-
-          <!-- ==================== 左侧图标：双子星轨·炉石星盘 (Concept Emblem) ==================== -->
-          <g transform="translate(4, 4)">
-            <!-- 1. 外层黑曜石罗盘底座与双层鎏金护圈 -->
-            <circle cx="28" cy="28" r="25.5" fill="url(#gmVoidCore)" stroke="url(#gmCompassRim)" stroke-width="2.4"/>
-            <circle cx="28" cy="28" r="22.2" fill="none" stroke="#FDE68A" stroke-opacity="0.28" stroke-width="0.8"/>
-
-            <!-- 2. 星盘十二刻度与精密奥术轨迹环 -->
-            <circle cx="28" cy="28" r="19.2" fill="none" stroke="#38BDF8" stroke-opacity="0.45" stroke-width="1" stroke-dasharray="3.2 2.4"/>
-            <circle cx="28" cy="28" r="14.5" fill="none" stroke="#38BDF8" stroke-opacity="0.18" stroke-width="0.7"/>
-
-            <!-- 3. 四方罗盘黄金卡扣（北/南/西/东四极定位，赋予徽章机械与史诗精密感） -->
-            <polygon points="28,0.8 31,5.2 28,7.4 25,5.2" fill="url(#gmLogoGold)" stroke="#2A1700" stroke-width="0.6"/>
-            <polygon points="28,55.2 31,50.8 28,48.6 25,50.8" fill="url(#gmLogoGold)" stroke="#2A1700" stroke-width="0.6"/>
-            <polygon points="0.8,28 5.2,25 7.4,28 5.2,31" fill="url(#gmLogoGold)" stroke="#2A1700" stroke-width="0.6"/>
-            <polygon points="55.2,28 50.8,25 48.6,28 50.8,31" fill="url(#gmLogoGold)" stroke="#2A1700" stroke-width="0.6"/>
-
-            <!-- 4. 核心设计概念：双子交汇炉石星璇（主轨天蓝奥术 + 伴轨流金圣光，隐喻 Game & Mate 战友集结，同时构成 G 字螺旋轮廓） -->
-            <!-- 主星璇（外弧切入中心，带渐变粗细感） -->
-            <path d="M28,10.5 C40,10.5 45.5,21.5 38.5,31.5 C34,37.8 24.5,37.5 21.5,31 C19.5,26.5 23,22 27.8,22.8" fill="none" stroke="url(#gmArcaneStream)" stroke-width="3.8" stroke-linecap="round" filter="url(#gmStarGlow)"/>
-            <!-- 伴星璇（对称环抱而上，金色流光与主轨交织） -->
-            <path d="M28,45.5 C16,45.5 10.5,34.5 17.5,24.5 C22,18.2 31.5,18.5 34.5,25 C36.5,29.5 33,34 28.2,33.2" fill="none" stroke="url(#gmCompanionStream)" stroke-width="2.5" stroke-linecap="round"/>
-
-            <!-- 5. 螺旋尾端伴星粒子 -->
-            <circle cx="20" cy="15.5" r="1.5" fill="#FDE68A"/>
-            <circle cx="36" cy="40.5" r="1.5" fill="#7DD3FC"/>
-            <circle cx="14.5" cy="27.5" r="1.1" fill="#38BDF8"/>
-            <circle cx="41.5" cy="28.5" r="1.1" fill="#FBBF24"/>
-
-            <!-- 6. 中心棱彩奥术星核与北极十字星芒 -->
-            <g filter="url(#gmStarGlow)">
-              <polygon points="28,20.5 30,26 35.5,28 30,30 28,35.5 26,30 20.5,28 26,26" fill="#E0F2FE"/>
-              <polygon points="28,23.5 31.5,28 28,32.5 24.5,28" fill="#38BDF8" stroke="#FFFFFF" stroke-width="0.6"/>
-              <circle cx="28" cy="28" r="2" fill="#FFFFFF"/>
-            </g>
-          </g>
-
-          <!-- ==================== 右侧上排：V2 版 GameMate.fun 黄金+天蓝字标 ==================== -->
-          <text x="64" y="29" fill="url(#gmLogoGold)" stroke="#2A1700" stroke-width="1.3" paint-order="stroke fill" font-family="'Cinzel', 'Inter', serif" font-weight="900" font-size="18.5" letter-spacing="0.4">GameMate</text>
-          <text x="178" y="29" fill="#38BDF8" stroke="#082F49" stroke-width="1.2" paint-order="stroke fill" font-family="'Inter', sans-serif" font-weight="900" font-size="15.5" letter-spacing="0.4">.fun</text>
-
-          <!-- ==================== 右侧下排：V4 版 WOW CAMP + 开荒·配装·社区 双胶囊 ==================== -->
-          <rect x="64" y="37" width="64" height="16" rx="4" fill="url(#gmLogoGold)" stroke="#2A1700" stroke-width="0.8"/>
-          <text x="96" y="48" text-anchor="middle" fill="#090D16" font-family="'Inter', sans-serif" font-weight="900" font-size="8.5" letter-spacing="0.6">WOW CAMP</text>
-          <rect x="133" y="37" width="93" height="16" rx="4" fill="#090D16" stroke="url(#gmLogoGold)" stroke-width="1"/>
-          <text x="179.5" y="48" text-anchor="middle" fill="#FDE68A" font-family="'Noto Serif SC', sans-serif" font-weight="800" font-size="8.5" letter-spacing="0.8">开荒 · 配装 · 社区</text>
-        </svg>
+    <!-- 2.1 gamemate.fun 专属品牌 Logo + 6 款概念图标实时切换栏 -->
+    <div class="space-y-1.5">
+      <div class="gm-mobile-top">
+        <div id="gm-brand-logo-slot" onclick="switchTab('home')" class="cursor-pointer group select-none flex items-center justify-center py-0.5 w-full" title="gamemate.fun · 返回营地总览"></div>
+      </div>
+      <div id="gm-logo-admin-bar" class="hidden flex items-center justify-between gap-1 px-1 py-1 rounded-lg bg-black/15 border border-amber-500/20">
+        <div id="gm-logo-quick-pills" class="flex items-center gap-1">
+          <button type="button" onclick="selectBrandLogo(1)" data-logo-ver="1" class="px-1.5 py-0.5 rounded text-[10px] font-bold gold-btn cursor-pointer" title="概念V1：双子星轨·炉石星盘">V1</button>
+          <button type="button" onclick="selectBrandLogo(2)" data-logo-ver="2" class="px-1.5 py-0.5 rounded text-[10px] ghost-btn cursor-pointer" title="概念V2：负空间G·M·圣剑盾徽">V2</button>
+          <button type="button" onclick="selectBrandLogo(3)" data-logo-ver="3" class="px-1.5 py-0.5 rounded text-[10px] ghost-btn cursor-pointer" title="概念V3：莫比乌斯·无限炉石契约">V3</button>
+          <button type="button" onclick="selectBrandLogo(4)" data-logo-ver="4" class="px-1.5 py-0.5 rounded text-[10px] ghost-btn cursor-pointer" title="概念V4：命运沙漏·星界集合石">V4</button>
+          <button type="button" onclick="selectBrandLogo(5)" data-logo-ver="5" class="px-1.5 py-0.5 rounded text-[10px] ghost-btn cursor-pointer" title="概念V5：涅槃凤翼·圣光王冠">V5</button>
+          <button type="button" onclick="selectBrandLogo(6)" data-logo-ver="6" class="px-1.5 py-0.5 rounded text-[10px] ghost-btn cursor-pointer" title="概念V6：破界双剑·星晷罗盘">V6</button>
+        </div>
+        <button type="button" onclick="openLogoPickerModal()" class="px-2 py-0.5 rounded text-[10px] font-bold text-amber-300 hover:bg-amber-500/20 transition cursor-pointer shrink-0" title="打开大图对比全部 6 款概念图标">🎨 概念对比</button>
       </div>
     </div>
 
@@ -1316,9 +1303,11 @@
             <span class="text-[11px] text-gray-500">按 Enter 发送</span>
           </div>
           <div id="room-chat-box" class="flex-1 overflow-y-auto space-y-2 text-sm pr-1"></div>
+          <div id="sticker-drawer-chat" class="hidden gm-emoji-drawer mt-2"></div>
           <div class="mt-3 flex gap-2">
-            <input type="text" id="room-chat-input" placeholder="输入作战密语..." onkeydown="if(event.key==='Enter') sendRoomChat()" class="flex-1 px-3.5 py-2 text-sm">
-            <button onclick="sendRoomChat()" class="px-5 py-2 text-sm gold-btn cursor-pointer">发送</button>
+            <button type="button" onclick="toggleStickerDrawer('chat')" class="px-3 py-2 text-xs ghost-btn cursor-pointer shrink-0" title="发送魔兽表情包">😄 表情</button>
+            <input type="text" id="room-chat-input" placeholder="输入作战密语或插入魔兽表情包..." onkeydown="if(event.key==='Enter') sendRoomChat()" class="flex-1 min-w-0 px-3.5 py-2 text-sm">
+            <button onclick="sendRoomChat()" class="px-5 py-2 text-sm gold-btn cursor-pointer shrink-0">发送</button>
           </div>
         </div>
       </div>
@@ -1783,7 +1772,7 @@
           <span class="text-xs text-gray-400 hidden sm:inline">点击卡片直接前往对应官方网站下载客户端</span>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6 gap-3.5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5 gap-3.5">
           <!-- 1. 网易DD -->
           <a href="https://dd.163.com/" target="_blank" rel="noopener noreferrer" class="loot-card p-4 flex flex-col justify-between gap-3 group cursor-pointer">
             <div class="space-y-2">
@@ -1821,7 +1810,7 @@
           </a>
 
           <!-- 3. 黑盒工坊 -->
-          <a href="https://www.xiaoheihe.cn/app/workshop" target="_blank" rel="noopener noreferrer" class="loot-card p-4 flex flex-col justify-between gap-3 group cursor-pointer">
+          <a href="https://workshop.xiaoheihe.cn/" target="_blank" rel="noopener noreferrer" class="loot-card p-4 flex flex-col justify-between gap-3 group cursor-pointer">
             <div class="space-y-2">
               <div class="flex items-center justify-between gap-2">
                 <div class="w-9 h-9 rounded-xl bg-sky-500/15 border border-sky-500/35 flex items-center justify-center text-lg shrink-0">📦</div>
@@ -1833,25 +1822,7 @@
               </div>
             </div>
             <div class="flex items-center justify-between pt-2 border-t border-amber-500/15 text-[11px] text-amber-300 font-semibold">
-              <span>xiaoheihe.cn</span>
-              <span class="group-hover:translate-x-0.5 transition">官网直达 ↗</span>
-            </div>
-          </a>
-
-          <!-- 4. 新手盒子 -->
-          <a href="https://www.wbox.top/" target="_blank" rel="noopener noreferrer" class="loot-card p-4 flex flex-col justify-between gap-3 group cursor-pointer">
-            <div class="space-y-2">
-              <div class="flex items-center justify-between gap-2">
-                <div class="w-9 h-9 rounded-xl bg-emerald-500/15 border border-emerald-500/35 flex items-center justify-center text-lg shrink-0">🧰</div>
-                <span class="text-[10px] px-2 py-0.5 rounded-full q-uncommon font-bold">整合分享</span>
-              </div>
-              <div>
-                <h4 class="font-bold text-amber-100 text-sm group-hover:text-amber-300 transition">新手盒子 (Wbox)</h4>
-                <p class="text-xs text-gray-400 mt-1 line-clamp-2">聚合多位知名主播与高端玩家界面分享包、WCL 分析工具及单体插件库。</p>
-              </div>
-            </div>
-            <div class="flex items-center justify-between pt-2 border-t border-amber-500/15 text-[11px] text-amber-300 font-semibold">
-              <span>wbox.top</span>
+              <span>workshop.xiaoheihe.cn</span>
               <span class="group-hover:translate-x-0.5 transition">官网直达 ↗</span>
             </div>
           </a>
@@ -1992,7 +1963,7 @@
   };
 
   // --- 预览环境兼容：在 blob: / file: 独立预览时提供本地模拟数据，部署后自动走真实后端 ---
-  const IS_STANDALONE_PREVIEW = location.protocol === 'blob:' || location.protocol === 'file:' || location.origin === 'null' || !/^(gamemate\.fun|www\.gamemate\.fun|localhost|127\.0\.0\.1)$/i.test(location.hostname);
+  const IS_STANDALONE_PREVIEW = location.protocol === 'blob:' || location.protocol === 'file:' || location.origin === 'null' || /\.usercontent\.goog$/i.test(location.hostname);
   const apiFetch = (url, init) => window.fetch(url, init);
   (function initPreviewAdapter() {
     if (!IS_STANDALONE_PREVIEW) return;
@@ -2013,8 +1984,7 @@
     const mockAddons = [
       { id: 'addon_dd', name: '网易DD (原网易有爱)', version: '官方最新版', gameVersion: '全版本通用', author: '网易官方', description: '网易官方魔兽插件管理器与开黑语音平台，支持一键安装整合包、单体插件管理、露露缇娅等大神配置订阅及云端同步。', downloadUrl: 'https://dd.163.com/', likes: 328, downloads: 8650, createdAt: '2026-11-15 10:00:00' },
       { id: 'addon_bigfoot', name: '大脚插件 (BigFoot)', version: '官方最新版', gameVersion: '全版本通用', author: '178大脚官方', description: '国服经典老牌魔兽世界整合插件，内置任务指引、首领报警、伤害统计、背包整合与拍卖行助手，适合开箱即用。', downloadUrl: 'https://bigfoot.178.com/', likes: 276, downloads: 7420, createdAt: '2026-11-15 09:30:00' },
-      { id: 'addon_heybox', name: '黑盒工坊 (小黑盒插件助手)', version: '官方最新版', gameVersion: '全版本通用', author: '小黑盒官方', description: '支持单体插件极速更新、WA 字符串库检索、名人分享配置一键导入以及本地 WTF 配置自动云备份。', downloadUrl: 'https://www.xiaoheihe.cn/app/workshop', likes: 245, downloads: 6890, createdAt: '2026-11-15 09:00:00' },
-      { id: 'addon_wbox', name: '新手盒子 (Wbox)', version: '官方最新版', gameVersion: '全版本通用', author: '新手盒子官方', description: '聚合海量主播与高玩界面整合包、WA 字符串与实用工具箱，内置换肤与配置迁移功能。', downloadUrl: 'https://www.wbox.top/', likes: 198, downloads: 5310, createdAt: '2026-11-14 22:00:00' },
+      { id: 'addon_heybox', name: '黑盒工坊 (小黑盒插件助手)', version: '官方最新版', gameVersion: '全版本通用', author: '小黑盒官方', description: '支持单体插件极速更新、WA 字符串库检索、名人分享配置一键导入以及本地 WTF 配置自动云备份。', downloadUrl: 'https://workshop.xiaoheihe.cn/', likes: 245, downloads: 6890, createdAt: '2026-11-15 09:00:00' },
       { id: 'addon_demo1', name: 'WeakAuras 无限开荒包', version: '5.20.1', gameVersion: '无限 / 11.0', author: '灰烬使者', description: '内置泽风岛全首领技能预警、职业核心监控与团队减伤排班提示。', downloadUrl: 'https://www.curseforge.com/wow/addons/weakauras-2', likes: 168, downloads: 4240, createdAt: '2026-11-14 18:00:00' },
       { id: 'addon_demo2', name: 'DBM 首领警报模块', version: '11.0.8', gameVersion: '无限 / 11.0', author: '铁炉堡工匠', description: '精准时间轴倒计时与语音提示，开荒必备辅助插件。', downloadUrl: 'https://www.curseforge.com/wow/addons/deadly-boss-mods', likes: 154, downloads: 3980, createdAt: '2026-11-13 20:15:00' }
     ];
@@ -2156,8 +2126,55 @@
         mockAddons.unshift(na);
         return jsonResp({ success: true, id: na.id });
       }
+      if (path.startsWith('/api/sim/builds/') && method === 'DELETE') {
+        const bid = path.split('/')[3];
+        const bidx = mockSimBuilds.findIndex(x => x.id === bid);
+        if (bidx !== -1) mockSimBuilds.splice(bidx, 1);
+        return jsonResp({ success: true });
+      }
+      if (path === '/api/auth/login' && method === 'POST') {
+        const b = JSON.parse(init.body || '{}');
+        const uname = (b.username || '').trim();
+        const pwd = b.password || '';
+        if (uname === 'GM001' && pwd !== 'gm888888') {
+          return jsonResp({ success: false, detail: '用户名或密码错误' }, 400);
+        }
+        const isAdm = (uname === 'GM001' && pwd === 'gm888888');
+        try {
+          localStorage.setItem('gm-preview-user', uname);
+          localStorage.setItem('gm-preview-admin', isAdm ? '1' : '0');
+        } catch (e) {}
+        return jsonResp({ success: true, data: { username: uname, isAdmin: isAdm, token: 'preview_tok_' + uname } });
+      }
+      if (path === '/api/auth/register' && method === 'POST') {
+        const b = JSON.parse(init.body || '{}');
+        const uname = (b.username || '').trim();
+        if (uname === 'GM001') {
+          return jsonResp({ success: false, detail: '该用户名不可注册' }, 400);
+        }
+        try {
+          localStorage.setItem('gm-preview-user', uname);
+          localStorage.setItem('gm-preview-admin', '0');
+        } catch (e) {}
+        return jsonResp({ success: true, data: { username: uname, isAdmin: false, token: 'preview_tok_' + uname } });
+      }
+      if (path === '/api/auth/logout' && method === 'POST') {
+        try {
+          localStorage.removeItem('gm-preview-user');
+          localStorage.removeItem('gm-preview-admin');
+        } catch (e) {}
+        return jsonResp({ success: true });
+      }
       if (path === '/api/addons') return jsonResp({ success: true, data: mockAddons });
-      if (path === '/api/auth/me') return jsonResp({ success: true, data: { username: '灰烬使者' } });
+      if (path === '/api/auth/me') {
+        let savedU = '灰烬使者';
+        let savedAdm = false;
+        try {
+          savedU = localStorage.getItem('gm-preview-user') || '灰烬使者';
+          savedAdm = localStorage.getItem('gm-preview-admin') === '1' && savedU === 'GM001';
+        } catch (e) {}
+        return jsonResp({ success: true, data: { username: savedU, isAdmin: savedAdm } });
+      }
       if (path === '/api/profile') {
         const inboxList = [];
         const myReplyList = [];
@@ -2481,8 +2498,11 @@
     }
 
     titleEl.textContent = activeName;
-    badgeEl.textContent = '已认证冒险者';
-    subEl.textContent = `账号「${activeName}」在艾泽拉斯营地的全部发帖、收到的回复、回帖评论与插件贡献`;
+    badgeEl.textContent = isSuperAdmin() ? '👑 最高权限工号 (全站管理)' : '已认证冒险者';
+    badgeEl.className = isSuperAdmin() ? 'text-[11px] px-2.5 py-0.5 rounded-full q-legendary font-bold' : 'text-[11px] px-2.5 py-0.5 rounded-full q-rare font-semibold';
+    subEl.textContent = isSuperAdmin()
+      ? `当前登录最高级管理员工号「${activeName}」，可在首页、酒馆、秘典及插件库直接删除任意违规/垃圾帖子、评论与插件`
+      : `账号「${activeName}」在艾泽拉斯营地的全部发帖、收到的回复、回帖评论与插件贡献`;
     btnsEl.innerHTML = `<button onclick="openPublishModal()" class="px-3.5 py-2 text-xs gold-btn cursor-pointer">✍️ 发新帖</button><button onclick="openShareAddonModal()" class="px-3.5 py-2 text-xs ghost-btn cursor-pointer">🧩 分享插件</button>`;
 
     let myPosts = [];
@@ -2720,7 +2740,7 @@
                 </div>
                 <span class="text-xs text-gray-500 font-mono shrink-0">${p.createdAt.substring(5, 16)}</span>
               </div>
-              <p class="text-sm text-gray-300 whitespace-pre-line line-clamp-2 leading-relaxed">${escapeHtml(p.content)}</p>
+              <p class="text-sm text-gray-300 whitespace-pre-line line-clamp-2 leading-relaxed">${formatContentWithStickers(p.content)}</p>
               ${thumbsHtml}
             </div>
             <div class="flex flex-wrap items-center justify-between gap-2 pt-2.5 border-t border-amber-500/10 text-xs text-gray-400">
@@ -2729,7 +2749,7 @@
                 <span class="text-gray-500">👁 ${p.views || 0} · 💬 ${p.replyCount || 0} · 最后回复 ${p.lastReplyAt ? p.lastReplyAt.substring(5, 16) : '—'}</span>
               </div>
               <div class="flex items-center gap-2">
-                ${currentUser && p.author === currentUser ? `<button data-del-post-id="${p.id}" class="px-2.5 py-1 rounded-lg border border-red-500/40 bg-red-500/15 hover:bg-red-500/25 text-red-300 transition cursor-pointer font-medium">🗑️ 删除</button>` : ''}
+                ${(isSuperAdmin() || (currentUser && p.author === currentUser)) ? `<button data-del-post-id="${p.id}" class="px-2.5 py-1 rounded-lg border border-red-500/40 bg-red-500/15 hover:bg-red-500/25 text-red-300 transition cursor-pointer font-medium">🗑️ ${isSuperAdmin() && p.author !== currentUser ? '超管清理' : '删除'}</button>` : ''}
                 <button data-like-id="${p.id}" class="like-btn px-3 py-1 rounded-lg bg-[#0c101a] hover:bg-[#1a2236] text-amber-300 border border-amber-500/30 transition cursor-pointer font-medium">
                   ${liked.includes(p.id) ? '❤️ 已赞' : '🔥 点赞'} (${p.likes})
                 </button>
@@ -2802,7 +2822,7 @@
       if (authorName) authorName.textContent = p.author || '匿名冒险者';
       if (authorSub) authorSub.textContent = `发布于「${p.category}」议事厅 · ${p.createdAt || ''}`;
 
-      document.getElementById('post-modal-content').textContent = p.content || '';
+      document.getElementById('post-modal-content').innerHTML = formatContentWithStickers(p.content || '');
       const imgsBox = document.getElementById('post-modal-images');
       const postImgs = Array.isArray(p.images) ? p.images : [];
       if (imgsBox) {
@@ -2818,7 +2838,7 @@
       likeBtn.textContent = `${getLikedPosts().includes(p.id) ? '❤️ 已赞支持' : '🔥 点赞支持'} (${p.likes})`;
       const delPostBtn = document.getElementById('post-modal-delete');
       if (delPostBtn) {
-        const canDelPost = !!(currentUser && p.author === currentUser);
+        const canDelPost = !!(isSuperAdmin() || (currentUser && p.author === currentUser));
         delPostBtn.classList.toggle('hidden', !canDelPost);
         delPostBtn.onclick = canDelPost ? () => deletePost(p.id) : null;
       }
@@ -2830,7 +2850,7 @@
         ? p.replies.map((r, idx) => {
             const avatarChar = (r.author || '友').substring(0, 1).toUpperCase();
             const isOp = r.author === p.author;
-            const canDelReply = !!(currentUser && r.id && (r.author === currentUser || p.author === currentUser));
+            const canDelReply = !!(r.id && (isSuperAdmin() || (currentUser && (r.author === currentUser || p.author === currentUser))));
             const floorTag = idx < 3 ? `#${idx + 2} ${floorNames[idx]}` : `#${idx + 2} 楼`;
             const rImgs = Array.isArray(r.images) ? r.images : [];
             const rImgsHtml = rImgs.length
@@ -2853,7 +2873,7 @@
                   <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-gray-400">${floorTag}</span>
                 </div>
               </div>
-              ${r.content ? `<div class="text-sm text-gray-200 leading-relaxed pl-11 break-words">${escapeHtml(r.content)}</div>` : ''}
+              ${r.content ? `<div class="text-sm text-gray-200 leading-relaxed pl-11 break-words">${formatContentWithStickers(r.content)}</div>` : ''}
               ${rImgsHtml}
             </div>`;
           }).join('')
@@ -2958,9 +2978,14 @@
     document.getElementById('share-addon-modal').classList.add('hidden');
   }
 
-  // --- 账号登录 ---
+  // --- 账号登录与权限校验 ---
   let currentUser = '';
+  let isCurrentUserAdmin = false;
   let authMode = 'login';
+
+  function isSuperAdmin() {
+    return Boolean(currentUser && isCurrentUserAdmin === true);
+  }
   let pendingPublishAfterLogin = false;
   let pendingAddonAfterLogin = false;
   function authToken() {
@@ -2974,9 +2999,17 @@
   }
   function renderAuthArea() {
     const box = document.getElementById('auth-area');
+    const logoAdminBar = document.getElementById('gm-logo-admin-bar');
+    const adm = isSuperAdmin();
+    if (logoAdminBar) {
+      logoAdminBar.classList.toggle('hidden', !adm);
+    }
+    if (!adm) {
+      closeLogoPickerModal();
+    }
     if (!box) return;
     if (currentUser) {
-      box.innerHTML = `<button onclick="switchTab('profile')" class="flex-1 text-left text-xs px-3 py-1.5 rounded-lg bg-amber-500/15 border border-amber-400/35 text-amber-200 font-semibold truncate cursor-pointer" title="点击进入个人中心">🛡️ ${escapeHtml(currentUser)}</button><button onclick="logout()" class="px-2.5 py-1.5 text-xs ghost-btn cursor-pointer shrink-0">退出</button>`;
+      box.innerHTML = `<button onclick="switchTab('profile')" class="flex-1 text-left text-xs px-3 py-1.5 rounded-lg ${adm ? 'gold-btn font-extrabold' : 'bg-amber-500/15 border border-amber-400/35 text-amber-200 font-semibold'} truncate cursor-pointer" title="点击进入个人中心">${adm ? '👑 ' : '🛡️ '}${escapeHtml(currentUser)}</button><button onclick="logout()" class="px-2.5 py-1.5 text-xs ghost-btn cursor-pointer shrink-0">退出</button>`;
     } else {
       box.innerHTML = `<button onclick="openAuthModal('login')" class="flex-1 py-1.5 text-xs gold-btn cursor-pointer">登录</button><button onclick="openAuthModal('register')" class="flex-1 py-1.5 text-xs ghost-btn cursor-pointer">注册</button>`;
     }
@@ -2988,8 +3021,9 @@
       const res = await apiFetch('/api/auth/me', { headers: t ? { 'Authorization': 'Bearer ' + t } : {} });
       const json = await res.json();
       currentUser = (res.ok && json.success) ? json.data.username : '';
-      if (!currentUser) try { localStorage.removeItem('gm-auth-token'); } catch (e) {}
-    } catch (e) { currentUser = ''; }
+      isCurrentUserAdmin = !!(res.ok && json.success && json.data && json.data.isAdmin);
+      if (!currentUser) { isCurrentUserAdmin = false; try { localStorage.removeItem('gm-auth-token'); } catch (e) {} }
+    } catch (e) { currentUser = ''; isCurrentUserAdmin = false; }
     renderAuthArea();
   }
   function openAuthModal(mode) {
@@ -3021,8 +3055,11 @@
       if (!res.ok || !json.success) { errEl.textContent = json.detail || '操作失败'; errEl.classList.remove('hidden'); return; }
       try { localStorage.setItem('gm-auth-token', json.data.token); } catch (e) {}
       currentUser = json.data.username;
+      isCurrentUserAdmin = !!json.data.isAdmin;
       closeAuthModal();
       renderAuthArea(); renderBoardNav();
+      loadHome(); loadPosts(); loadAddons();
+      showToast(isSuperAdmin() ? `👑 最高权限工号「${currentUser}」已登录，全站删帖清理权限已开启！` : `✅ 欢迎回来，${currentUser}！`, 'success');
       if (!document.getElementById('sec-profile').classList.contains('hidden')) loadProfile();
       if (pendingPublishAfterLogin) { pendingPublishAfterLogin = false; openPublishModal(); }
       else if (pendingAddonAfterLogin) { pendingAddonAfterLogin = false; openShareAddonModal(); }
@@ -3031,7 +3068,7 @@
   async function logout() {
     try { await apiFetch('/api/auth/logout', { method: 'POST', headers: authHeaders() }); } catch (e) {}
     try { localStorage.removeItem('gm-auth-token'); } catch (e) {}
-    currentUser = ''; onlyMine = false;
+    currentUser = ''; isCurrentUserAdmin = false; onlyMine = false;
     renderAuthArea(); renderBoardNav(); loadPosts();
     if (!document.getElementById('sec-profile').classList.contains('hidden')) loadProfile();
   }
@@ -3093,7 +3130,7 @@
   document.getElementById('post-modal-reply-content').addEventListener('keydown', (e) => { if (e.key === 'Enter') submitReply(); });
   document.getElementById('auth-password').addEventListener('keydown', (e) => { if (e.key === 'Enter') submitAuth(); });
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') { toggleGameFullscreen(false); closeImageLightbox(); closeCodexInspectModal(); closePostModal(); closePublishModal(); closeShareAddonModal(); closeAuthModal(); closeNewsModal(); closePwdModal(); closeConfirmModal(false); }
+    if (e.key === 'Escape') { closeLogoPickerModal(); toggleGameFullscreen(false); closeImageLightbox(); closeCodexInspectModal(); closePostModal(); closePublishModal(); closeShareAddonModal(); closeAuthModal(); closeNewsModal(); closePwdModal(); closeConfirmModal(false); }
   });
 
   function renderMemberSlots(count, max) {
@@ -3247,10 +3284,13 @@
         <div class="text-sm text-amber-100 font-bold truncate">${escapeHtml(p.title)}</div>
         <span class="text-[10px] px-2 py-0.5 rounded-full ${categoryBadgeClass(p.category)} font-semibold shrink-0">${escapeHtml(p.category)}</span>
       </div>
-      <p class="text-xs text-gray-400 line-clamp-1">${escapeHtml(p.content || '')}</p>
+      <p class="text-xs text-gray-400 line-clamp-1">${formatContentWithStickers(p.content || '')}</p>
       <div class="text-[11px] text-gray-400 flex items-center justify-between pt-1 border-t border-amber-500/10">
         <span>✍️ ${escapeHtml(p.author)}</span>
-        <span class="font-mono">🔥 ${p.likes} · 💬 ${p.replyCount || 0}</span>
+        <div class="flex items-center gap-2">
+          <span class="font-mono">🔥 ${p.likes} · 💬 ${p.replyCount || 0}</span>
+          ${(isSuperAdmin() || (currentUser && p.author === currentUser)) ? `<button onclick="event.stopPropagation(); deletePost('${p.id}')" class="px-2 py-0.5 rounded border border-red-500/40 bg-red-500/15 hover:bg-red-500/30 text-red-300 text-[10px] font-bold cursor-pointer">🗑️ 删除</button>` : ''}
+        </div>
       </div>
     </div>`;
   }
@@ -3283,6 +3323,9 @@
       const json = await res.json();
       if (!json.success) return;
       const d = json.data;
+      if (d.logoVersion && GM_LOGO_VARIANTS[d.logoVersion]) {
+        selectBrandLogo(d.logoVersion, true);
+      }
       const postsBox = document.getElementById('home-posts-list');
       postsBox.innerHTML = d.latest.length
         ? d.latest.slice(0, 4).map(homePostRow).join('')
@@ -3355,7 +3398,7 @@
             <div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-amber-500/15 text-xs text-gray-400">
               <span>🧑‍💻 ${escapeHtml(a.author)} · ⬇️ ${a.downloads || 0} 次下载</span>
               <span class="flex items-center gap-2">
-                ${currentUser && a.author === currentUser ? `<button data-addon-del-id="${a.id}" class="px-3 py-1.5 rounded-lg border border-red-500/40 bg-red-500/15 hover:bg-red-500/25 text-red-300 transition cursor-pointer font-medium">🗑️ 删除</button>` : ''}
+                ${(isSuperAdmin() || (currentUser && a.author === currentUser)) ? `<button data-addon-del-id="${a.id}" class="px-3 py-1.5 rounded-lg border border-red-500/40 bg-red-500/15 hover:bg-red-500/25 text-red-300 transition cursor-pointer font-medium">🗑️ ${isSuperAdmin() && a.author !== currentUser ? '超管清理' : '删除'}</button>` : ''}
                 <a href="${escapeHtml(a.downloadUrl)}" target="_blank" rel="noopener" onclick="trackAddonDownload('${a.id}')" class="px-3.5 py-1.5 gold-btn text-xs">⬇️ 获取插件</a>
                 <button data-addon-like-id="${a.id}" class="addon-like-btn px-3 py-1.5 rounded-lg bg-[#0c101a] hover:bg-[#1a2236] text-amber-300 border border-amber-500/30 transition cursor-pointer font-medium">
                   ${liked.includes(a.id) ? '❤️ 已赞' : '🔥 点赞'} (${a.likes})
@@ -5222,7 +5265,7 @@
       div.textContent = msg.text;
     } else {
       div.className = 'text-sm text-gray-200 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/[0.04]';
-      div.innerHTML = `<span class="font-bold text-amber-300">[${escapeHtml(msg.sender)}]:</span> ${escapeHtml(msg.text)}`;
+      div.innerHTML = `<span class="font-bold text-amber-300">[${escapeHtml(msg.sender)}]:</span> ${formatContentWithStickers(msg.text)}`;
     }
     box.appendChild(div);
     box.scrollTop = box.scrollHeight;
@@ -5316,6 +5359,387 @@
     return String(str).replace(/[&<>"']/g, s => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[s]));
   }
 
+  // =========================================================================
+  // 😄 魔兽营地特色表情包贴纸与 Emoji 颜文字系统（支持发帖、回帖与营火小队聊天）
+  // =========================================================================
+  const WOW_STICKERS = {
+    '欧皇': {
+      label: '✨ 欧皇出橙',
+      svg: `<svg viewBox="0 0 48 48" class="w-9 h-9"><defs><radialGradient id="st_oh" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fef08a"/><stop offset="100%" stop-color="#f97316" stop-opacity="0"/></radialGradient></defs><circle cx="24" cy="24" r="22" fill="url(#st_oh)"/><path d="M12,24 L36,24 L34,38 L14,38 Z" fill="#b45309" stroke="#fde047" stroke-width="2"/><path d="M10,24 C10,16 38,16 38,24 Z" fill="#f59e0b" stroke="#fef08a" stroke-width="2"/><polygon points="24,6 27,15 36,15 29,20 32,29 24,23 16,29 19,20 12,15 21,15" fill="#fef08a" stroke="#ea580c" stroke-width="1.2"/></svg>`
+    },
+    '非酋': {
+      label: '😭 非酋黑手',
+      svg: `<svg viewBox="0 0 48 48" class="w-9 h-9"><path d="M14,22 C10,22 8,18 11,15 C12,10 19,8 24,11 C28,7 36,9 37,15 C41,17 39,22 35,22 Z" fill="#475569" stroke="#94a3b8" stroke-width="1.5"/><polygon points="25,22 20,31 25,31 22,40 31,29 26,29" fill="#38bdf8"/><circle cx="16" cy="34" r="2" fill="#60a5fa"/><circle cx="33" cy="35" r="2" fill="#60a5fa"/></svg>`
+    },
+    '嗜血': {
+      label: '🩸 快开嗜血',
+      svg: `<svg viewBox="0 0 48 48" class="w-9 h-9"><circle cx="24" cy="24" r="20" fill="#7f1d1d" stroke="#ef4444" stroke-width="2"/><path d="M24,8 C33,18 37,28 30,38 C27,41 21,41 18,38 C11,28 15,18 24,8 Z" fill="#ef4444"/><polygon points="16,24 22,27 16,30" fill="#fef08a"/><polygon points="32,24 26,27 32,30" fill="#fef08a"/></svg>`
+    },
+    '坐牢': {
+      label: '⛓️ 副本坐牢',
+      svg: `<svg viewBox="0 0 48 48" class="w-9 h-9"><rect x="8" y="8" width="32" height="32" rx="4" fill="#1e293b" stroke="#64748b" stroke-width="2"/><circle cx="24" cy="26" r="9" fill="#fcd34d"/><circle cx="21" cy="24" r="1.8" fill="#0f172a"/><circle cx="27" cy="24" r="1.8" fill="#0f172a"/><path d="M20,31 C22,28 26,28 28,31" fill="none" stroke="#0f172a" stroke-width="1.8"/><line x1="16" y1="8" x2="16" y2="40" stroke="#94a3b8" stroke-width="3"/><line x1="24" y1="8" x2="24" y2="40" stroke="#94a3b8" stroke-width="3"/><line x1="32" y1="8" x2="32" y2="40" stroke="#94a3b8" stroke-width="3"/></svg>`
+    },
+    '奶我': {
+      label: '💚 奶我一口',
+      svg: `<svg viewBox="0 0 48 48" class="w-9 h-9"><circle cx="24" cy="24" r="20" fill="#064e3b" stroke="#10b981" stroke-width="2"/><rect x="20" y="11" width="8" height="26" rx="2" fill="#4ade80"/><rect x="11" y="20" width="26" height="8" rx="2" fill="#4ade80"/><circle cx="24" cy="24" r="3" fill="#ffffff"/></svg>`
+    },
+    'OT了': {
+      label: '💢 谁又OT了',
+      svg: `<svg viewBox="0 0 48 48" class="w-9 h-9"><polygon points="24,6 42,14 36,38 24,44 12,38 6,14" fill="#991b1b" stroke="#fca5a5" stroke-width="2"/><text x="24" y="31" text-anchor="middle" fill="#fef08a" font-weight="900" font-size="18" font-family="sans-serif">OT!</text></svg>`
+    },
+    '干杯': {
+      label: '🍺 酒馆干杯',
+      svg: `<svg viewBox="0 0 48 48" class="w-9 h-9"><g transform="rotate(-12 18 28)"><rect x="10" y="18" width="14" height="18" rx="2" fill="#f59e0b" stroke="#fef08a" stroke-width="1.5"/><path d="M9,18 C9,13 25,13 25,18 Z" fill="#ffffff"/></g><g transform="rotate(12 30 28)"><rect x="24" y="18" width="14" height="18" rx="2" fill="#eab308" stroke="#fef08a" stroke-width="1.5"/><path d="M23,18 C23,13 39,13 39,18 Z" fill="#ffffff"/></g><polygon points="24,6 26,11 31,11 27,14 28,19 24,16 20,19 21,14 17,11 22,11" fill="#fef08a"/></svg>`
+    },
+    '求组': {
+      label: '✋ 满级求组',
+      svg: `<svg viewBox="0 0 48 48" class="w-9 h-9"><circle cx="24" cy="24" r="20" fill="#0c4a6e" stroke="#38bdf8" stroke-width="2"/><ellipse cx="24" cy="24" rx="9" ry="14" fill="#0284c7" stroke="#bae6fd" stroke-width="2"/><circle cx="24" cy="24" r="4" fill="#ffffff"/></svg>`
+    },
+    '大佬666': {
+      label: '👑 大佬666',
+      svg: `<svg viewBox="0 0 48 48" class="w-9 h-9"><path d="M8,32 L12,14 L20,23 L24,11 L28,23 L36,14 L40,32 Z" fill="#fbbf24" stroke="#fef08a" stroke-width="1.8"/><text x="24" y="42" text-anchor="middle" fill="#fde047" font-weight="900" font-size="12" font-family="monospace">666</text></svg>`
+    },
+    '吃瓜': {
+      label: '🍉 前排吃瓜',
+      svg: `<svg viewBox="0 0 48 48" class="w-9 h-9"><path d="M8,22 C8,36 40,36 40,22 Z" fill="#16a34a" stroke="#bbf7d0" stroke-width="1.5"/><path d="M11,22 C11,33 37,33 37,22 Z" fill="#ef4444"/><circle cx="20" cy="26" r="1.3" fill="#090d16"/><circle cx="24" cy="28" r="1.3" fill="#090d16"/><circle cx="28" cy="26" r="1.3" fill="#090d16"/></svg>`
+    },
+    '必过': {
+      label: '⚔️ 这把必过',
+      svg: `<svg viewBox="0 0 48 48" class="w-9 h-9"><line x1="10" y1="38" x2="38" y2="10" stroke="#fbbf24" stroke-width="4" stroke-linecap="round"/><line x1="38" y1="38" x2="10" y2="10" stroke="#38bdf8" stroke-width="4" stroke-linecap="round"/><circle cx="24" cy="24" r="7" fill="#dc2626" stroke="#fef08a" stroke-width="2"/></svg>`
+    },
+    '集合石': {
+      label: '🔥 速来集合',
+      svg: `<svg viewBox="0 0 48 48" class="w-9 h-9"><path d="M14,40 L18,12 L24,6 L30,12 L34,40 Z" fill="#334155" stroke="#fbbf24" stroke-width="1.8"/><ellipse cx="24" cy="25" rx="5" ry="9" fill="#38bdf8"/><circle cx="24" cy="25" r="2.2" fill="#ffffff"/></svg>`
+    }
+  };
+
+  const WOW_QUICK_EMOJIS = [
+    '🔥', '🎉', '😂', '😭', '👍', '🍺', '⚔️', '🛡️', '💚', '🏹', '🔮', '❄️',
+    '💀', '🐉', '👑', '✨', '🎲', '💯', '🙏', '🥳', '😎', '🤡', '🫡', '💥',
+    '(づ￣3￣)づ', 'ヽ(✿ﾟ▽ﾟ)ノ', '(╯°□°）╯︵┻━┻', '┏(＾0＾)┛'
+  ];
+
+  const STICKER_TARGET_INPUT = {
+    publish: 'forum-content',
+    reply: 'post-modal-reply-content',
+    chat: 'room-chat-input'
+  };
+
+  function formatContentWithStickers(rawStr) {
+    const safe = escapeHtml(rawStr || '');
+    return safe.replace(/\[贴纸:([^\]]+)\]/g, (full, key) => {
+      const st = WOW_STICKERS[key];
+      if (!st) return full;
+      return `<span class="gm-sticker-inline" title="${st.label}">${st.svg}<span class="text-[10px] font-bold text-amber-200 leading-none mt-0.5 whitespace-nowrap">${st.label.replace(/^[^\s]+\s/, '')}</span></span>`;
+    });
+  }
+
+  function renderStickerDrawerContent(targetKey) {
+    const drawer = document.getElementById('sticker-drawer-' + targetKey);
+    if (!drawer) return;
+    const stickerItems = Object.keys(WOW_STICKERS).map(k => {
+      const st = WOW_STICKERS[k];
+      return `<button type="button" onclick="insertStickerOrEmoji('${targetKey}', '[贴纸:${k}]')" class="p-1.5 rounded-xl bg-black/25 hover:bg-amber-500/20 border border-amber-500/20 hover:border-amber-400 transition flex flex-col items-center justify-center gap-1 cursor-pointer group" title="点击插入 ${st.label}">
+        <div class="group-hover:scale-110 transition-transform">${st.svg}</div>
+        <span class="text-[10px] font-semibold text-amber-100 whitespace-nowrap">${st.label}</span>
+      </button>`;
+    }).join('');
+
+    const emojiItems = WOW_QUICK_EMOJIS.map(em => `
+      <button type="button" onclick="insertStickerOrEmoji('${targetKey}', '${em}')" class="px-2 py-1 rounded-lg bg-black/20 hover:bg-amber-500/25 border border-transparent hover:border-amber-400/40 text-xs sm:text-sm transition cursor-pointer">${em}</button>
+    `).join('');
+
+    drawer.innerHTML = `
+      <div class="space-y-2.5">
+        <div class="flex items-center justify-between border-b border-amber-500/15 pb-1.5">
+          <span class="text-[11px] font-bold text-amber-300">🐉 魔兽营地特色贴纸（点击插入）</span>
+          <button type="button" onclick="toggleStickerDrawer('${targetKey}', false)" class="text-xs text-gray-400 hover:text-amber-200 cursor-pointer">收起 ✕</button>
+        </div>
+        <div class="grid grid-cols-4 sm:grid-cols-6 gap-1.5">${stickerItems}</div>
+        <div class="pt-1.5 border-t border-amber-500/15">
+          <div class="text-[10px] text-gray-400 mb-1">😀 常用表情与颜文字：</div>
+          <div class="flex flex-wrap gap-1">${emojiItems}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function toggleStickerDrawer(targetKey, forceState) {
+    const drawer = document.getElementById('sticker-drawer-' + targetKey);
+    if (!drawer) return;
+    const willOpen = typeof forceState === 'boolean' ? forceState : drawer.classList.contains('hidden');
+    if (willOpen && !drawer.innerHTML.trim()) {
+      renderStickerDrawerContent(targetKey);
+    }
+    drawer.classList.toggle('hidden', !willOpen);
+  }
+
+  function insertStickerOrEmoji(targetKey, token) {
+    const inputId = STICKER_TARGET_INPUT[targetKey];
+    const el = document.getElementById(inputId);
+    if (!el) return;
+    const start = typeof el.selectionStart === 'number' ? el.selectionStart : el.value.length;
+    const end = typeof el.selectionEnd === 'number' ? el.selectionEnd : el.value.length;
+    const before = el.value.slice(0, start);
+    const after = el.value.slice(end);
+    el.value = (before + token + after).slice(0, el.maxLength > 0 ? el.maxLength : 300);
+    el.focus();
+    const newPos = Math.min(el.value.length, start + token.length);
+    try { el.setSelectionRange(newPos, newPos); } catch (e) {}
+  }
+
+  // =========================================================================
+  // 🎨 gamemate.fun 6 款概念级左侧图标设计库（右侧固定 V2 域名 + V4 下方双胶囊）
+  // =========================================================================
+  function buildGmRightWordmark(p) {
+    return `
+      <text x="64" y="29" fill="url(#${p}_gold)" stroke="#2A1700" stroke-width="1.3" paint-order="stroke fill" font-family="'Cinzel', 'Inter', serif" font-weight="900" font-size="18.5" letter-spacing="0.4">GameMate</text>
+      <text x="178" y="29" fill="#38BDF8" stroke="#082F49" stroke-width="1.2" paint-order="stroke fill" font-family="'Inter', sans-serif" font-weight="900" font-size="15.5" letter-spacing="0.4">.fun</text>
+      <rect x="64" y="37" width="64" height="16" rx="4" fill="url(#${p}_gold)" stroke="#2A1700" stroke-width="0.8"/>
+      <text x="96" y="48" text-anchor="middle" fill="#090D16" font-family="'Inter', sans-serif" font-weight="900" font-size="8.5" letter-spacing="0.6">WOW CAMP</text>
+      <rect x="133" y="37" width="93" height="16" rx="4" fill="#090D16" stroke="url(#${p}_gold)" stroke-width="1"/>
+      <text x="179.5" y="48" text-anchor="middle" fill="#FDE68A" font-family="'Noto Serif SC', sans-serif" font-weight="800" font-size="8.5" letter-spacing="0.8">开荒 · 配装 · 社区</text>
+    `;
+  }
+
+  function buildGmCommonDefs(p) {
+    return `
+      <defs>
+        <linearGradient id="${p}_gold" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#FFFDF5"/><stop offset="28%" stop-color="#FDE68A"/><stop offset="55%" stop-color="#F59E0B"/><stop offset="72%" stop-color="#B45309"/><stop offset="100%" stop-color="#FEF08A"/>
+        </linearGradient>
+        <linearGradient id="${p}_rim" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#FEF3C7"/><stop offset="45%" stop-color="#D97706"/><stop offset="80%" stop-color="#78350F"/><stop offset="100%" stop-color="#FBBF24"/>
+        </linearGradient>
+        <radialGradient id="${p}_void" cx="50%" cy="50%" r="52%">
+          <stop offset="0%" stop-color="#0C2D48"/><stop offset="60%" stop-color="#091326"/><stop offset="100%" stop-color="#050811"/>
+        </radialGradient>
+        <linearGradient id="${p}_cyan" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#FFFFFF"/><stop offset="35%" stop-color="#7DD3FC"/><stop offset="75%" stop-color="#0284C7"/><stop offset="100%" stop-color="#1E40AF"/>
+        </linearGradient>
+        <filter id="${p}_glow" x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur stdDeviation="1.3" result="blur"/>
+          <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+        </filter>
+      </defs>
+    `;
+  }
+
+  const GM_LOGO_VARIANTS = {
+    1: {
+      name: '概念 V1 · 双子星轨 · 炉石星盘 (Twin-Star Astrolabe)',
+      desc: '【概念：双星伴行·炉石归家】外圈为镶嵌四极菱扣的星轨罗盘，内层由天蓝奥术与流金圣光双螺旋交织成炉石漩涡与首字母 G，中心悬浮四芒北极星晶核。',
+      buildSvg: (p) => `<svg viewBox="0 0 232 64" width="224" height="62" class="w-full max-w-[224px] h-auto drop-shadow-[0_6px_16px_rgba(0,0,0,0.35)] transition-transform duration-200 group-hover:scale-[1.02]">
+        ${buildGmCommonDefs(p)}
+        <g transform="translate(4, 4)">
+          <circle cx="28" cy="28" r="25.5" fill="url(#${p}_void)" stroke="url(#${p}_rim)" stroke-width="2.4"/>
+          <circle cx="28" cy="28" r="19.5" fill="none" stroke="#38BDF8" stroke-opacity="0.45" stroke-width="1" stroke-dasharray="3.2 2.4"/>
+          <polygon points="28,0.8 31,5.2 28,7.4 25,5.2" fill="url(#${p}_gold)" stroke="#2A1700" stroke-width="0.6"/>
+          <polygon points="28,55.2 31,50.8 28,48.6 25,50.8" fill="url(#${p}_gold)" stroke="#2A1700" stroke-width="0.6"/>
+          <polygon points="0.8,28 5.2,25 7.4,28 5.2,31" fill="url(#${p}_gold)" stroke="#2A1700" stroke-width="0.6"/>
+          <polygon points="55.2,28 50.8,25 48.6,28 50.8,31" fill="url(#${p}_gold)" stroke="#2A1700" stroke-width="0.6"/>
+          <path d="M28,10.5 C40,10.5 45.5,21.5 38.5,31.5 C34,37.8 24.5,37.5 21.5,31 C19.5,26.5 23,22 27.8,22.8" fill="none" stroke="url(#${p}_cyan)" stroke-width="3.8" stroke-linecap="round" filter="url(#${p}_glow)"/>
+          <path d="M28,45.5 C16,45.5 10.5,34.5 17.5,24.5 C22,18.2 31.5,18.5 34.5,25 C36.5,29.5 33,34 28.2,33.2" fill="none" stroke="url(#${p}_gold)" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="20" cy="15.5" r="1.5" fill="#FDE68A"/>
+          <circle cx="36" cy="40.5" r="1.5" fill="#7DD3FC"/>
+          <g filter="url(#${p}_glow)">
+            <polygon points="28,20.5 30,26 35.5,28 30,30 28,35.5 26,30 20.5,28 26,26" fill="#E0F2FE"/>
+            <polygon points="28,23.5 31.5,28 28,32.5 24.5,28" fill="#38BDF8" stroke="#FFFFFF" stroke-width="0.6"/>
+          </g>
+        </g>
+        ${buildGmRightWordmark(p)}
+      </svg>`
+    },
+    2: {
+      name: '概念 V2 · 负空间 G·M · 圣剑盾徽 (Negative-Space G&M Blade)',
+      desc: '【概念：字母正负形×圣剑破晓】外层黄金护盾切口向内折入构成大写的「G」，内层双翼托起贯穿天际的天蓝圣剑并自然拼出「M」，四重意象合一，过目不忘。',
+      buildSvg: (p) => `<svg viewBox="0 0 232 64" width="224" height="62" class="w-full max-w-[224px] h-auto drop-shadow-[0_6px_16px_rgba(0,0,0,0.35)] transition-transform duration-200 group-hover:scale-[1.02]">
+        ${buildGmCommonDefs(p)}
+        <g transform="translate(4, 4)">
+          <circle cx="28" cy="28" r="25.5" fill="url(#${p}_void)" stroke="url(#${p}_rim)" stroke-width="2.2"/>
+          <!-- 外环黄金 G 字正负形几何雕塑 -->
+          <path d="M39,14.5 A18,18 0 1,0 44,33 L44,26.5 L31,26.5" fill="none" stroke="url(#${p}_gold)" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- 内层双翼 M 字结构 -->
+          <path d="M16,38 L16,22 L28,31 L40,22 L40,38" fill="none" stroke="url(#${p}_gold)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.88"/>
+          <!-- 中央贯穿天际的天蓝奥术圣剑 -->
+          <g filter="url(#${p}_glow)">
+            <polygon points="28,5 31.5,14 29.5,39 28,44 26.5,39 24.5,14" fill="url(#${p}_cyan)" stroke="#FFFFFF" stroke-width="0.6"/>
+            <path d="M20,17 L28,14.5 L36,17" fill="none" stroke="#FEF08A" stroke-width="2.2" stroke-linecap="round"/>
+            <circle cx="28" cy="15.8" r="2.2" fill="#FFFFFF"/>
+          </g>
+        </g>
+        ${buildGmRightWordmark(p)}
+      </svg>`
+    },
+    3: {
+      name: '概念 V3 · 莫比乌斯 · 无限炉石契约 (Möbius Infinity Pact)',
+      desc: '【概念：无限契约·炉石共鸣】将「∞ 无限」莫比乌斯金环与天蓝奥术能量环相互穿插锁扣，中心交汇处迸发八芒契约星辉，寓意永不散场的战友羁绊。',
+      buildSvg: (p) => `<svg viewBox="0 0 232 64" width="224" height="62" class="w-full max-w-[224px] h-auto drop-shadow-[0_6px_16px_rgba(0,0,0,0.35)] transition-transform duration-200 group-hover:scale-[1.02]">
+        ${buildGmCommonDefs(p)}
+        <g transform="translate(4, 4)">
+          <circle cx="28" cy="28" r="25.5" fill="url(#${p}_void)" stroke="url(#${p}_rim)" stroke-width="2.4"/>
+          <circle cx="28" cy="28" r="21" fill="none" stroke="#FDE68A" stroke-opacity="0.22" stroke-width="0.9"/>
+          <!-- 倾斜 35 度的天蓝奥术能量环 -->
+          <ellipse cx="28" cy="28" rx="19" ry="9" transform="rotate(-35 28 28)" fill="none" stroke="url(#${p}_cyan)" stroke-width="3.2" filter="url(#${p}_glow)"/>
+          <!-- 倾斜 +35 度的圣光流金莫比乌斯环 -->
+          <ellipse cx="28" cy="28" rx="19" ry="9" transform="rotate(35 28 28)" fill="none" stroke="url(#${p}_gold)" stroke-width="3.2"/>
+          <!-- 莫比乌斯交叠遮罩段（营造真实穿插锁扣感） -->
+          <path d="M21,21 L35,35" stroke="url(#${p}_cyan)" stroke-width="3.6" stroke-linecap="round"/>
+          <!-- 中央契约八芒星核 -->
+          <g filter="url(#${p}_glow)">
+            <polygon points="28,17 30.2,25.8 39,28 30.2,30.2 28,39 25.8,30.2 17,28 25.8,25.8" fill="#FFFBEB"/>
+            <circle cx="28" cy="28" r="3.2" fill="#38BDF8" stroke="#FFFFFF" stroke-width="0.8"/>
+          </g>
+        </g>
+        ${buildGmRightWordmark(p)}
+      </svg>`
+    },
+    4: {
+      name: '概念 V4 · 命运沙漏 · 星界集合石 (Chronos Summoning Portal)',
+      desc: '【概念：时空沙漏×集合石】外层为八角符文圣盾，内部由上下对称的黄金王冠三角与星界光柱构成「时空沙漏」与「集合石传送门」双重视觉隐喻。',
+      buildSvg: (p) => `<svg viewBox="0 0 232 64" width="224" height="62" class="w-full max-w-[224px] h-auto drop-shadow-[0_6px_16px_rgba(0,0,0,0.35)] transition-transform duration-200 group-hover:scale-[1.02]">
+        ${buildGmCommonDefs(p)}
+        <g transform="translate(4, 4)">
+          <!-- 八角符文圣盾外框 -->
+          <polygon points="18,2 38,2 54,18 54,38 38,54 18,54 2,38 2,18" fill="url(#${p}_void)" stroke="url(#${p}_rim)" stroke-width="2.4" stroke-linejoin="round"/>
+          <polygon points="20,6 36,6 50,20 50,36 36,50 20,50 6,36 6,20" fill="none" stroke="#38BDF8" stroke-opacity="0.35" stroke-width="0.9"/>
+          <!-- 左右集合石黄金护柱 -->
+          <path d="M15,12 L12,28 L15,44" fill="none" stroke="url(#${p}_gold)" stroke-width="2.6" stroke-linecap="round"/>
+          <path d="M41,12 L44,28 L41,44" fill="none" stroke="url(#${p}_gold)" stroke-width="2.6" stroke-linecap="round"/>
+          <!-- 上下沙漏三角与中央次元星核 -->
+          <polygon points="17,11 39,11 28,25" fill="url(#${p}_gold)" fill-opacity="0.25" stroke="url(#${p}_gold)" stroke-width="1.8" stroke-linejoin="round"/>
+          <polygon points="17,45 39,45 28,31" fill="url(#${p}_gold)" fill-opacity="0.25" stroke="url(#${p}_gold)" stroke-width="1.8" stroke-linejoin="round"/>
+          <g filter="url(#${p}_glow)">
+            <polygon points="28,19 34,28 28,37 22,28" fill="url(#${p}_cyan)" stroke="#FFFFFF" stroke-width="1"/>
+            <circle cx="28" cy="28" r="2.4" fill="#FFFFFF"/>
+          </g>
+        </g>
+        ${buildGmRightWordmark(p)}
+      </svg>`
+    },
+    5: {
+      name: '概念 V5 · 涅槃凤翼 · 圣光王冠 (Phoenix Winged Crown)',
+      desc: '【概念：浴火首杀·凤翼加冕】金色凤凰双翼自底部向上环抱，翅尖在顶端自然合拢化作三尖皇冠，中央托起流转天蓝星环的奥术宝珠。',
+      buildSvg: (p) => `<svg viewBox="0 0 232 64" width="224" height="62" class="w-full max-w-[224px] h-auto drop-shadow-[0_6px_16px_rgba(0,0,0,0.35)] transition-transform duration-200 group-hover:scale-[1.02]">
+        ${buildGmCommonDefs(p)}
+        <g transform="translate(4, 4)">
+          <circle cx="28" cy="28" r="25.5" fill="url(#${p}_void)" stroke="url(#${p}_rim)" stroke-width="2.4"/>
+          <!-- 凤凰三层金翼向上环抱 -->
+          <path d="M28,49 C12,46 5,32 11,15 C14,22 18,22 18,14 C18,26 22,35 28,39 Z" fill="url(#${p}_gold)" stroke="#2A1700" stroke-width="0.6"/>
+          <path d="M28,49 C44,46 51,32 45,15 C42,22 38,22 38,14 C38,26 34,35 28,39 Z" fill="url(#${p}_gold)" stroke="#2A1700" stroke-width="0.6"/>
+          <!-- 顶端合拢的三尖荣耀王冠 -->
+          <polygon points="20,14 23,7 28,12 33,7 36,14 28,17" fill="url(#${p}_gold)" stroke="#2A1700" stroke-width="0.6"/>
+          <!-- 中央悬浮天蓝星环宝珠 -->
+          <g filter="url(#${p}_glow)">
+            <circle cx="28" cy="26.5" r="7.5" fill="url(#${p}_cyan)" stroke="#FFFFFF" stroke-width="1"/>
+            <ellipse cx="28" cy="26.5" rx="12.5" ry="4" transform="rotate(-22 28 26.5)" fill="none" stroke="#E0F2FE" stroke-width="1.5"/>
+            <circle cx="26" cy="24.5" r="1.8" fill="#FFFFFF"/>
+          </g>
+        </g>
+        ${buildGmRightWordmark(p)}
+      </svg>`
+    },
+    6: {
+      name: '概念 V6 · 破界双剑 · 星晷罗盘 (Astral Sundial & Twin Blades)',
+      desc: '【概念：冰火交锋·破界开荒】一金（圣光）一蓝（奥术）两柄传世符文剑斜穿黑曜石星晷罗盘，交点绽放十字耀斑，极具视觉冲击力。',
+      buildSvg: (p) => `<svg viewBox="0 0 232 64" width="224" height="62" class="w-full max-w-[224px] h-auto drop-shadow-[0_6px_16px_rgba(0,0,0,0.35)] transition-transform duration-200 group-hover:scale-[1.02]">
+        ${buildGmCommonDefs(p)}
+        <g transform="translate(4, 4)">
+          <circle cx="28" cy="28" r="24.5" fill="url(#${p}_void)" stroke="url(#${p}_rim)" stroke-width="2.4"/>
+          <circle cx="28" cy="28" r="18.5" fill="none" stroke="#FDE68A" stroke-opacity="0.35" stroke-width="1" stroke-dasharray="4 2.5"/>
+          <!-- 圣光金剑（左下至右上破界而出） -->
+          <g transform="translate(28,28) rotate(42)">
+            <polygon points="0,-27 3.2,-12 2.2,18 -2.2,18 -3.2,-12" fill="url(#${p}_gold)" stroke="#2A1700" stroke-width="0.6"/>
+            <rect x="-7" y="14" width="14" height="3.2" rx="1.5" fill="url(#${p}_gold)" stroke="#2A1700" stroke-width="0.6"/>
+          </g>
+          <!-- 奥术蓝剑（右下至左上破界而出） -->
+          <g transform="translate(28,28) rotate(-42)" filter="url(#${p}_glow)">
+            <polygon points="0,-27 3.2,-12 2.2,18 -2.2,18 -3.2,-12" fill="url(#${p}_cyan)" stroke="#FFFFFF" stroke-width="0.6"/>
+            <rect x="-7" y="14" width="14" height="3.2" rx="1.5" fill="url(#${p}_gold)" stroke="#2A1700" stroke-width="0.6"/>
+          </g>
+          <!-- 双剑交汇十字星芒盾心 -->
+          <polygon points="28,19 35,28 28,37 21,28" fill="#091326" stroke="url(#${p}_gold)" stroke-width="1.6"/>
+          <circle cx="28" cy="28" r="3" fill="#38BDF8" stroke="#FFFFFF" stroke-width="0.9"/>
+        </g>
+        ${buildGmRightWordmark(p)}
+      </svg>`
+    }
+  };
+
+  let currentLogoVersion = 1;
+
+  function selectBrandLogo(ver, silent = false) {
+    if (!silent && !isSuperAdmin()) return;
+    const v = GM_LOGO_VARIANTS[ver] ? Number(ver) : 1;
+    currentLogoVersion = v;
+    try { localStorage.setItem('gm-logo-version', String(v)); } catch (e) {}
+    if (!silent && isSuperAdmin()) {
+      apiFetch('/api/site/logo', { method: 'POST', headers: authHeaders(), body: JSON.stringify({ version: v }) }).catch(() => {});
+    }
+    const slot = document.getElementById('gm-brand-logo-slot');
+    if (slot) slot.innerHTML = GM_LOGO_VARIANTS[v].buildSvg('sb');
+
+    const pills = document.getElementById('gm-logo-quick-pills');
+    if (pills) {
+      pills.querySelectorAll('button[data-logo-ver]').forEach(btn => {
+        const active = Number(btn.getAttribute('data-logo-ver')) === v;
+        btn.className = active
+          ? 'px-1.5 py-0.5 rounded text-[10px] font-bold gold-btn cursor-pointer'
+          : 'px-1.5 py-0.5 rounded text-[10px] ghost-btn cursor-pointer';
+      });
+    }
+    const modal = document.getElementById('logo-picker-modal');
+    if (modal && !modal.classList.contains('hidden')) {
+      renderLogoPickerGrid();
+    }
+    if (!silent) {
+      showToast(`🎨 已切换为：${GM_LOGO_VARIANTS[v].name}`, 'success');
+    }
+  }
+
+  function renderLogoPickerGrid() {
+    const grid = document.getElementById('logo-picker-grid');
+    if (!grid) return;
+    grid.innerHTML = Object.keys(GM_LOGO_VARIANTS).map(k => {
+      const ver = Number(k);
+      const item = GM_LOGO_VARIANTS[ver];
+      const active = ver === currentLogoVersion;
+      return `
+        <div onclick="selectBrandLogo(${ver});" class="loot-card p-4 cursor-pointer flex flex-col justify-between gap-3 transition ${active ? 'border-amber-400 bg-amber-500/15 shadow-[0_0_20px_rgba(245,194,92,0.22)]' : ''}">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-bold ${active ? 'text-amber-200' : 'text-amber-100'}">${escapeHtml(item.name)}</span>
+              <span class="text-[11px] px-2.5 py-0.5 rounded-full ${active ? 'gold-btn font-bold' : 'q-rare'}">${active ? '✅ 当前使用中' : '点击选用'}</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div class="py-3 px-3 rounded-xl bg-[#070a12] border border-amber-500/30 flex flex-col items-center justify-center gap-1 shadow-inner">
+                <span class="text-[10px] text-gray-400 self-start">🌙 暗金底效果</span>
+                ${item.buildSvg('md_dark_' + ver)}
+              </div>
+              <div class="py-3 px-3 rounded-xl bg-[#f7f3eb] border border-amber-700/30 flex flex-col items-center justify-center gap-1 shadow-inner">
+                <span class="text-[10px] text-amber-900/70 self-start">☀️ 明亮底效果</span>
+                ${item.buildSvg('md_light_' + ver)}
+              </div>
+            </div>
+            <p class="text-xs text-gray-300 leading-relaxed">${escapeHtml(item.desc)}</p>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function openLogoPickerModal() {
+    if (!isSuperAdmin()) return;
+    renderLogoPickerGrid();
+    const modal = document.getElementById('logo-picker-modal');
+    if (modal) modal.classList.remove('hidden');
+  }
+
+  function closeLogoPickerModal() {
+    const modal = document.getElementById('logo-picker-modal');
+    if (modal) modal.classList.add('hidden');
+  }
+
   // --- 2.3 暗金 / 明亮 双主题切换（默认为明亮模式 light） ---
   function setUiTheme(theme, silent = false) {
     if (!THEME_NAMES[theme]) theme = 'light';
@@ -5333,6 +5757,13 @@
     setUiTheme((savedTheme && THEME_NAMES[savedTheme]) ? savedTheme : 'light', true);
   } catch (e) {
     setUiTheme('light', true);
+  }
+
+  try {
+    const savedLogo = parseInt(localStorage.getItem('gm-logo-version') || '1', 10);
+    selectBrandLogo(GM_LOGO_VARIANTS[savedLogo] ? savedLogo : 1, true);
+  } catch (e) {
+    selectBrandLogo(1, true);
   }
 
   function showToast(msg, type = 'info') {

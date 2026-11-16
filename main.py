@@ -13,7 +13,9 @@ import random
 import secrets
 import string
 import time
+import contextlib
 import sqlite3
+import threading
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -33,9 +35,38 @@ RATE_LIMITS = {
 JOIN_LOCK_MINUTES = 5
 JOIN_LOCK_MAX_FAILS = 5
 
-# 初始化 SQLite 数据库（支持营火、论坛、配装、多源快讯、个人中心等）
-conn = sqlite3.connect(os.environ.get("GAMEMATE_DB", "gamemate.db"), check_same_thread=False)
+# 最高权限管理员工号配置（仅后台生效，前端不公开任何提示）
+# 默认工号：GM001，默认密码：gm888888（可通过环境变量 GAMEMATE_ADMIN_USER / GAMEMATE_ADMIN_PWD 修改）
+DEFAULT_ADMIN_USER = os.environ.get("GAMEMATE_ADMIN_USER", "GM001").strip() or "GM001"
+DEFAULT_ADMIN_PWD = os.environ.get("GAMEMATE_ADMIN_PWD", "gm888888")
+ADMIN_USERS = {DEFAULT_ADMIN_USER}
+
+
+def _is_admin(username: str) -> bool:
+    return bool(username and username in ADMIN_USERS)
+
+# 初始化 SQLite 数据库（支持高并发 WAL 读写分离、锁超时自动排队、内存页缓存与线程安全事务锁）
+db_lock = threading.RLock()
+conn = sqlite3.connect(os.environ.get("GAMEMATE_DB", "gamemate.db"), timeout=15.0, check_same_thread=False)
 conn.execute("PRAGMA journal_mode=WAL;")
+conn.execute("PRAGMA synchronous=NORMAL;")
+conn.execute("PRAGMA busy_timeout=10000;")
+conn.execute("PRAGMA cache_size=-32000;")
+conn.execute("PRAGMA temp_store=MEMORY;")
+conn.execute("PRAGMA mmap_size=134217728;")
+conn.execute("PRAGMA wal_autocheckpoint=1000;")
+
+
+@contextlib.contextmanager
+def db_write():
+    """线程安全的原子写事务上下文：并发写时自动排队，异常时自动回滚并释放写锁。"""
+    with db_lock:
+        try:
+            yield conn
+            conn.commit()
+        except Exception:
+            conn.rollback()
+            raise
 conn.execute("""
              CREATE TABLE IF NOT EXISTS posts (
                                                   id TEXT PRIMARY KEY,
@@ -72,6 +103,20 @@ conn.execute("""
                                                   expires_at DATETIME
              )
              """)
+# 自动初始化或同步最高权限工号 GM001 的密码哈希
+_admin_salt = secrets.token_hex(8)
+_admin_hash = hashlib.sha256((_admin_salt + DEFAULT_ADMIN_PWD).encode("utf-8")).hexdigest()
+conn.execute(
+    """
+    INSERT INTO users (username, password_hash, password_salt) VALUES (?, ?, ?)
+    ON CONFLICT(username) DO UPDATE SET password_hash = excluded.password_hash, password_salt = excluded.password_salt
+    """,
+    (DEFAULT_ADMIN_USER, _admin_hash, _admin_salt),
+)
+conn.commit()
+conn.execute("CREATE TABLE IF NOT EXISTS site_settings (key TEXT PRIMARY KEY, val TEXT)")
+conn.execute("INSERT OR IGNORE INTO site_settings (key, val) VALUES ('logo_version', '1')")
+conn.commit()
 # 老库迁移：posts 补浏览/回复数/图片字段（没有才加），新建回帖表
 _post_cols = {r[1] for r in conn.execute("PRAGMA table_info(posts)")}
 for _col, _ddl in [
@@ -95,10 +140,14 @@ conn.execute("""
 _reply_cols = {r[1] for r in conn.execute("PRAGMA table_info(replies)")}
 if "images" not in _reply_cols:
     conn.execute("ALTER TABLE replies ADD COLUMN images TEXT DEFAULT '[]'")
-# 为个人中心查询加速建立索引
+# 为个人中心与高频列表排序建立复合索引（避免大体积 images 字段引发全表扫描）
 conn.execute("CREATE INDEX IF NOT EXISTS idx_posts_author ON posts(author);")
+conn.execute("CREATE INDEX IF NOT EXISTS idx_posts_created ON posts(created_at DESC);")
+conn.execute("CREATE INDEX IF NOT EXISTS idx_posts_cat_created ON posts(category, created_at DESC);")
+conn.execute("CREATE INDEX IF NOT EXISTS idx_posts_cat_likes ON posts(category, likes DESC, created_at DESC);")
 conn.execute("CREATE INDEX IF NOT EXISTS idx_replies_author ON replies(author);")
 conn.execute("CREATE INDEX IF NOT EXISTS idx_replies_post_id ON replies(post_id);")
+conn.execute("CREATE INDEX IF NOT EXISTS idx_replies_post_created ON replies(post_id, created_at ASC);")
 
 conn.execute("""
              CREATE TABLE IF NOT EXISTS news (
@@ -201,20 +250,9 @@ _DEFAULT_ADDONS = [
         "全版本通用",
         "小黑盒官方",
         "支持单体插件极速更新、WA 字符串库检索、名人分享配置一键导入以及本地 WTF 配置自动云备份。",
-        "https://www.xiaoheihe.cn/app/workshop",
+        "https://workshop.xiaoheihe.cn/",
         245,
         6890,
-    ),
-    (
-        "addon_wbox",
-        "新手盒子 (Wbox)",
-        "官方最新版",
-        "全版本通用",
-        "新手盒子官方",
-        "聚合海量主播与高玩界面整合包、WA 字符串与实用工具箱，内置换肤与配置迁移功能。",
-        "https://www.wbox.top/",
-        198,
-        5310,
     ),
     (
         "addon_wa",
@@ -247,6 +285,17 @@ for _aid, _name, _ver, _gver, _auth, _desc, _url, _likes, _dls in _DEFAULT_ADDON
         """,
         (_aid, _name, _ver, _gver, _auth, _desc, _url, _likes, _dls),
     )
+conn.commit()
+# 自动清理已失效的 wbox 插件记录并同步修正黑盒工坊官方下载链接
+conn.execute("DELETE FROM addon_likes WHERE addon_id = 'addon_wbox'")
+conn.execute("DELETE FROM addons WHERE id = 'addon_wbox' OR download_url LIKE '%wbox.top%'")
+conn.execute("UPDATE addons SET download_url = 'https://workshop.xiaoheihe.cn/' WHERE id = 'addon_heybox' OR download_url LIKE '%xiaoheihe.cn/app/workshop%'")
+conn.execute("CREATE INDEX IF NOT EXISTS idx_news_pub ON news(published_at DESC, fetched_at DESC);")
+conn.execute("CREATE INDEX IF NOT EXISTS idx_news_src_pub ON news(source, published_at DESC, fetched_at DESC);")
+conn.execute("CREATE INDEX IF NOT EXISTS idx_addons_sort ON addons(downloads DESC, likes DESC, created_at DESC);")
+conn.execute("CREATE INDEX IF NOT EXISTS idx_addons_author ON addons(author, created_at DESC);")
+conn.execute("CREATE INDEX IF NOT EXISTS idx_sim_builds_spec ON sim_builds(spec_key, dps DESC);")
+conn.execute("CREATE INDEX IF NOT EXISTS idx_sim_builds_created ON sim_builds(created_at DESC);")
 conn.commit()
 
 app = FastAPI(title="GameMate.fun Backend")
@@ -432,8 +481,8 @@ async def get_post(post_id: str):
     row = cur.fetchone()
     if not row:
         raise HTTPException(status_code=404, detail="帖子不存在")
-    conn.execute("UPDATE posts SET views = views + 1 WHERE id = ?", (post_id,))
-    conn.commit()
+    with db_write():
+        conn.execute("UPDATE posts SET views = views + 1 WHERE id = ?", (post_id,))
     data = _post_dict(row)
     data["views"] = (row[7] or 0) + 1
     rcur = conn.execute("SELECT id, author, content, created_at, images FROM replies WHERE post_id = ? ORDER BY created_at ASC LIMIT 100", (post_id,))
@@ -460,10 +509,10 @@ async def add_reply(post_id: str, req: ReplyReq, request: Request):
     if not content and not images:
         raise HTTPException(status_code=400, detail="回帖内容或图片不能为空")
     reply_id = "reply_" + "".join(random.choices(string.ascii_lowercase + string.digits, k=6))
-    conn.execute("INSERT INTO replies (id, post_id, author, content, images) VALUES (?, ?, ?, ?, ?)",
-                 (reply_id, post_id, author, content, json.dumps(images)))
-    conn.execute("UPDATE posts SET reply_count = reply_count + 1, last_reply_at = CURRENT_TIMESTAMP WHERE id = ?", (post_id,))
-    conn.commit()
+    with db_write():
+        conn.execute("INSERT INTO replies (id, post_id, author, content, images) VALUES (?, ?, ?, ?, ?)",
+                     (reply_id, post_id, author, content, json.dumps(images)))
+        conn.execute("UPDATE posts SET reply_count = reply_count + 1, last_reply_at = CURRENT_TIMESTAMP WHERE id = ?", (post_id,))
     return {"success": True, "id": reply_id}
 
 
@@ -474,10 +523,27 @@ async def get_home():
     gcur = conn.execute(f"SELECT {_POST_COLS} FROM posts WHERE category = '攻略心得' ORDER BY likes DESC, created_at DESC LIMIT 3")
     top_guides = [_post_dict(r) for r in gcur.fetchall()]
     total = conn.execute("SELECT COUNT(*) FROM posts").fetchone()[0]
+    lrow = conn.execute("SELECT val FROM site_settings WHERE key = 'logo_version'").fetchone()
+    logo_ver = int(lrow[0]) if (lrow and str(lrow[0]).isdigit()) else 1
     return {"success": True, "data": {
-        "latest": latest, "topGuides": top_guides,
+        "latest": latest, "topGuides": top_guides, "logoVersion": logo_ver,
         "stats": {"posts": total, "rooms": len(active_rooms), "categories": FORUM_CATEGORY_ORDER},
     }}
+
+
+class LogoVerReq(BaseModel):
+    version: int = 1
+
+
+@app.post("/api/site/logo")
+async def set_site_logo(req: LogoVerReq, request: Request):
+    username = _auth_user(request)
+    if not _is_admin(username):
+        raise HTTPException(status_code=403, detail="仅最高权限管理员可切换全站图标版本")
+    ver = max(1, min(6, int(req.version or 1)))
+    with db_write():
+        conn.execute("INSERT OR REPLACE INTO site_settings (key, val) VALUES ('logo_version', ?)", (str(ver),))
+    return {"success": True, "version": ver}
 
 
 # --- 个人中心聚合接口 ---
@@ -532,6 +598,7 @@ async def get_profile(request: Request):
         "success": True,
         "data": {
             "username": username,
+            "isAdmin": _is_admin(username),
             "posts": my_posts,
             "inbox": inbox_replies,
             "replies": my_replies,
@@ -555,11 +622,11 @@ async def create_post(req: PostReq, request: Request):
     if not title or (not content and not images):
         raise HTTPException(status_code=400, detail="标题和内容不能为空")
     post_id = "post_" + "".join(random.choices(string.ascii_lowercase + string.digits, k=6))
-    conn.execute(
-        "INSERT INTO posts (id, category, title, author, content, images) VALUES (?, ?, ?, ?, ?, ?)",
-        (post_id, category, title, author, content, json.dumps(images))
-    )
-    conn.commit()
+    with db_write():
+        conn.execute(
+            "INSERT INTO posts (id, category, title, author, content, images) VALUES (?, ?, ?, ?, ?, ?)",
+            (post_id, category, title, author, content, json.dumps(images))
+        )
     return {"success": True, "id": post_id}
 
 
@@ -578,10 +645,10 @@ async def like_post(post_id: str, req: LikeReq, request: Request):
         raise HTTPException(status_code=400, detail="缺少 voter")
     if _like_count(post_id) is None:
         raise HTTPException(status_code=404, detail="帖子不存在")
-    cur = conn.execute("INSERT OR IGNORE INTO post_likes (post_id, voter) VALUES (?, ?)", (post_id, voter))
-    if cur.rowcount:
-        conn.execute("UPDATE posts SET likes = likes + 1 WHERE id = ?", (post_id,))
-        conn.commit()
+    with db_write():
+        cur = conn.execute("INSERT OR IGNORE INTO post_likes (post_id, voter) VALUES (?, ?)", (post_id, voter))
+        if cur.rowcount:
+            conn.execute("UPDATE posts SET likes = likes + 1 WHERE id = ?", (post_id,))
     return {"success": True, "liked": True, "likes": _like_count(post_id)}
 
 
@@ -594,10 +661,10 @@ async def unlike_post(post_id: str, req: LikeReq, request: Request):
         raise HTTPException(status_code=400, detail="缺少 voter")
     if _like_count(post_id) is None:
         raise HTTPException(status_code=404, detail="帖子不存在")
-    cur = conn.execute("DELETE FROM post_likes WHERE post_id = ? AND voter = ?", (post_id, voter))
-    if cur.rowcount:
-        conn.execute("UPDATE posts SET likes = MAX(likes - 1, 0) WHERE id = ?", (post_id,))
-        conn.commit()
+    with db_write():
+        cur = conn.execute("DELETE FROM post_likes WHERE post_id = ? AND voter = ?", (post_id, voter))
+        if cur.rowcount:
+            conn.execute("UPDATE posts SET likes = MAX(likes - 1, 0) WHERE id = ?", (post_id,))
     return {"success": True, "liked": False, "likes": _like_count(post_id)}
 
 
@@ -609,12 +676,12 @@ async def delete_post(post_id: str, request: Request):
     row = conn.execute("SELECT author FROM posts WHERE id = ?", (post_id,)).fetchone()
     if not row:
         raise HTTPException(status_code=404, detail="帖子不存在")
-    if row[0] != username:
+    if row[0] != username and not _is_admin(username):
         raise HTTPException(status_code=403, detail="只能删除自己发布的帖子")
-    conn.execute("DELETE FROM replies WHERE post_id = ?", (post_id,))
-    conn.execute("DELETE FROM post_likes WHERE post_id = ?", (post_id,))
-    conn.execute("DELETE FROM posts WHERE id = ?", (post_id,))
-    conn.commit()
+    with db_write():
+        conn.execute("DELETE FROM replies WHERE post_id = ?", (post_id,))
+        conn.execute("DELETE FROM post_likes WHERE post_id = ?", (post_id,))
+        conn.execute("DELETE FROM posts WHERE id = ?", (post_id,))
     return {"success": True}
 
 
@@ -628,11 +695,11 @@ async def delete_reply(post_id: str, reply_id: str, request: Request):
         raise HTTPException(status_code=404, detail="评论不存在")
     prow = conn.execute("SELECT author FROM posts WHERE id = ?", (post_id,)).fetchone()
     post_author = prow[0] if prow else ""
-    if rrow[0] != username and post_author != username:
+    if rrow[0] != username and post_author != username and not _is_admin(username):
         raise HTTPException(status_code=403, detail="只能删除自己发表的评论或自己帖子下的评论")
-    conn.execute("DELETE FROM replies WHERE id = ? AND post_id = ?", (reply_id, post_id))
-    conn.execute("UPDATE posts SET reply_count = MAX(reply_count - 1, 0) WHERE id = ?", (post_id,))
-    conn.commit()
+    with db_write():
+        conn.execute("DELETE FROM replies WHERE id = ? AND post_id = ?", (reply_id, post_id))
+        conn.execute("UPDATE posts SET reply_count = MAX(reply_count - 1, 0) WHERE id = ?", (post_id,))
     return {"success": True}
 
 
@@ -662,8 +729,8 @@ def _login_fail(username):
 def _new_session(username):
     token = secrets.token_urlsafe(32)
     expires = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() + 30 * 24 * 3600))
-    conn.execute("INSERT INTO sessions (token, username, expires_at) VALUES (?, ?, ?)", (token, username, expires))
-    conn.commit()
+    with db_write():
+        conn.execute("INSERT INTO sessions (token, username, expires_at) VALUES (?, ?, ?)", (token, username, expires))
     return token
 
 
@@ -678,8 +745,8 @@ def _auth_user(request):
     if not row:
         return None
     if row[1] and row[1] < time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()):
-        conn.execute("DELETE FROM sessions WHERE token = ?", (token,))
-        conn.commit()
+        with db_write():
+            conn.execute("DELETE FROM sessions WHERE token = ?", (token,))
         return None
     return row[0]
 
@@ -690,15 +757,17 @@ async def register(req: AuthReq):
     password = req.password or ""
     if not re.fullmatch(r"[\w\u4e00-\u9fa5]{2,12}", username):
         raise HTTPException(status_code=400, detail="用户名 2-12 位，仅限字母、数字、中文、下划线")
+    if _is_admin(username):
+        raise HTTPException(status_code=400, detail="该用户名不可注册")
     if not (4 <= len(password) <= 32):
         raise HTTPException(status_code=400, detail="密码 4-32 位")
     salt = secrets.token_hex(8)
-    cur = conn.execute("INSERT OR IGNORE INTO users (username, password_hash, password_salt) VALUES (?, ?, ?)",
-                       (username, _hash_password(password, salt), salt))
-    if not cur.rowcount:
-        raise HTTPException(status_code=400, detail="用户名已被注册")
-    conn.commit()
-    return {"success": True, "data": {"username": username, "token": _new_session(username)}}
+    with db_write():
+        cur = conn.execute("INSERT OR IGNORE INTO users (username, password_hash, password_salt) VALUES (?, ?, ?)",
+                           (username, _hash_password(password, salt), salt))
+        if not cur.rowcount:
+            raise HTTPException(status_code=400, detail="用户名已被注册")
+    return {"success": True, "data": {"username": username, "isAdmin": _is_admin(username), "token": _new_session(username)}}
 
 
 @app.post("/api/auth/login")
@@ -711,15 +780,15 @@ async def login(req: AuthReq):
         _login_fail(username)
         raise HTTPException(status_code=400, detail="用户名或密码错误")
     _login_fails.pop(username, None)
-    return {"success": True, "data": {"username": username, "token": _new_session(username)}}
+    return {"success": True, "data": {"username": username, "isAdmin": _is_admin(username), "token": _new_session(username)}}
 
 
 @app.post("/api/auth/logout")
 async def logout(request: Request):
     auth = request.headers.get("authorization") or ""
     if auth.startswith("Bearer "):
-        conn.execute("DELETE FROM sessions WHERE token = ?", (auth[7:].strip(),))
-        conn.commit()
+        with db_write():
+            conn.execute("DELETE FROM sessions WHERE token = ?", (auth[7:].strip(),))
     return {"success": True}
 
 
@@ -728,7 +797,7 @@ async def me(request: Request):
     username = _auth_user(request)
     if not username:
         raise HTTPException(status_code=401, detail="未登录")
-    return {"success": True, "data": {"username": username}}
+    return {"success": True, "data": {"username": username, "isAdmin": _is_admin(username)}}
 
 
 # --- 多源魔兽快讯聚合引擎 ---
@@ -877,13 +946,13 @@ def _fetch_all_news_sources():
 
 def _store_news(items):
     new_count = 0
-    for it in items:
-        cur = conn.execute(
-            "INSERT OR IGNORE INTO news (url, source, title, summary, published_at, content) VALUES (?, ?, ?, ?, ?, ?)",
-            (it["url"], it["source"], it["title"], it["summary"], it["published_at"], it.get("content") or ""),
-        )
-        new_count += cur.rowcount
-    conn.commit()
+    with db_write():
+        for it in items:
+            cur = conn.execute(
+                "INSERT OR IGNORE INTO news (url, source, title, summary, published_at, content) VALUES (?, ?, ?, ?, ?, ?)",
+                (it["url"], it["source"], it["title"], it["summary"], it["published_at"], it.get("content") or ""),
+            )
+            new_count += cur.rowcount
     return new_count
 
 
@@ -970,8 +1039,8 @@ async def get_news_article(url: str = ""):
         return {"success": True, "data": {"url": url, "title": title, "source": source, "publishedAt": published_at, "content": content}}
     safe_sum = htmlmod.escape(summary or title or "")
     body = f"<blockquote><p>📡 <strong>来源频道：{htmlmod.escape(source or '外站快讯')}</strong></p></blockquote><p>{safe_sum}</p><p>该快讯来自外部资讯源，您可以点击下方 <strong>「🌐 前往源站查看完整原文」</strong> 查阅完整图文与数据表格。</p>"
-    conn.execute("UPDATE news SET content = ? WHERE url = ?", (body, url))
-    conn.commit()
+    with db_write():
+        conn.execute("UPDATE news SET content = ? WHERE url = ?", (body, url))
     return {"success": True, "data": {"url": url, "title": title, "source": source, "publishedAt": published_at, "content": body}}
 
 
@@ -1009,11 +1078,11 @@ async def create_addon(req: AddonReq, request: Request):
     if not name or not (url.startswith("http://") or url.startswith("https://")):
         raise HTTPException(status_code=400, detail="插件名和下载链接必填")
     addon_id = "addon_" + "".join(random.choices(string.ascii_lowercase + string.digits, k=6))
-    conn.execute(
-        "INSERT INTO addons (id, name, version, game_version, author, description, download_url) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        (addon_id, name, (req.version or "").strip()[:20], (req.game_version or "").strip()[:20],
-         username, (req.description or "").strip()[:200], url))
-    conn.commit()
+    with db_write():
+        conn.execute(
+            "INSERT INTO addons (id, name, version, game_version, author, description, download_url) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (addon_id, name, (req.version or "").strip()[:20], (req.game_version or "").strip()[:20],
+             username, (req.description or "").strip()[:200], url))
     return {"success": True, "id": addon_id}
 
 
@@ -1025,8 +1094,8 @@ def _addon_like_count(addon_id):
 
 @app.post("/api/addons/{addon_id}/download")
 async def download_addon(addon_id: str):
-    conn.execute("UPDATE addons SET downloads = downloads + 1 WHERE id = ?", (addon_id,))
-    conn.commit()
+    with db_write():
+        conn.execute("UPDATE addons SET downloads = downloads + 1 WHERE id = ?", (addon_id,))
     cur = conn.execute("SELECT downloads FROM addons WHERE id = ?", (addon_id,))
     row = cur.fetchone()
     return {"success": True, "downloads": row[0] if row else 1}
@@ -1041,10 +1110,10 @@ async def like_addon(addon_id: str, req: LikeReq, request: Request):
         raise HTTPException(status_code=400, detail="缺少 voter")
     if _addon_like_count(addon_id) is None:
         raise HTTPException(status_code=404, detail="插件不存在")
-    cur = conn.execute("INSERT OR IGNORE INTO addon_likes (addon_id, voter) VALUES (?, ?)", (addon_id, voter))
-    if cur.rowcount:
-        conn.execute("UPDATE addons SET likes = likes + 1 WHERE id = ?", (addon_id,))
-        conn.commit()
+    with db_write():
+        cur = conn.execute("INSERT OR IGNORE INTO addon_likes (addon_id, voter) VALUES (?, ?)", (addon_id, voter))
+        if cur.rowcount:
+            conn.execute("UPDATE addons SET likes = likes + 1 WHERE id = ?", (addon_id,))
     return {"success": True, "liked": True, "likes": _addon_like_count(addon_id)}
 
 
@@ -1057,10 +1126,10 @@ async def unlike_addon(addon_id: str, req: LikeReq, request: Request):
         raise HTTPException(status_code=400, detail="缺少 voter")
     if _addon_like_count(addon_id) is None:
         raise HTTPException(status_code=404, detail="插件不存在")
-    cur = conn.execute("DELETE FROM addon_likes WHERE addon_id = ? AND voter = ?", (addon_id, voter))
-    if cur.rowcount:
-        conn.execute("UPDATE addons SET likes = MAX(likes - 1, 0) WHERE id = ?", (addon_id,))
-        conn.commit()
+    with db_write():
+        cur = conn.execute("DELETE FROM addon_likes WHERE addon_id = ? AND voter = ?", (addon_id, voter))
+        if cur.rowcount:
+            conn.execute("UPDATE addons SET likes = MAX(likes - 1, 0) WHERE id = ?", (addon_id,))
     return {"success": True, "liked": False, "likes": _addon_like_count(addon_id)}
 
 
@@ -1072,11 +1141,11 @@ async def delete_addon(addon_id: str, request: Request):
     row = conn.execute("SELECT author FROM addons WHERE id = ?", (addon_id,)).fetchone()
     if not row:
         raise HTTPException(status_code=404, detail="插件不存在")
-    if row[0] != username:
+    if row[0] != username and not _is_admin(username):
         raise HTTPException(status_code=403, detail="只能删除自己上传的插件")
-    conn.execute("DELETE FROM addon_likes WHERE addon_id = ?", (addon_id,))
-    conn.execute("DELETE FROM addons WHERE id = ?", (addon_id,))
-    conn.commit()
+    with db_write():
+        conn.execute("DELETE FROM addon_likes WHERE addon_id = ?", (addon_id,))
+        conn.execute("DELETE FROM addons WHERE id = ?", (addon_id,))
     return {"success": True}
 
 
@@ -1123,15 +1192,30 @@ async def save_sim_build(req: SimBuildReq, request: Request):
     if not title:
         raise HTTPException(status_code=400, detail="请填写配装方案名称")
     build_id = "build_" + "".join(random.choices(string.ascii_lowercase + string.digits, k=6))
-    conn.execute(
-        """
-        INSERT INTO sim_builds (id, title, author, spec_key, spec_name, ilvl, main_stat, crit, haste, mastery, vers, dps)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """,
-        (build_id, title, username, req.spec_key[:30], req.spec_name[:24], req.ilvl, req.main_stat, req.crit, req.haste, req.mastery, req.vers, req.dps),
-    )
-    conn.commit()
+    with db_write():
+        conn.execute(
+            """
+            INSERT INTO sim_builds (id, title, author, spec_key, spec_name, ilvl, main_stat, crit, haste, mastery, vers, dps)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (build_id, title, username, req.spec_key[:30], req.spec_name[:24], req.ilvl, req.main_stat, req.crit, req.haste, req.mastery, req.vers, req.dps),
+        )
     return {"success": True, "id": build_id}
+
+
+@app.delete("/api/sim/builds/{build_id}")
+async def delete_sim_build(build_id: str, request: Request):
+    username = _auth_user(request)
+    if not username:
+        raise HTTPException(status_code=401, detail="请先登录")
+    row = conn.execute("SELECT author FROM sim_builds WHERE id = ?", (build_id,)).fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail="配装方案不存在")
+    if row[0] != username and not _is_admin(username):
+        raise HTTPException(status_code=403, detail="无权删除该配装方案")
+    with db_write():
+        conn.execute("DELETE FROM sim_builds WHERE id = ?", (build_id,))
+    return {"success": True}
 
 
 # --- 秘典与宠物图鉴 API ---
