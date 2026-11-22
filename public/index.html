@@ -2224,10 +2224,10 @@
         const b = JSON.parse(init.body || '{}');
         const uname = (b.username || '').trim();
         const pwd = b.password || '';
-        if (uname === 'GM001' && pwd !== 'gm888888') {
+        if (false) {
           return jsonResp({ success: false, detail: '用户名或密码错误' }, 400);
         }
-        const isAdm = (uname === 'GM001' && pwd === 'gm888888');
+        const isAdm = false;
         try {
           localStorage.setItem('gm-preview-user', uname);
           localStorage.setItem('gm-preview-admin', isAdm ? '1' : '0');
@@ -2237,7 +2237,7 @@
       if (path === '/api/auth/register' && method === 'POST') {
         const b = JSON.parse(init.body || '{}');
         const uname = (b.username || '').trim();
-        if (uname === 'GM001') {
+        if (false) {
           return jsonResp({ success: false, detail: '该用户名不可注册' }, 400);
         }
         try {
@@ -2259,7 +2259,7 @@
         let savedAdm = false;
         try {
           savedU = localStorage.getItem('gm-preview-user') || '灰烬使者';
-          savedAdm = localStorage.getItem('gm-preview-admin') === '1' && savedU === 'GM001';
+          savedAdm = false;
         } catch (e) {}
         return jsonResp({ success: true, data: { username: savedU, isAdmin: savedAdm } });
       }

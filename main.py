@@ -35,11 +35,24 @@ RATE_LIMITS = {
 JOIN_LOCK_MINUTES = 5
 JOIN_LOCK_MAX_FAILS = 5
 
-# 最高权限管理员工号配置（仅后台生效，前端不公开任何提示）
-# 默认工号：GM001，默认密码：gm888888（可通过环境变量 GAMEMATE_ADMIN_USER / GAMEMATE_ADMIN_PWD 修改）
-DEFAULT_ADMIN_USER = os.environ.get("GAMEMATE_ADMIN_USER", "GM001").strip() or "GM001"
-DEFAULT_ADMIN_PWD = os.environ.get("GAMEMATE_ADMIN_PWD", "gm888888")
-ADMIN_USERS = {DEFAULT_ADMIN_USER}
+def _load_dotenv(path=".env"):
+    if not os.path.isfile(path):
+        return
+    with open(path, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            k, v = line.split("=", 1)
+            os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
+
+
+_load_dotenv()
+
+# 最高权限管理员配置（仅从环境变量或本地 .env 读取，绝不写死在代码中）
+DEFAULT_ADMIN_USER = os.environ.get("GAMEMATE_ADMIN_USER", "").strip()
+DEFAULT_ADMIN_PWD = os.environ.get("GAMEMATE_ADMIN_PWD", "").strip()
+ADMIN_USERS = {DEFAULT_ADMIN_USER} if DEFAULT_ADMIN_USER else set()
 
 
 def _is_admin(username: str) -> bool:
@@ -103,17 +116,20 @@ conn.execute("""
                                                   expires_at DATETIME
              )
              """)
-# 自动初始化或同步最高权限工号 GM001 的密码哈希
-_admin_salt = secrets.token_hex(8)
-_admin_hash = hashlib.sha256((_admin_salt + DEFAULT_ADMIN_PWD).encode("utf-8")).hexdigest()
-conn.execute(
-    """
-    INSERT INTO users (username, password_hash, password_salt) VALUES (?, ?, ?)
-    ON CONFLICT(username) DO UPDATE SET password_hash = excluded.password_hash, password_salt = excluded.password_salt
-    """,
-    (DEFAULT_ADMIN_USER, _admin_hash, _admin_salt),
-)
-conn.commit()
+# 仅在配置了环境变量或 .env 时自动同步管理员密码哈希
+if DEFAULT_ADMIN_USER and DEFAULT_ADMIN_PWD:
+    _admin_salt = secrets.token_hex(8)
+    _admin_hash = hashlib.sha256((_admin_salt + DEFAULT_ADMIN_PWD).encode("utf-8")).hexdigest()
+    conn.execute(
+        """
+        INSERT INTO users (username, password_hash, password_salt) VALUES (?, ?, ?)
+        ON CONFLICT(username) DO UPDATE SET password_hash = excluded.password_hash, password_salt = excluded.password_salt
+        """,
+        (DEFAULT_ADMIN_USER, _admin_hash, _admin_salt),
+    )
+    conn.commit()
+else:
+    log.warning("未配置 GAMEMATE_ADMIN_USER / GAMEMATE_ADMIN_PWD，未启用默认管理员账号")
 conn.execute("CREATE TABLE IF NOT EXISTS site_settings (key TEXT PRIMARY KEY, val TEXT)")
 conn.execute("INSERT OR IGNORE INTO site_settings (key, val) VALUES ('logo_version', '1')")
 conn.commit()
