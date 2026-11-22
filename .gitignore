@@ -1,0 +1,27 @@
+# 密钥与本地配置
+.env
+.env.*
+
+# 数据库（含帖子、账号、会话，只在服务器上，定期备份）
+gamemate.db
+gamemate.db-shm
+gamemate.db-wal
+*.db
+backups/
+
+# Python 运行产物与虚拟环境
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# 日志
+*.log
+
+# 备份文件
+*.bak
+*.bak-*
+
+# IDE
+.idea/
+.vscode/
