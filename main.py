@@ -1224,6 +1224,196 @@ async def get_codex():
     return {"success": True, "data": {"items": [], "companions": []}}
 
 
+# --- 全地图任务图鉴 API (1-60级 pfQuest 数据) ---
+conn.execute("""
+    CREATE TABLE IF NOT EXISTS quests (
+        id INTEGER PRIMARY KEY,
+        title TEXT NOT NULL,
+        title_en TEXT DEFAULT '',
+        zone_id INTEGER DEFAULT 0,
+        zone TEXT DEFAULT '艾泽拉斯',
+        level INTEGER DEFAULT 1,
+        required_level INTEGER DEFAULT 1,
+        faction TEXT DEFAULT 'both',
+        giver_npc TEXT DEFAULT '',
+        giver_coord TEXT DEFAULT '',
+        turnin_npc TEXT DEFAULT '',
+        turnin_coord TEXT DEFAULT '',
+        objectives TEXT DEFAULT '[]',
+        description TEXT DEFAULT '',
+        prereq_ids TEXT DEFAULT '[]',
+        next_ids TEXT DEFAULT '[]',
+        screenshots TEXT DEFAULT '[]',
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+""")
+conn.commit()
+
+
+def _parse_json_list(raw):
+    if not raw:
+        return []
+    try:
+        arr = json.loads(raw)
+        return arr if isinstance(arr, list) else []
+    except Exception:
+        return []
+
+
+def _quest_brief(row):
+    return {
+        "id": row[0], "title": row[1], "zone": row[2],
+        "level": row[3], "requiredLevel": row[4], "faction": row[5],
+        "giverNpc": row[6], "giverCoord": row[7],
+        "hasPrereq": bool(_parse_json_list(row[8])),
+        "hasNext": bool(_parse_json_list(row[9])),
+        "shotCount": len(_parse_images(row[10])),
+    }
+
+
+@app.get("/api/quests/zones")
+async def get_quest_zones():
+    cur = conn.execute(
+        "SELECT zone, COUNT(*) as cnt FROM quests GROUP BY zone ORDER BY cnt DESC, zone ASC"
+    )
+    return {"success": True, "data": [{"zone": r[0], "count": r[1]} for r in cur.fetchall()]}
+
+
+@app.get("/api/quests")
+async def list_quests(
+    zone: str = "",
+    faction: str = "",
+    q: str = "",
+    min_level: int = 1,
+    max_level: int = 60,
+    page: int = 1,
+    page_size: int = 30,
+):
+    page = max(1, page)
+    page_size = max(10, min(60, page_size))
+    where, params = ["level BETWEEN ? AND ?"], [max(1, min_level), min(60, max_level)]
+
+    if zone.strip():
+        where.append("zone = ?")
+        params.append(zone.strip())
+    if faction in ("alliance", "horde", "both"):
+        if faction == "both":
+            where.append("faction = 'both'")
+        else:
+            where.append("(faction = ? OR faction = 'both')")
+            params.append(faction)
+    if q.strip():
+        kw = f"%{q.strip()}%"
+        where.append("(title LIKE ? OR title_en LIKE ? OR giver_npc LIKE ? OR turnin_npc LIKE ? OR zone LIKE ? OR CAST(id AS TEXT) = ?)")
+        params.extend([kw, kw, kw, kw, kw, q.strip()])
+
+    where_sql = " AND ".join(where)
+    total = conn.execute(f"SELECT COUNT(*) FROM quests WHERE {where_sql}", params).fetchone()[0]
+    offset = (page - 1) * page_size
+    cur = conn.execute(
+        f"""
+        SELECT id, title, zone, level, required_level, faction,
+               giver_npc, giver_coord, prereq_ids, next_ids, screenshots
+        FROM quests
+        WHERE {where_sql}
+        ORDER BY level ASC, id ASC
+        LIMIT ? OFFSET ?
+        """,
+        params + [page_size, offset],
+    )
+    return {
+        "success": True,
+        "data": {
+            "items": [_quest_brief(r) for r in cur.fetchall()],
+            "total": total,
+            "page": page,
+            "pageSize": page_size,
+            "totalPages": max(1, (total + page_size - 1) // page_size),
+        },
+    }
+
+
+def _fetch_chain_nodes(ids: list):
+    clean_ids = [int(i) for i in ids if isinstance(i, int) or (isinstance(i, str) and i.isdigit())]
+    if not clean_ids:
+        return []
+    placeholders = ",".join("?" for _ in clean_ids)
+    cur = conn.execute(
+        f"SELECT id, title, zone, level, faction FROM quests WHERE id IN ({placeholders}) ORDER BY level ASC, id ASC",
+        clean_ids,
+    )
+    return [{"id": r[0], "title": r[1], "zone": r[2], "level": r[3], "faction": r[4]} for r in cur.fetchall()]
+
+
+@app.get("/api/quests/{quest_id}")
+async def get_quest_detail(quest_id: int):
+    row = conn.execute(
+        """
+        SELECT id, title, title_en, zone_id, zone, level, required_level, faction,
+               giver_npc, giver_coord, turnin_npc, turnin_coord,
+               objectives, description, prereq_ids, next_ids, screenshots
+        FROM quests WHERE id = ?
+        """,
+        (quest_id,),
+    ).fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail="任务不存在")
+    prereq_ids = _parse_json_list(row[14])
+    next_ids = _parse_json_list(row[15])
+    return {
+        "success": True,
+        "data": {
+            "id": row[0], "title": row[1], "titleEn": row[2],
+            "zoneId": row[3], "zone": row[4], "level": row[5],
+            "requiredLevel": row[6], "faction": row[7],
+            "giverNpc": row[8], "giverCoord": row[9],
+            "turninNpc": row[10], "turninCoord": row[11],
+            "objectives": _parse_json_list(row[12]),
+            "description": row[13] or "",
+            "prereqs": _fetch_chain_nodes(prereq_ids),
+            "nextQuests": _fetch_chain_nodes(next_ids),
+            "screenshots": _parse_images(row[16]),
+        },
+    }
+
+
+class QuestShotReq(BaseModel):
+    images: list[str] = []
+
+
+@app.post("/api/quests/{quest_id}/screenshots")
+async def add_quest_screenshots(quest_id: int, req: QuestShotReq, request: Request):
+    username = _auth_user(request)
+    if not username:
+        raise HTTPException(status_code=401, detail="上传实景截图需要先登录")
+    row = conn.execute("SELECT screenshots FROM quests WHERE id = ?", (quest_id,)).fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail="任务不存在")
+    existing = _parse_images(row[0])
+    new_imgs = _sanitize_images(req.images, max_count=6)
+    merged = (existing + new_imgs)[:6]
+    with db_write():
+        conn.execute("UPDATE quests SET screenshots = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?", (json.dumps(merged), quest_id))
+    return {"success": True, "screenshots": merged}
+
+
+@app.delete("/api/quests/{quest_id}/screenshots/{idx}")
+async def delete_quest_screenshot(quest_id: int, idx: int, request: Request):
+    username = _auth_user(request)
+    if not username:
+        raise HTTPException(status_code=401, detail="删除截图需要先登录")
+    row = conn.execute("SELECT screenshots FROM quests WHERE id = ?", (quest_id,)).fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail="任务不存在")
+    imgs = _parse_images(row[0])
+    if not (0 <= idx < len(imgs)):
+        raise HTTPException(status_code=400, detail="截图索引无效")
+    imgs.pop(idx)
+    with db_write():
+        conn.execute("UPDATE quests SET screenshots = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?", (json.dumps(imgs), quest_id))
+    return {"success": True, "screenshots": imgs}
+
+
 # --- Socket.io 营火大厅与聊天 ---
 @sio.event
 async def connect(sid, environ):
