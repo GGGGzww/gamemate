@@ -108,6 +108,10 @@ conn.execute("""
                                                   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
              )
              """)
+_user_cols = {r[1] for r in conn.execute("PRAGMA table_info(users)")}
+if "avatar" not in _user_cols:
+    conn.execute("ALTER TABLE users ADD COLUMN avatar TEXT DEFAULT ''")
+conn.commit()
 conn.execute("""
              CREATE TABLE IF NOT EXISTS sessions (
                                                   token TEXT PRIMARY KEY,
@@ -154,8 +158,15 @@ conn.execute("""
              )
              """)
 _reply_cols = {r[1] for r in conn.execute("PRAGMA table_info(replies)")}
-if "images" not in _reply_cols:
-    conn.execute("ALTER TABLE replies ADD COLUMN images TEXT DEFAULT '[]'")
+for _rc, _rddl in [
+    ("images", "ALTER TABLE replies ADD COLUMN images TEXT DEFAULT '[]'"),
+    ("quote_reply_id", "ALTER TABLE replies ADD COLUMN quote_reply_id TEXT DEFAULT ''"),
+    ("quote_author", "ALTER TABLE replies ADD COLUMN quote_author TEXT DEFAULT ''"),
+    ("quote_snippet", "ALTER TABLE replies ADD COLUMN quote_snippet TEXT DEFAULT ''"),
+    ("quote_floor", "ALTER TABLE replies ADD COLUMN quote_floor INTEGER DEFAULT 0"),
+]:
+    if _rc not in _reply_cols:
+        conn.execute(_rddl)
 # 为个人中心与高频列表排序建立复合索引（避免大体积 images 字段引发全表扫描）
 conn.execute("CREATE INDEX IF NOT EXISTS idx_posts_author ON posts(author);")
 conn.execute("CREATE INDEX IF NOT EXISTS idx_posts_created ON posts(created_at DESC);")
@@ -477,6 +488,10 @@ def _reply_dict(row):
     return {
         "id": row[0], "author": row[1], "content": row[2], "createdAt": row[3],
         "images": _parse_images(row[4] if len(row) > 4 else "[]"),
+        "quoteReplyId": (row[5] or "") if len(row) > 5 else "",
+        "quoteAuthor": (row[6] or "") if len(row) > 6 else "",
+        "quoteSnippet": (row[7] or "") if len(row) > 7 else "",
+        "quoteFloor": int(row[8] or 0) if len(row) > 8 else 0,
     }
 
 
@@ -501,8 +516,13 @@ async def get_post(post_id: str):
         conn.execute("UPDATE posts SET views = views + 1 WHERE id = ?", (post_id,))
     data = _post_dict(row)
     data["views"] = (row[7] or 0) + 1
-    rcur = conn.execute("SELECT id, author, content, created_at, images FROM replies WHERE post_id = ? ORDER BY created_at ASC LIMIT 100", (post_id,))
-    data["replies"] = [_reply_dict(r) for r in rcur.fetchall()]
+    rcur = conn.execute("SELECT id, author, content, created_at, images, quote_reply_id, quote_author, quote_snippet, quote_floor FROM replies WHERE post_id = ? ORDER BY created_at ASC LIMIT 100", (post_id,))
+    replies = [_reply_dict(r) for r in rcur.fetchall()]
+    av_map = _get_avatars_map([data["author"]] + [r["author"] for r in replies])
+    data["authorAvatar"] = av_map.get(data["author"], "")
+    for r in replies:
+        r["authorAvatar"] = av_map.get(r["author"], "")
+    data["replies"] = replies
     return {"success": True, "data": data}
 
 
@@ -510,6 +530,10 @@ class ReplyReq(BaseModel):
     author: str = ""
     content: str = ""
     images: list[str] = []
+    quote_reply_id: str = ""
+    quote_author: str = ""
+    quote_snippet: str = ""
+    quote_floor: int = 0
 
 
 @app.post("/api/posts/{post_id}/replies")
@@ -525,9 +549,15 @@ async def add_reply(post_id: str, req: ReplyReq, request: Request):
     if not content and not images:
         raise HTTPException(status_code=400, detail="回帖内容或图片不能为空")
     reply_id = "reply_" + "".join(random.choices(string.ascii_lowercase + string.digits, k=6))
+    q_rid = (req.quote_reply_id or "").strip()[:32]
+    q_author = (req.quote_author or "").strip()[:32]
+    q_snippet = (req.quote_snippet or "").strip()[:120]
+    q_floor = int(req.quote_floor or 0)
     with db_write():
-        conn.execute("INSERT INTO replies (id, post_id, author, content, images) VALUES (?, ?, ?, ?, ?)",
-                     (reply_id, post_id, author, content, json.dumps(images)))
+        conn.execute(
+            "INSERT INTO replies (id, post_id, author, content, images, quote_reply_id, quote_author, quote_snippet, quote_floor) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (reply_id, post_id, author, content, json.dumps(images), q_rid, q_author, q_snippet, q_floor),
+        )
         conn.execute("UPDATE posts SET reply_count = reply_count + 1, last_reply_at = CURRENT_TIMESTAMP WHERE id = ?", (post_id,))
     return {"success": True, "id": reply_id}
 
@@ -577,11 +607,11 @@ async def get_profile(request: Request):
         SELECT r.id, r.post_id, p.title, r.author, r.content, r.created_at, r.images
         FROM replies r
         JOIN posts p ON r.post_id = p.id
-        WHERE p.author = ? AND r.author != ?
+        WHERE (TRIM(p.author) = ? OR TRIM(r.quote_author) = ?) AND COALESCE(TRIM(r.author), '') != ?
         ORDER BY r.created_at DESC
         LIMIT 50
         """,
-        (username, username)
+        (username, username, username)
     )
     inbox_replies = [
         {"id": r[0], "postId": r[1], "postTitle": r[2], "fromAuthor": r[3], "content": r[4], "createdAt": r[5], "images": _parse_images(r[6])}
@@ -593,7 +623,7 @@ async def get_profile(request: Request):
         SELECT r.id, r.post_id, COALESCE(p.title, '已删除帖子'), r.content, r.created_at, r.images
         FROM replies r
         LEFT JOIN posts p ON r.post_id = p.id
-        WHERE r.author = ?
+        WHERE TRIM(r.author) = ?
         ORDER BY r.created_at DESC
         LIMIT 50
         """,
@@ -783,7 +813,7 @@ async def register(req: AuthReq):
                            (username, _hash_password(password, salt), salt))
         if not cur.rowcount:
             raise HTTPException(status_code=400, detail="用户名已被注册")
-    return {"success": True, "data": {"username": username, "isAdmin": _is_admin(username), "token": _new_session(username)}}
+    return {"success": True, "data": {"username": username, "isAdmin": _is_admin(username), "avatar": _get_user_avatar(username), "token": _new_session(username)}}
 
 
 @app.post("/api/auth/login")
@@ -796,7 +826,7 @@ async def login(req: AuthReq):
         _login_fail(username)
         raise HTTPException(status_code=400, detail="用户名或密码错误")
     _login_fails.pop(username, None)
-    return {"success": True, "data": {"username": username, "isAdmin": _is_admin(username), "token": _new_session(username)}}
+    return {"success": True, "data": {"username": username, "isAdmin": _is_admin(username), "avatar": _get_user_avatar(username), "token": _new_session(username)}}
 
 
 @app.post("/api/auth/logout")
@@ -808,12 +838,48 @@ async def logout(request: Request):
     return {"success": True}
 
 
+def _get_user_avatar(username: str) -> str:
+    if not username:
+        return ""
+    row = conn.execute("SELECT avatar FROM users WHERE username = ?", (username,)).fetchone()
+    return (row[0] or "") if row else ""
+
+
+def _get_avatars_map(usernames) -> dict:
+    names = sorted({u for u in usernames if u})
+    if not names:
+        return {}
+    placeholders = ",".join("?" for _ in names)
+    cur = conn.execute(f"SELECT username, avatar FROM users WHERE username IN ({placeholders})", names)
+    return {r[0]: (r[1] or "") for r in cur.fetchall()}
+
+
+class AvatarReq(BaseModel):
+    avatar: str = ""
+
+
+@app.post("/api/auth/avatar")
+async def update_avatar(req: AvatarReq, request: Request):
+    username = _auth_user(request)
+    if not username:
+        raise HTTPException(status_code=401, detail="请先登录")
+    av = (req.avatar or "").strip()
+    if av:
+        if len(av) > 300_000:
+            raise HTTPException(status_code=400, detail="头像体积过大，请换一张图片")
+        if not (av.startswith("data:image/") and ";base64," in av):
+            raise HTTPException(status_code=400, detail="头像格式无效")
+    with db_write():
+        conn.execute("UPDATE users SET avatar = ? WHERE username = ?", (av, username))
+    return {"success": True, "data": {"avatar": av}}
+
+
 @app.get("/api/auth/me")
 async def me(request: Request):
     username = _auth_user(request)
     if not username:
         raise HTTPException(status_code=401, detail="未登录")
-    return {"success": True, "data": {"username": username, "isAdmin": _is_admin(username)}}
+    return {"success": True, "data": {"username": username, "isAdmin": _is_admin(username), "avatar": _get_user_avatar(username)}}
 
 
 # --- 多源魔兽快讯聚合引擎 ---
@@ -948,13 +1014,232 @@ def _fetch_rss_feed(feed_url, source_label, max_items=8):
     return items
 
 
+import gzip
+import urllib.parse
+
+
+def _http_get_text(url, headers=None, timeout=10, encoding="utf-8"):
+    req = urllib.request.Request(url, headers=headers or _UA_HEADERS)
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        raw = resp.read()
+        if resp.headers.get("Content-Encoding", "").lower() == "gzip":
+            raw = gzip.decompress(raw)
+    try:
+        return raw.decode(encoding)
+    except Exception:
+        return raw.decode("gb18030", "ignore")
+
+
+def _fetch_nga_forum(fids=(7, 620), max_per_fid=6):
+    """NGA 艾泽拉斯国家地理热帖（7=议事厅, 620=怀旧服，需在 .env 配置 NGA_COOKIE）"""
+    cookie = os.environ.get("NGA_COOKIE", "").strip()
+    if not cookie:
+        log.info("资讯源 [NGA社区] 未配置 NGA_COOKIE，跳过实时抓取")
+        return []
+    headers = {**_UA_HEADERS, "Cookie": cookie, "Referer": "https://bbs.nga.cn/"}
+    items = []
+    for fid in fids:
+        url = f"https://bbs.nga.cn/thread.php?fid={fid}&__output=11"
+        raw = _http_get_text(url, headers=headers)
+        payload = json.loads(raw, strict=False)
+        threads = (payload.get("data") or {}).get("__T") or {}
+        if isinstance(threads, list):
+            threads = {str(i): t for i, t in enumerate(threads)}
+        board = "议事厅" if fid == 7 else "怀旧服"
+        cnt = 0
+        for t in threads.values():
+            if not isinstance(t, dict):
+                continue
+            tid = t.get("tid")
+            subject = htmlmod.unescape(str(t.get("subject") or "")).strip()
+            if not tid or not subject or subject.startswith("[版务]"):
+                continue
+            replies = int(t.get("replies") or 0)
+            postdate = int(t.get("postdate") or time.time())
+            pub = time.strftime("%Y-%m-%d", time.localtime(postdate))
+            author = str(t.get("author") or "NGA玩家")
+            items.append({
+                "url": f"https://bbs.nga.cn/read.php?tid={tid}",
+                "source": "NGA社区",
+                "title": f"[{board}] {subject}"[:70],
+                "summary": f"作者：{author} · 回复：{replies} · 来自 NGA 艾泽拉斯国家地理",
+                "published_at": pub,
+                "content": "",
+            })
+            cnt += 1
+            if cnt >= max_per_fid:
+                break
+    return items
+
+
+def _fetch_17173_wow(max_items=8):
+    """17173 魔兽世界专区民间资讯与攻略（兼容 // 协议相对链接与双域名）"""
+    entry_urls = [
+        "https://wow.17173.com/",
+        "https://news.17173.com/z/wow/",
+    ]
+    items, seen = [], set()
+    link_re = re.compile(
+        r'<a([^>]*?)href=["\']((?:https?:)?//(?:news|wow)\.17173\.com/[^"\']+\.shtml)["\']([^>]*)>(.*?)</a>',
+        re.S | re.I,
+    )
+    for entry in entry_urls:
+        try:
+            page = _http_get_text(entry, headers={**_UA_HEADERS, "Referer": "https://www.17173.com/"})
+        except Exception as e:
+            log.info("17173 入口 [%s] 访问失败: %s", entry, e)
+            continue
+
+        for m in link_re.finditer(page):
+            attrs = (m.group(1) or "") + " " + (m.group(3) or "")
+            url = m.group(2).strip()
+            if url.startswith("//"):
+                url = "https:" + url
+            if url in seen:
+                continue
+
+            title = _strip_tags(m.group(4))
+            if len(title) < 6:
+                tm_attr = re.search(r'title=["\']([^"\']+)["\']', attrs, re.I)
+                if tm_attr:
+                    title = htmlmod.unescape(tm_attr.group(1)).strip()
+            if len(title) < 7 or len(title) > 70:
+                continue
+            if any(bad in title for bad in ("17173", "免责声明", "关于我们", "联系我们", "广告服务")):
+                continue
+
+            seen.add(url)
+            dm_mdy = re.search(r"/(\d{2})(\d{2})(20\d{2})/", url)
+            dm_ymd = re.search(r"/(20\d{2})(\d{2})(\d{2})/", url)
+            if dm_mdy:
+                pub = f"{dm_mdy.group(3)}-{dm_mdy.group(1)}-{dm_mdy.group(2)}"
+            elif dm_ymd:
+                pub = f"{dm_ymd.group(1)}-{dm_ymd.group(2)}-{dm_ymd.group(3)}"
+            else:
+                pub = time.strftime("%Y-%m-%d")
+
+            items.append({
+                "url": url,
+                "source": "17173民间",
+                "title": title,
+                "summary": f"来自 17173 魔兽世界专区民间攻略与玩家热点：{title}",
+                "published_at": pub,
+                "content": "",
+            })
+            if len(items) >= max_items:
+                return items
+    return items
+
+def _fetch_tieba_wow(max_items=8):
+    """百度贴吧「魔兽世界吧」热门讨论帖"""
+    kw = urllib.parse.quote("魔兽世界")
+    url = f"https://tieba.baidu.com/f?kw={kw}&ie=utf-8"
+    headers = {**_UA_HEADERS, "Referer": "https://tieba.baidu.com/"}
+    page = _http_get_text(url, headers=headers)
+    items, seen = [], set()
+    pattern = re.compile(r'<a[^>]*href="(/p/\d+)"[^>]*title="([^"]+)"[^>]*class="[^"]*j_th_tit[^"]*"|<a[^>]*class="[^"]*j_th_tit[^"]*"[^>]*href="(/p/\d+)"[^>]*title="([^"]+)"', re.S)
+    for m in pattern.finditer(page):
+        path = m.group(1) or m.group(3)
+        title = htmlmod.unescape((m.group(2) or m.group(4) or "")).strip()
+        if not path or not title or len(title) < 5 or path in seen:
+            continue
+        seen.add(path)
+        items.append({
+            "url": f"https://tieba.baidu.com{path}",
+            "source": "魔兽贴吧",
+            "title": title[:70],
+            "summary": f"来自百度贴吧「魔兽世界吧」玩家实时热议：{title}",
+            "published_at": time.strftime("%Y-%m-%d"),
+            "content": "",
+        })
+        if len(items) >= max_items:
+            break
+    return items
+
+
+def _fetch_bilibili_wow(max_items=8):
+    """B站近 7 天魔兽世界高播放热榜视频（限定游戏区 + 魔兽关键词强过滤）"""
+    cookie = os.environ.get("BILI_COOKIE", "").strip()
+    if not cookie:
+        try:
+            spi = json.loads(_http_get_text("https://api.bilibili.com/x/frontend/finger/spi", headers=_UA_HEADERS, timeout=6))
+            d = spi.get("data") or {}
+            if d.get("b_3"):
+                cookie = f"buvid3={d['b_3']}; buvid4={d.get('b_4', '')}"
+        except Exception:
+            cookie = "buvid3=gamemate_wow_camp"
+
+    since_ts = int(time.time()) - 7 * 86400
+    params = urllib.parse.urlencode({
+        "search_type": "video",
+        "keyword": "魔兽世界",
+        "order": "totalrank",
+        "tids": 4,
+        "pubtime_begin_s": since_ts,
+        "page": 1,
+        "page_size": 30,
+    })
+    headers = {**_UA_HEADERS, "Referer": "https://search.bilibili.com/", "Cookie": cookie}
+    raw = _http_get_text(f"https://api.bilibili.com/x/web-interface/search/type?{params}", headers=headers)
+    data = json.loads(raw)
+    results = (data.get("data") or {}).get("result") or []
+
+    wow_must = ("魔兽世界", "魔兽怀旧", "艾泽拉斯", "大秘境", "地心之战", "至暗之夜", "巫妖王", "乌龟服", "时光服", "硬核服", "怀旧服", "团本")
+    wow_ban = ("我的世界", "minecraft", "迷你世界", "魔兽争霸", "war3", "三角洲", "原神", "王者荣耀")
+
+    candidates = []
+    for v in results:
+        bvid = v.get("bvid")
+        title = _strip_tags(v.get("title") or "")
+        tag = str(v.get("tag") or "")
+        if not bvid or not title:
+            continue
+        haystack = f"{title} {tag}".lower()
+        title_low = title.lower()
+
+        # 排除明显无关的游戏干扰项（除非标题明确写了“魔兽世界”）
+        if "魔兽世界" not in title and any(b in haystack for b in wow_ban):
+            continue
+        # 必须命中魔兽世界核心词或独立单词 wow
+        is_wow = any(k in haystack for k in wow_must) or bool(re.search(r"wow", haystack))
+        if not is_wow:
+            continue
+
+        author = str(v.get("author") or "B站UP主")
+        play = int(v.get("play") or 0)
+        play_str = f"{play / 10000:.1f}万" if play >= 10000 else str(play)
+        pub_ts = int(v.get("pubdate") or time.time())
+        pub = time.strftime("%Y-%m-%d", time.localtime(pub_ts))
+        desc = _strip_tags(v.get("description") or "")[:120]
+        candidates.append((play, {
+            "url": f"https://www.bilibili.com/video/{bvid}",
+            "source": "B站热榜",
+            "title": title[:70],
+            "summary": f"UP主：{author} · 播放 {play_str} · {desc or title}"[:130],
+            "published_at": pub,
+            "content": "",
+        }))
+
+    candidates.sort(key=lambda x: x[0], reverse=True)
+    return [it for _, it in candidates[:max_items]]
+
 def _fetch_all_news_sources():
     all_items = []
-    for label, fn in [("官网", _fetch_official_news), ("Wowhead", lambda: _fetch_rss_feed(NEWS_WOWHEAD_RSS, "Wowhead", 8)), ("国际服快讯", lambda: _fetch_rss_feed(NEWS_MMOC_RSS, "国际服快讯", 6)), ("NGA社区", lambda: _fetch_rss_feed(NEWS_NGA_URL, "NGA社区", 8))]:
+    sources = [
+        ("官网", _fetch_official_news),
+        ("NGA社区", _fetch_nga_forum),
+        ("17173民间", _fetch_17173_wow),
+        ("魔兽贴吧", _fetch_tieba_wow),
+        ("B站热榜", _fetch_bilibili_wow),
+        ("Wowhead", lambda: _fetch_rss_feed(NEWS_WOWHEAD_RSS, "Wowhead", 8)),
+        ("国际服快讯", lambda: _fetch_rss_feed(NEWS_MMOC_RSS, "国际服快讯", 6)),
+    ]
+    for label, fn in sources:
         try:
             res = fn()
             if res:
                 all_items.extend(res)
+                log.info("资讯源 [%s] 抓取成功: %d 条", label, len(res))
         except Exception as e:
             log.info("资讯源 [%s] 本次跳过: %s", label, e)
     return all_items
@@ -1051,10 +1336,25 @@ async def get_news_article(url: str = ""):
     if not row:
         raise HTTPException(status_code=404, detail="not in news list")
     title, source, published_at, summary, content = row
+    if content and "<!--preview_cached-->" in str(content):
+        return {"success": True, "data": {"url": url, "title": title, "source": source, "publishedAt": published_at, "content": content}}
+
+    # 民间源（B站 / NGA / 17173 / 贴吧）按需抓取正文节选或嵌入播放器，并缓存进 SQLite
+    if any(dom in url for dom in ("bilibili.com/video/", "bbs.nga.cn/read.php", "17173.com", "tieba.baidu.com/p/")):
+        try:
+            preview_html = await asyncio.to_thread(_fetch_preview_by_url, url, source or "")
+        except Exception as e:
+            log.info("按需抓取详情预览跳过 [%s]: %s", url, e)
+            preview_html = ""
+        if preview_html:
+            with db_write():
+                conn.execute("UPDATE news SET content = ? WHERE url = ?", (preview_html, url))
+            return {"success": True, "data": {"url": url, "title": title, "source": source, "publishedAt": published_at, "content": preview_html}}
+
     if content:
         return {"success": True, "data": {"url": url, "title": title, "source": source, "publishedAt": published_at, "content": content}}
     safe_sum = htmlmod.escape(summary or title or "")
-    body = f"<blockquote><p>📡 <strong>来源频道：{htmlmod.escape(source or '外站快讯')}</strong></p></blockquote><p>{safe_sum}</p><p>该快讯来自外部资讯源，您可以点击下方 <strong>「🌐 前往源站查看完整原文」</strong> 查阅完整图文与数据表格。</p>"
+    body = f"<blockquote><p>📡 <strong>来源频道：{htmlmod.escape(source or '外站快讯')}</strong></p></blockquote><p>{safe_sum}</p><p>该快讯来自外部资讯源，您可以点击下方 <strong>「🌐 前往源站查看完整原文」</strong> 查阅完整图文与讨论。</p>"
     with db_write():
         conn.execute("UPDATE news SET content = ? WHERE url = ?", (body, url))
     return {"success": True, "data": {"url": url, "title": title, "source": source, "publishedAt": published_at, "content": body}}
@@ -1165,36 +1465,58 @@ async def delete_addon(addon_id: str, request: Request):
     return {"success": True}
 
 
-# --- 配装模拟方案云端保存与读取 API ---
+# --- 配装模拟方案云端保存与读取 API（支持三服筛选） ---
+_sim_cols = {r[1] for r in conn.execute("PRAGMA table_info(sim_builds)")}
+for _sc, _sddl in [
+    ("server", "ALTER TABLE sim_builds ADD COLUMN server TEXT DEFAULT '正式服'"),
+    ("hit", "ALTER TABLE sim_builds ADD COLUMN hit REAL DEFAULT 0"),
+    ("wep_skill", "ALTER TABLE sim_builds ADD COLUMN wep_skill INTEGER DEFAULT 300"),
+]:
+    if _sc not in _sim_cols:
+        conn.execute(_sddl)
+conn.commit()
+
+
 class SimBuildReq(BaseModel):
     title: str = ""
-    spec_key: str = "ret_paladin"
-    spec_name: str = "⚔️ 惩戒圣骑士"
-    ilvl: int = 626
-    main_stat: int = 1200
-    crit: float = 30.0
-    haste: float = 20.0
-    mastery: float = 25.0
-    vers: float = 10.0
+    server: str = "无限服"
+    spec_key: str = "fury_war"
+    spec_name: str = "🪓 狂暴战士"
+    ilvl: int = 60
+    main_stat: int = 1000
+    crit: float = 25.0
+    haste: float = 0.0
+    mastery: float = 0.0
+    vers: float = 0.0
+    hit: float = 6.0
+    wep_skill: int = 305
     dps: int = 0
 
 
 @app.get("/api/sim/builds")
-async def get_sim_builds(spec_key: str = ""):
-    if spec_key:
-        cur = conn.execute(
-            "SELECT id, title, author, spec_key, spec_name, ilvl, main_stat, crit, haste, mastery, vers, dps, created_at FROM sim_builds WHERE spec_key = ? ORDER BY dps DESC LIMIT 20",
-            (spec_key.strip()[:30],),
-        )
-    else:
-        cur = conn.execute(
-            "SELECT id, title, author, spec_key, spec_name, ilvl, main_stat, crit, haste, mastery, vers, dps, created_at FROM sim_builds ORDER BY created_at DESC LIMIT 20"
-        )
+async def get_sim_builds(spec_key: str = "", server: str = ""):
+    where, params = ["1=1"], []
+    if spec_key.strip():
+        where.append("spec_key = ?")
+        params.append(spec_key.strip()[:30])
+    if server.strip() and server != "all":
+        where.append("server = ?")
+        params.append(server.strip()[:12])
+    cur = conn.execute(
+        f"""
+        SELECT id, title, author, spec_key, spec_name, ilvl, main_stat, crit, haste, mastery, vers, dps, created_at, server, hit, wep_skill
+        FROM sim_builds
+        WHERE {' AND '.join(where)}
+        ORDER BY created_at DESC LIMIT 24
+        """,
+        params,
+    )
     return {"success": True, "data": [
         {
             "id": r[0], "title": r[1], "author": r[2], "specKey": r[3], "specName": r[4],
             "ilvl": r[5], "mainStat": r[6], "crit": r[7], "haste": r[8], "mastery": r[9],
-            "vers": r[10], "dps": r[11], "createdAt": r[12]
+            "vers": r[10], "dps": r[11], "createdAt": r[12],
+            "server": r[13] or "正式服", "hit": r[14] or 0.0, "wepSkill": r[15] or 300,
         } for r in cur.fetchall()
     ]}
 
@@ -1207,14 +1529,16 @@ async def save_sim_build(req: SimBuildReq, request: Request):
     title = (req.title or "").strip()[:36]
     if not title:
         raise HTTPException(status_code=400, detail="请填写配装方案名称")
+    srv = req.server if req.server in ("无限服", "时光服", "正式服") else "无限服"
     build_id = "build_" + "".join(random.choices(string.ascii_lowercase + string.digits, k=6))
     with db_write():
         conn.execute(
             """
-            INSERT INTO sim_builds (id, title, author, spec_key, spec_name, ilvl, main_stat, crit, haste, mastery, vers, dps)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO sim_builds (id, title, author, spec_key, spec_name, ilvl, main_stat, crit, haste, mastery, vers, dps, server, hit, wep_skill)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
-            (build_id, title, username, req.spec_key[:30], req.spec_name[:24], req.ilvl, req.main_stat, req.crit, req.haste, req.mastery, req.vers, req.dps),
+            (build_id, title, username, req.spec_key[:30], req.spec_name[:24], req.ilvl, req.main_stat,
+             req.crit, req.haste, req.mastery, req.vers, req.dps, srv, req.hit, req.wep_skill),
         )
     return {"success": True, "id": build_id}
 
@@ -1233,11 +1557,236 @@ async def delete_sim_build(build_id: str, request: Request):
         conn.execute("DELETE FROM sim_builds WHERE id = ?", (build_id,))
     return {"success": True}
 
+# --- 秘典与宠物/坐骑全量图鉴 API ---
+conn.execute("""
+    CREATE TABLE IF NOT EXISTS companions (
+        id TEXT PRIMARY KEY,
+        kind TEXT NOT NULL,
+        name TEXT NOT NULL,
+        name_en TEXT DEFAULT '',
+        family TEXT DEFAULT '',
+        expansion TEXT DEFAULT '',
+        zone TEXT DEFAULT '',
+        coords TEXT DEFAULT '[]',
+        respawn TEXT DEFAULT '',
+        level_info TEXT DEFAULT '',
+        skills TEXT DEFAULT '',
+        obtain TEXT DEFAULT ''
+    )
+""")
+conn.commit()
 
-# --- 秘典与宠物图鉴 API ---
+
+@app.get("/api/companions")
+async def list_companions(kind: str = "", expansion: str = "", server: str = "", q: str = ""):
+    where, params = ["1=1"], []
+    if kind and kind != "all":
+        where.append("kind = ?")
+        params.append(kind.strip())
+    if expansion.strip():
+        where.append("expansion = ?")
+        params.append(expansion.strip())
+    if server.strip() and server != "all":
+        where.append("servers LIKE ?")
+        params.append(f"%{server.strip()}%")
+    if q.strip():
+        kw = f"%{q.strip()}%"
+        where.append("(name LIKE ? OR name_en LIKE ? OR zone LIKE ? OR family LIKE ? OR skills LIKE ? OR obtain LIKE ?)")
+        params.extend([kw, kw, kw, kw, kw, kw])
+
+    where_sql = " AND ".join(where)
+    total = conn.execute(f"SELECT COUNT(*) FROM companions WHERE {where_sql}", params).fetchone()[0]
+    cur = conn.execute(
+        f"""
+        SELECT id, kind, name, name_en, family, expansion, zone, coords, respawn, level_info, skills, obtain, servers
+        FROM companions
+        WHERE {where_sql}
+        ORDER BY
+            CASE kind WHEN 'spirit_beast' THEN 1 WHEN 'hunter_pet' THEN 2 WHEN 'battle_pet' THEN 3 WHEN 'mount' THEN 4 ELSE 5 END,
+            rowid ASC
+        LIMIT 200
+        """,
+        params,
+    )
+    items = []
+    for r in cur.fetchall():
+        try:
+            coords = json.loads(r[7] or "[]")
+        except Exception:
+            coords = []
+        try:
+            servers = json.loads(r[12] or "[]")
+        except Exception:
+            servers = []
+        items.append({
+            "id": r[0], "kind": r[1], "name": r[2], "nameEn": r[3],
+            "family": r[4], "expansion": r[5], "zone": r[6],
+            "coords": coords, "respawn": r[8], "levelInfo": r[9],
+            "skills": r[10], "obtain": r[11], "servers": servers,
+        })
+    return {"success": True, "data": items, "total": total}
+
 @app.get("/api/codex")
 async def get_codex():
-    return {"success": True, "data": {"items": [], "companions": []}}
+    res = await list_companions()
+    return {"success": True, "data": {"items": [], "companions": res["data"]}}
+
+
+# --- 神兵与装备全量图鉴 API ---
+conn.execute("""
+    CREATE TABLE IF NOT EXISTS armory_items (
+        id TEXT PRIMARY KEY,
+        category TEXT NOT NULL,
+        quality TEXT DEFAULT 'epic',
+        name TEXT NOT NULL,
+        name_en TEXT DEFAULT '',
+        slot TEXT DEFAULT '',
+        ilvl INTEGER DEFAULT 60,
+        obtain_type TEXT DEFAULT 'drop',
+        expansion TEXT DEFAULT '经典旧世 1-60',
+        zone TEXT DEFAULT '',
+        coords TEXT DEFAULT '[]',
+        stats TEXT DEFAULT '',
+        effect TEXT DEFAULT '',
+        obtain_detail TEXT DEFAULT ''
+    )
+""")
+conn.commit()
+
+
+@app.get("/api/armory")
+async def list_armory_items(category: str = "", obtain_type: str = "", quality: str = "", server: str = "", q: str = ""):
+    where, params = ["1=1"], []
+    if category and category != "all":
+        where.append("category = ?")
+        params.append(category.strip())
+    if obtain_type and obtain_type != "all":
+        where.append("obtain_type = ?")
+        params.append(obtain_type.strip())
+    if quality and quality != "all":
+        where.append("quality = ?")
+        params.append(quality.strip())
+    if server.strip() and server != "all":
+        where.append("servers LIKE ?")
+        params.append(f"%{server.strip()}%")
+    if q.strip():
+        kw = f"%{q.strip()}%"
+        where.append("(name LIKE ? OR name_en LIKE ? OR slot LIKE ? OR zone LIKE ? OR stats LIKE ? OR effect LIKE ? OR obtain_detail LIKE ?)")
+        params.extend([kw, kw, kw, kw, kw, kw, kw])
+
+    where_sql = " AND ".join(where)
+    total = conn.execute(f"SELECT COUNT(*) FROM armory_items WHERE {where_sql}", params).fetchone()[0]
+    cur = conn.execute(
+        f"""
+        SELECT id, category, quality, name, name_en, slot, ilvl,
+               obtain_type, expansion, zone, coords, stats, effect, obtain_detail, servers
+        FROM armory_items
+        WHERE {where_sql}
+        ORDER BY
+            CASE quality WHEN 'legendary' THEN 1 WHEN 'epic' THEN 2 WHEN 'rare' THEN 3 ELSE 4 END,
+            ilvl DESC, rowid ASC
+        LIMIT 200
+        """,
+        params,
+    )
+    items = []
+    for r in cur.fetchall():
+        try:
+            coords = json.loads(r[10] or "[]")
+        except Exception:
+            coords = []
+        try:
+            servers = json.loads(r[14] or "[]")
+        except Exception:
+            servers = []
+        items.append({
+            "id": r[0], "category": r[1], "quality": r[2], "name": r[3],
+            "nameEn": r[4], "slot": r[5], "ilvl": r[6],
+            "obtainType": r[7], "expansion": r[8], "zone": r[9],
+            "coords": coords, "stats": r[11], "effect": r[12], "obtainDetail": r[13], "servers": servers,
+        })
+    return {"success": True, "data": items, "total": total}
+
+# --- 1-60 全物品掉落反查 API (pfQuest 数据) ---
+conn.execute("""
+    CREATE TABLE IF NOT EXISTS pf_drops (
+        id INTEGER PRIMARY KEY,
+        name TEXT NOT NULL,
+        name_en TEXT DEFAULT '',
+        source_types TEXT DEFAULT '',
+        source_count INTEGER DEFAULT 0,
+        sources TEXT DEFAULT '[]',
+        search_zones TEXT DEFAULT '',
+        search_mobs TEXT DEFAULT ''
+    )
+""")
+conn.commit()
+
+
+@app.get("/api/drops")
+async def search_pf_drops(
+    q: str = "",
+    source_type: str = "all",
+    page: int = 1,
+    page_size: int = 24,
+):
+    page = max(1, page)
+    page_size = max(12, min(48, page_size))
+    where, params = ["1=1"], []
+
+    if source_type in ("mob", "obj", "vendor"):
+        where.append("source_types LIKE ?")
+        params.append(f"%{source_type}%")
+
+    kw_raw = q.strip()
+    if kw_raw:
+        kw = f"%{kw_raw}%"
+        where.append("(name LIKE ? OR name_en LIKE ? OR search_mobs LIKE ? OR search_zones LIKE ? OR CAST(id AS TEXT) = ?)")
+        params.extend([kw, kw, kw, kw, kw_raw])
+
+    where_sql = " AND ".join(where)
+    total = conn.execute(f"SELECT COUNT(*) FROM pf_drops WHERE {where_sql}", params).fetchone()[0]
+    offset = (page - 1) * page_size
+
+    if kw_raw:
+        order_sql = "CASE WHEN name = ? THEN 0 WHEN name LIKE ? THEN 1 ELSE 2 END, source_count DESC, id ASC"
+        order_params = [kw_raw, f"{kw_raw}%"]
+    else:
+        order_sql = "source_count DESC, id ASC"
+        order_params = []
+
+    cur = conn.execute(
+        f"""
+        SELECT id, name, name_en, source_types, source_count, sources
+        FROM pf_drops
+        WHERE {where_sql}
+        ORDER BY {order_sql}
+        LIMIT ? OFFSET ?
+        """,
+        params + order_params + [page_size, offset],
+    )
+    items = []
+    for r in cur.fetchall():
+        try:
+            srcs = json.loads(r[5] or "[]")
+        except Exception:
+            srcs = []
+        items.append({
+            "id": r[0], "name": r[1], "nameEn": r[2],
+            "sourceTypes": (r[3] or "").split(",") if r[3] else [],
+            "sourceCount": r[4], "sources": srcs,
+        })
+
+    return {
+        "success": True,
+        "data": {
+            "items": items,
+            "total": total,
+            "page": page,
+            "pageSize": page_size,
+            "totalPages": max(1, (total + page_size - 1) // page_size),
+        },
+    }
 
 
 # --- 全地图任务图鉴 API (1-60级 pfQuest 数据) ---
@@ -1285,6 +1834,122 @@ def _quest_brief(row):
         "hasNext": bool(_parse_json_list(row[9])),
         "shotCount": len(_parse_images(row[10])),
     }
+
+
+
+# --- 民间资讯按需详情预览 + SQLite 缓存 API ---
+def _clean_bbcode(text: str) -> str:
+    text = htmlmod.unescape(text or "")
+    text = re.sub(r"<br\s*/?>", "\n", text, flags=re.I)
+    text = re.sub(r"\[quote\][\s\S]*?\[/quote\]", "", text, flags=re.I)
+    text = re.sub(r"\[img\][\s\S]*?\[/img\]", "[图片]", text, flags=re.I)
+    text = re.sub(r"\[(?:collapse|url|b|u|i|color|size|align|del|h|list|\*)[^\]]*\]", "", text, flags=re.I)
+    text = re.sub(r"\[/(?:collapse|url|b|u|i|color|size|align|del|h|list)\]", "", text, flags=re.I)
+    text = re.sub(r"<[^>]+>", "", text)
+    lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
+    return "\n".join(lines)
+
+
+def _format_preview_html(text: str, source_label: str, limit: int = 500) -> str:
+    text = (text or "").strip()
+    if not text:
+        return ""
+    clipped = text[:limit] + ("……" if len(text) > limit else "")
+    paras = "".join(f"<p class='mb-2 leading-relaxed'>{htmlmod.escape(p)}</p>" for p in clipped.splitlines() if p.strip())
+    return (
+        f"<!--preview_cached-->"
+        f"<div class='space-y-2 text-sm text-gray-200'>{paras}</div>"
+        f"<p class='mt-3 text-xs text-amber-300/80'>📖 以上为 {htmlmod.escape(source_label)} 正文节选预览，完整图文与讨论请点击下方链接前往源站阅读。</p>"
+    )
+
+
+def _fetch_preview_by_url(url: str, source: str = "") -> str:
+    # 1. B站热榜：官方 iframe 播放器
+    if "bilibili.com/video/" in url:
+        m = re.search(r"(BV[0-9A-Za-z]+)", url)
+        if m:
+            bvid = m.group(1)
+            return (
+                f"<!--preview_cached-->"
+                f"<div class='w-full aspect-video rounded-xl overflow-hidden border border-amber-500/30 bg-black mb-3'>"
+                f"<iframe src='https://player.bilibili.com/player.html?bvid={bvid}&high_quality=1&danmaku=0' "
+                f"scrolling='no' border='0' frameborder='no' framespacing='0' allowfullscreen='true' "
+                f"class='w-full h-full'></iframe></div>"
+                f"<p class='text-xs text-gray-400'>📺 已嵌入 B 站官方播放器，播放量计入原 UP 主。如无法播放可点击下方链接前往 B 站观看。</p>"
+            )
+
+    # 2. NGA社区：抓取主楼（1楼）正文节选
+    if "bbs.nga.cn/read.php" in url:
+        cookie = os.environ.get("NGA_COOKIE", "").strip()
+        m = re.search(r"tid=(\d+)", url)
+        if cookie and m:
+            tid = m.group(1)
+            headers = {**_UA_HEADERS, "Cookie": cookie, "Referer": "https://bbs.nga.cn/"}
+            raw = _http_get_text(f"https://bbs.nga.cn/read.php?tid={tid}&__output=11", headers=headers)
+            data = json.loads(raw, strict=False)
+            replies = (data.get("data") or {}).get("__R") or {}
+            first = replies.get("0") if isinstance(replies, dict) else (replies[0] if isinstance(replies, list) and replies else None)
+            if isinstance(first, dict) and first.get("content"):
+                cleaned = _clean_bbcode(str(first.get("content")))
+                if len(cleaned) >= 15:
+                    return _format_preview_html(cleaned, "NGA 艾泽拉斯国家地理", 500)
+
+    # 3. 17173民间：抓取文章正文段落节选
+    if "17173.com" in url:
+        page = _http_get_text(url)
+        page = re.sub(r"<(script|style)[^>]*>[\s\S]*?</\1>", "", page, flags=re.I)
+        paras = []
+        for pm in re.finditer(r"<p[^>]*>([\s\S]*?)</p>", page, re.I):
+            txt = _strip_tags(pm.group(1))
+            if len(txt) >= 18 and not any(k in txt for k in ("17173", "版权所有", "ICP备", "下载APP", "扫码关注")):
+                paras.append(txt)
+            if sum(len(x) for x in paras) >= 520:
+                break
+        if paras:
+            return _format_preview_html("\n".join(paras), "17173 魔兽专区", 500)
+
+    # 4. 百度贴吧：尝试抓取 1 楼正文（遇风控自动降级）
+    if "tieba.baidu.com/p/" in url:
+        page = _http_get_text(url, headers={**_UA_HEADERS, "Referer": "https://tieba.baidu.com/"})
+        m = re.search(r'class="[^"]*d_post_content[^"]*"[^>]*>([\s\S]*?)</div>', page, re.I)
+        if m:
+            txt = _strip_tags(m.group(1))
+            if len(txt) >= 12:
+                return _format_preview_html(txt, "百度贴吧·魔兽世界吧", 400)
+
+    return ""
+
+
+@app.get("/api/news/preview")
+async def get_news_preview(url: str = "", source: str = ""):
+    url = (url or "").strip()
+    if not url or not url.startswith(("http://", "https://")):
+        return {"success": False, "html": ""}
+
+    # 1. 优先读取 SQLite 中已缓存的预览
+    try:
+        row = conn.execute("SELECT content FROM news WHERE url = ?", (url,)).fetchone()
+        if row and row[0] and "<!--preview_cached-->" in str(row[0]):
+            return {"success": True, "html": row[0], "cached": True}
+    except Exception:
+        pass
+
+    # 2. 按需抓取源站节选并写回缓存
+    try:
+        preview_html = _fetch_preview_by_url(url, source)
+    except Exception as e:
+        log.info("按需抓取详情预览跳过 [%s]: %s", url, e)
+        preview_html = ""
+
+    if preview_html:
+        try:
+            with db_write():
+                conn.execute("UPDATE news SET content = ? WHERE url = ?", (preview_html, url))
+        except Exception:
+            pass
+        return {"success": True, "html": preview_html, "cached": False}
+
+    return {"success": False, "html": ""}
 
 
 @app.get("/api/quests/zones")
